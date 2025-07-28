@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 10%, 3.9%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215, 13.8%, 34.1%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 10%, 3.9%);
+  --border: hsl(214.3, 31.8%, 91.4%);
+  --input: hsl(214.3, 31.8%, 91.4%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 40%, 98%);
+  --secondary-foreground: hsl(222.2, 84%, 4.9%);
+  --accent: hsl(210, 40%, 98%);
+  --accent-foreground: hsl(222.2, 84%, 4.9%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(222.2, 84%, 4.9%);
+  --radius: 0.5rem;
+
+  /* Agent Magnet Custom Colors */
+  --primary-white: hsl(0, 0%, 100%);
+  --light-gray: hsl(220, 14%, 97%);
+  --dark-purple: hsl(246, 83%, 11%);
+  --gradient-start: hsl(332, 100%, 65%);
+  --gradient-middle: hsl(289, 100%, 70%);
+  --gradient-end: hsl(220, 100%, 68%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-montserrat antialiased bg-[var(--light-gray)] text-[var(--dark-purple)];
+  }
+}
+
+/* Custom Font Family */
+.font-montserrat {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Glassmorphism Components */
+.glassmorphic {
+  @apply bg-white/5 backdrop-blur-sm border border-white/10 shadow-md;
+}
+
+.glassmorphic-menu {
+  @apply bg-white/80 backdrop-blur-sm border border-white/20;
+}
+
+/* Gradient Utilities */
+.gradient-main {
+  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Magnetic Dots */
+.magnetic-dot {
+  transition: all 0.3s ease-out;
+  will-change: transform;
+}
+
+.floating-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(5deg); }
+  50% { transform: translateY(-5px) rotate(-5deg); }
+  75% { transform: translateY(-15px) rotate(3deg); }
+}
+
+/* Agent Card Hover Effects */
+.agent-card-hover {
+  transition: all 0.3s ease;
+}
+
+.agent-card-hover:hover {
+  transform: translateY(-8px);
+}
+
+/* Gradient Border Animation */
+.gradient-border {
+  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  background-size: 200% 200%;
+  animation: gradientMove 3s linear infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Button Styles */
+.btn-gradient {
+  position: relative;
+  overflow: hidden;
+  @apply font-semibold text-white rounded-xl;
+}
+
+.btn-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+}
+
+.btn-black {
+  @apply px-6 py-2 font-semibold text-white bg-black rounded-xl hover:bg-gray-800 transition-colors;
+}
