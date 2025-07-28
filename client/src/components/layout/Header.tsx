@@ -5,6 +5,7 @@ import Navigation from "@/components/Navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageToggle } from "@/components/ui/language-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Logo from "@/assets/agentmagnetlogolight.png"; 
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,10 +46,15 @@ export default function Header() {
             >
               <div className="relative">
                 {/* Magnet Icon */}
-                <div className="w-8 h-8 gradient-main rounded-lg flex items-center justify-center shadow-lg">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7 3v5c0 2.76 2.24 5 5 5s5-2.24 5-5V3h2v5c0 3.87-3.13 7-7 7s-7-3.13-7-7V3h2zm10 0v5c0 1.66-1.34 3-3 3s-3-1.34-3-3V3h6z"/>
-                  </svg>
+                <div className="w-10 h-10 gradient-main rounded-lg flex items-center justify-center shadow-lg">
+                  <div className="w-7 h-7 rounded-lg overflow-hidden shadow-lg">
+  <img
+    src={Logo}
+    alt="Agent Magnet Logo"
+    className="w-full h-full object-contain"
+  />
+</div>
+
                 </div>
                 {/* Interactive Dots around Magnet */}
                 <div className="magnet-dots">

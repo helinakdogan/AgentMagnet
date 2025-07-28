@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import AgentCard from "@/components/AgentCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Agent } from "@shared/schema";
+import Logo from "@/assets/agentmagnetlogolight.png"; 
 
 export default function Home() {
   const { t, language } = useLanguage();
@@ -156,26 +157,34 @@ export default function Home() {
               
               {/* Slogan */}
               <p className="mt-4 text-lg text-gray-500 italic">
-                "Everyone needs a smart assistant."
+                "Herkesin akıllı bir asistana ihtiyacı vardır."
               </p>
 
               {/* CTA Buttons */}
-              <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/agents">
-                  <button className="btn-gradient px-8 py-4 w-full sm:w-auto">
-                    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                      <div className="bg-[var(--light-gray)] dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
-                        <span className="gradient-text">{t("home.hero.cta")}</span>
-                      </div>
-                    </div>
-                  </button>
-                </Link>
-                <Link href="/developer">
-                  <button className="btn-black px-8 py-4 text-lg w-full sm:w-auto">
-                    {t("home.hero.learn")}
-                  </button>
-                </Link>
-              </div>
+         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+  {/* Gradient Border Button */}
+<Link href="/agents">
+  <div className="relative inline-flex items-center justify-center px-1 py-1 rounded-xl group">
+    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
+    <div className="relative rounded-xl bg-white dark:bg-background px-4 py-1">
+      <span className="text-black dark:text-white font-medium">
+        {t("home.hero.cta")}
+      </span>
+    </div>
+  </div>
+</Link>
+
+
+
+
+  {/* Solid Black Button */}
+  <Link href="/developer">
+    <button className="btn-black px-6 py-3 text-base rounded-lg font-medium">
+      {t("home.hero.learn")}
+    </button>
+  </Link>
+</div>
+
 
               {/* Stats */}
               <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
@@ -212,9 +221,13 @@ export default function Home() {
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 gradient-main rounded-2xl shadow-xl flex items-center justify-center floating-animation"
                     id="magnet-center"
                   >
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M7 3v5c0 2.76 2.24 5 5 5s5-2.24 5-5V3h2v5c0 3.87-3.13 7-7 7s-7-3.13-7-7V3h2zm10 0v5c0 1.66-1.34 3-3 3s-3-1.34-3-3V3h6z"/>
-                    </svg>
+                     <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg">
+  <img
+    src={Logo}
+    alt="Agent Magnet Logo"
+    className="w-full h-full object-contain"
+  />
+</div>
                   </div>
                   
                   {/* Game Particles */}
@@ -402,13 +415,15 @@ export default function Home() {
               <p className="text-gray-600 font-normal mb-6">
                 Binlerce AI ajanı arasından size en uygun olanı bulun ve dijital dönüşümünüzü hızlandırın.
               </p>
-              <button className="btn-gradient px-8 py-4">
-                <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                  <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
-                    <span className="gradient-text">Ücretsiz Başlayın</span>
-                  </div>
-                </div>
-              </button>
+          <button className="relative inline-flex items-center justify-center px-1 py-1 rounded-lg group">
+  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
+  <div className="relative rounded-lg bg-white dark:bg-background px-6 py-2">
+    <span className="text-black dark:text-white text-base font-medium leading-none">
+      Ücretsiz Başlayın
+    </span>
+  </div>
+</button>
+
             </div>
           </div>
         </div>
