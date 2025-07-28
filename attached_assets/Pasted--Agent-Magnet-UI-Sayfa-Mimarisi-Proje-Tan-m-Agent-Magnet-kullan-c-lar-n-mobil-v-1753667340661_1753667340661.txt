@@ -1,0 +1,95 @@
+# 🧲 Agent Magnet – UI & Sayfa Mimarisi
+
+## 📌 Proje Tanımı
+**Agent Magnet**, kullanıcıların mobil ve web tabanlı yapay zeka ajanlarını keşfedip kullanabildiği, geliştiricilerin ise kendi ajanlarını satışa sunabildiği bir AI marketplace platformudur. Tasarım dili Apple’ın zamansız sadeliğini temel alırken; Spline, Clay, ElevenLabs, n8n ve OktoPeople gibi 2025’in öne çıkan AI ürünlerinden ilham alır.
+
+---
+
+## 🎨 UI Tasarım Prensipleri
+
+### Renk Paleti
+- Zemin:  
+  - Beyaz `#ffffff`  
+  - Açık Gri `#f9f9fb`  
+  - Koyu Mor `#0f0c29`
+- Aksan Gradyanı:  
+  - `linear-gradient(90deg, #cb88f8, #5b43f1, #0f0c29)`
+  - Sadece CTA, hover ve aktif durumlarda kullanılır
+
+### Tipografi
+- Font: `Montserrat`
+- Başlıklar: `font-semibold`, `tracking-tight`
+- Metin: `font-normal`, sade ve okunabilir
+
+### Bileşen Yapısı
+- Kart & paneller: `rounded-xl`, `border-white/10`, `bg-white/5`, `backdrop-blur-sm`, `shadow-md`  
+- **Glassmorphism** prensibi uygulanır
+- Line-based ikonlar kullanılır, **emoji kullanılmaz**
+
+### 3D Figürler
+- Spline sahneleriyle entegre edilebilir
+- Mikro seviyede ve sadece gerektiği yerlerde kullanılır (örneğin boş sayfa, hover sahnesi)
+- Örnek: Mıknatıs figürü + çekim efekti
+
+---
+
+## ⚛️ Teknoloji ve Yapılandırma
+
+### Proje Stack
+- React + Vite
+- Tailwind CSS
+- shadcn/ui (yalnızca gerekli component’ler)
+- React Router DOM
+- Font: Google Fonts üzerinden `Montserrat`
+- Spline embed desteği (isteğe bağlı)
+
+### Navigation Mimarisi
+- Tüm sayfalar `MainLayout.tsx` üzerinden wrap edilir
+- Navigasyon `Header.tsx` içinde tanımlıdır
+- `routes/Router.tsx` dosyasında route tanımları net ve sade biçimde yapılmalıdır
+- Navigation component’leri sade olmalı; **dikkat dağıtıcı geçişler, dropdown menüler veya abartılı animasyonlar kullanılmamalıdır**
+
+---
+
+## 📄 Sayfa Yapısı (4 Ana Sayfa)
+
+### 1. 🏠 Home.tsx – Landing
+- Hero (başlık, açıklama, CTA, spline figür)
+- Agent grid listesi
+- “Nasıl çalışır?” bölümü
+- Footer  
+📍 Route: `/`
+
+### 2. 🤖 AgentDetail.tsx – Agent Detay
+- Geri butonu
+- Agent başlık, açıklama, özellik listesi
+- Entegrasyonlar ve aksiyon butonları  
+📍 Route: `/agent/:id`
+
+### 3. 💳 Pricing.tsx – Fiyatlandırma
+- 3 plan kartı
+- Özellik listeleri ve butonlar  
+📍 Route: `/pricing`
+
+### 4. 🚫 NotFound.tsx – 404
+- Sayfa bulunamadı başlığı
+- Geri dön butonu
+- (İsteğe bağlı) ufak 3D figür  
+📍 Route: `*`
+
+---
+
+## 🧩 Component Kullanım Notları
+
+- Sadece **gerekli minimum component** eklenmelidir:
+  - `Header.tsx`
+  - `Footer.tsx`
+  - `AgentCard.tsx`
+  - `MainLayout.tsx`
+- Fazladan UI bileşeni, ikon seti, tooltip, dropdown gibi görsel yük oluşturan öğeler **eklenmemelidir**
+- Amaç: sade, dengeli, erişilebilir, sürdürülebilir bir UI iskeleti oluşturmaktır
+
+---
+
+Bu yapı; tasarım tutarlılığı, sade komponent mimarisi ve doğru yönlendirilmiş navigation sistemiyle birlikte, projeyi hem hızlı geliştirilebilir hem de profesyonel gösterilebilir hale getirir.
+
