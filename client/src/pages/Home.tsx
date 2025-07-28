@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import AgentCard from "@/components/AgentCard";
@@ -6,6 +6,95 @@ import type { Agent } from "@shared/schema";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
+
+  // Magnetic game effect
+  useEffect(() => {
+    const gameArea = document.getElementById('magnetic-game-area');
+    const magnetCenter = document.getElementById('magnet-center');
+    const mouseCursor = document.getElementById('mouse-cursor');
+    const particles = document.querySelectorAll('.game-particle');
+
+    if (!gameArea || !magnetCenter || !mouseCursor) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = gameArea.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Show custom cursor
+      mouseCursor.style.opacity = '1';
+      mouseCursor.style.left = `${mouseX}px`;
+      mouseCursor.style.top = `${mouseY}px`;
+
+      // Get magnet center position
+      const magnetRect = magnetCenter.getBoundingClientRect();
+      const gameAreaRect = gameArea.getBoundingClientRect();
+      const magnetCenterX = magnetRect.left - gameAreaRect.left + magnetRect.width / 2;
+      const magnetCenterY = magnetRect.top - gameAreaRect.top + magnetRect.height / 2;
+
+      // Calculate distance from mouse to magnet
+      const distanceToMagnet = Math.sqrt(
+        Math.pow(mouseX - magnetCenterX, 2) + Math.pow(mouseY - magnetCenterY, 2)
+      );
+
+      // Magnetic effect radius
+      const magnetRadius = 120;
+      const attractionStrength = Math.max(0, (magnetRadius - distanceToMagnet) / magnetRadius);
+
+      // Apply magnetic effect to particles
+      particles.forEach((particle, index) => {
+        const particleRect = particle.getBoundingClientRect();
+        const particleX = particleRect.left - gameAreaRect.left + particleRect.width / 2;
+        const particleY = particleRect.top - gameAreaRect.top + particleRect.height / 2;
+
+        if (attractionStrength > 0) {
+          // Calculate attraction towards magnet
+          const attractionX = (magnetCenterX - particleX) * attractionStrength * 0.3;
+          const attractionY = (magnetCenterY - particleY) * attractionStrength * 0.3;
+
+          // Add some randomness for more natural movement
+          const randomX = (Math.random() - 0.5) * 20 * attractionStrength;
+          const randomY = (Math.random() - 0.5) * 20 * attractionStrength;
+
+          (particle as HTMLElement).style.transform = `translate(${attractionX + randomX}px, ${attractionY + randomY}px) scale(${1 + attractionStrength * 0.5})`;
+          (particle as HTMLElement).style.opacity = String(0.4 + attractionStrength * 0.6);
+        } else {
+          // Reset to original position
+          (particle as HTMLElement).style.transform = 'translate(0, 0) scale(1)';
+          (particle as HTMLElement).style.opacity = '';
+        }
+      });
+
+      // Scale magnet based on attraction
+      if (attractionStrength > 0.2) {
+        magnetCenter.style.transform = `translate(-50%, -50%) scale(${1 + attractionStrength * 0.3})`;
+      } else {
+        magnetCenter.style.transform = 'translate(-50%, -50%) scale(1)';
+      }
+    };
+
+    const handleMouseLeave = () => {
+      // Hide custom cursor
+      mouseCursor.style.opacity = '0';
+
+      // Reset all particles
+      particles.forEach((particle) => {
+        (particle as HTMLElement).style.transform = 'translate(0, 0) scale(1)';
+        (particle as HTMLElement).style.opacity = '';
+      });
+
+      // Reset magnet
+      magnetCenter.style.transform = 'translate(-50%, -50%) scale(1)';
+    };
+
+    gameArea.addEventListener('mousemove', handleMouseMove);
+    gameArea.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      gameArea.removeEventListener('mousemove', handleMouseMove);
+      gameArea.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
 
   const { data: agents = [], isLoading, error } = useQuery<Agent[]>({
     queryKey: ["/api/agents", selectedCategory],
@@ -100,9 +189,15 @@ export default function Home() {
                 </div>
                 
                 {/* Game Area */}
-                <div className="relative w-full h-64 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl overflow-hidden">
+                <div 
+                  className="relative w-full h-64 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl overflow-hidden cursor-none"
+                  id="magnetic-game-area"
+                >
                   {/* Central Magnet */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 gradient-main rounded-2xl shadow-xl flex items-center justify-center floating-animation magnet-game-center">
+                  <div 
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 gradient-main rounded-2xl shadow-xl flex items-center justify-center floating-animation"
+                    id="magnet-center"
+                  >
                     <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M7 3v5c0 2.76 2.24 5 5 5s5-2.24 5-5V3h2v5c0 3.87-3.13 7-7 7s-7-3.13-7-7V3h2zm10 0v5c0 1.66-1.34 3-3 3s-3-1.34-3-3V3h6z"/>
                     </svg>
@@ -110,17 +205,25 @@ export default function Home() {
                   
                   {/* Game Particles */}
                   <div className="game-particles">
-                    <div className="magnetic-dot game-particle absolute top-12 left-12 w-3 h-3 bg-purple-400 rounded-full opacity-70 transition-all duration-300"></div>
-                    <div className="magnetic-dot game-particle absolute top-20 right-16 w-2 h-2 bg-pink-400 rounded-full opacity-80 transition-all duration-300"></div>
-                    <div className="magnetic-dot game-particle absolute bottom-16 left-20 w-2.5 h-2.5 bg-blue-400 rounded-full opacity-60 transition-all duration-300"></div>
-                    <div className="magnetic-dot game-particle absolute bottom-12 right-12 w-2 h-2 bg-purple-300 rounded-full opacity-90 transition-all duration-300"></div>
-                    <div className="magnetic-dot game-particle absolute top-1/3 left-8 w-1.5 h-1.5 bg-indigo-400 rounded-full opacity-75 transition-all duration-300"></div>
-                    <div className="magnetic-dot game-particle absolute bottom-1/3 right-8 w-2 h-2 bg-cyan-400 rounded-full opacity-65 transition-all duration-300"></div>
+                    <div className="game-particle absolute top-12 left-12 w-3 h-3 bg-purple-400 rounded-full opacity-70 transition-all duration-300 ease-out"></div>
+                    <div className="game-particle absolute top-20 right-16 w-2 h-2 bg-pink-400 rounded-full opacity-80 transition-all duration-300 ease-out"></div>
+                    <div className="game-particle absolute bottom-16 left-20 w-2.5 h-2.5 bg-blue-400 rounded-full opacity-60 transition-all duration-300 ease-out"></div>
+                    <div className="game-particle absolute bottom-12 right-12 w-2 h-2 bg-purple-300 rounded-full opacity-90 transition-all duration-300 ease-out"></div>
+                    <div className="game-particle absolute top-1/3 left-8 w-1.5 h-1.5 bg-indigo-400 rounded-full opacity-75 transition-all duration-300 ease-out"></div>
+                    <div className="game-particle absolute bottom-1/3 right-8 w-2 h-2 bg-cyan-400 rounded-full opacity-65 transition-all duration-300 ease-out"></div>
+                    <div className="game-particle absolute top-24 left-1/2 w-2 h-2 bg-yellow-400 rounded-full opacity-80 transition-all duration-300 ease-out"></div>
+                    <div className="game-particle absolute bottom-20 right-1/3 w-1.5 h-1.5 bg-green-400 rounded-full opacity-70 transition-all duration-300 ease-out"></div>
                   </div>
+                  
+                  {/* Mouse Cursor Effect */}
+                  <div 
+                    id="mouse-cursor" 
+                    className="absolute w-2 h-2 bg-white rounded-full shadow-lg pointer-events-none opacity-0 transition-opacity duration-200"
+                  ></div>
                   
                   {/* Instructions */}
                   <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
-                    💡 Fareyi mıknatısın üzerine getirin
+                    💡 Fareyi hareket ettirin ve mıknatıs etkisini görün
                   </div>
                 </div>
               </div>
