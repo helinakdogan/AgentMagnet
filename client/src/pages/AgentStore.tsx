@@ -1,0 +1,210 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
+import { Search, Filter, Grid, List } from "lucide-react";
+import AgentCard from "@/components/AgentCard";
+import type { Agent } from "@shared/schema";
+
+export default function AgentStore() {
+  const [selectedCategory, setSelectedCategory] = useState("Tümü");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState<"popular" | "price" | "name">("popular");
+
+  const { data: agents = [], isLoading, error } = useQuery<Agent[]>({
+    queryKey: ["/api/agents", selectedCategory],
+    queryFn: async () => {
+      const url = selectedCategory === "Tümü" 
+        ? "/api/agents" 
+        : `/api/agents?category=${encodeURIComponent(selectedCategory)}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch agents");
+      }
+      return response.json();
+    },
+  });
+
+  const categories = ["Tümü", "Yazım", "Görsel", "Ses", "Analiz", "Sohbet", "Kod", "Dil", "Pazarlama"];
+
+  const filteredAgents = agents
+    .filter(agent => 
+      agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agent.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price":
+          return a.price - b.price;
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "popular":
+        default:
+          return b.isPopular ? 1 : -1;
+      }
+    });
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">Hata Oluştu</h2>
+          <p className="text-gray-600">Ajanlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen py-20 bg-[var(--light-gray)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[var(--dark-purple)] mb-4">
+            AI Ajan <span className="gradient-text">Mağazası</span>
+          </h1>
+          <p className="text-xl text-gray-600 font-normal max-w-3xl">
+            Binlerce yapay zeka ajanı arasından ihtiyacınıza en uygun olanları keşfedin. 
+            Her kategoriden profesyonel çözümler burada.
+          </p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="mb-8">
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            {/* Search Bar */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Ajan ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 glassmorphic rounded-xl border-0 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-4">
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as "popular" | "price" | "name")}
+                className="glassmorphic rounded-xl px-4 py-3 border-0 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              >
+                <option value="popular">Popülerlik</option>
+                <option value="price">Fiyat</option>
+                <option value="name">İsim</option>
+              </select>
+
+              {/* View Mode Toggle */}
+              <div className="flex glassmorphic rounded-xl p-1">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg transition-colors ${
+                    viewMode === "grid" ? "bg-purple-500 text-white" : "text-gray-600"
+                  }`}
+                >
+                  <Grid className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-lg transition-colors ${
+                    viewMode === "list" ? "bg-purple-500 text-white" : "text-gray-600"
+                  }`}
+                >
+                  <List className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-3 mb-8">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-6 py-3 text-sm font-medium rounded-xl transition-colors ${
+                selectedCategory === category
+                  ? "bg-[var(--dark-purple)] text-white"
+                  : "text-gray-600 glassmorphic hover:bg-gray-50"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6">
+          <p className="text-gray-600">
+            {filteredAgents.length} ajan bulundu
+            {selectedCategory !== "Tümü" && ` "${selectedCategory}" kategorisinde`}
+          </p>
+        </div>
+
+        {/* Agent Grid/List */}
+        {isLoading ? (
+          <div className={viewMode === "grid" ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="glassmorphic rounded-xl p-6 animate-pulse">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gray-300 rounded-xl"></div>
+                  <div className="w-16 h-6 bg-gray-300 rounded-full"></div>
+                </div>
+                <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded mb-4"></div>
+                <div className="flex items-center justify-between">
+                  <div className="w-16 h-4 bg-gray-300 rounded"></div>
+                  <div className="w-20 h-6 bg-gray-300 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredAgents.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="w-24 h-24 mx-auto mb-6 gradient-main rounded-2xl flex items-center justify-center">
+              <Search className="w-12 h-12 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-2">
+              Ajan bulunamadı
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Arama kriterlerinize uygun ajan bulunamadı. Farklı bir kategori seçin veya arama teriminizi değiştirin.
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("Tümü");
+              }}
+              className="btn-black px-6 py-3"
+            >
+              Filtreleri Temizle
+            </button>
+          </div>
+        ) : (
+          <div className={
+            viewMode === "grid" 
+              ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              : "space-y-4"
+          }>
+            {filteredAgents.map((agent) => (
+              <AgentCard key={agent.id} agent={agent} />
+            ))}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {!isLoading && filteredAgents.length > 0 && filteredAgents.length >= 12 && (
+          <div className="text-center mt-12">
+            <button className="px-8 py-4 text-lg font-semibold text-[var(--dark-purple)] glassmorphic rounded-xl hover:bg-gray-50 transition-colors shadow-md">
+              Daha Fazla Yükle
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -51,18 +51,27 @@ export default function Home() {
                 kendi ajanlarınızı satışa sunun ve dijital dönüşümünüzü hızlandırın.
               </p>
               
+              {/* Slogan */}
+              <p className="mt-4 text-lg text-gray-500 italic">
+                "Everyone needs a smart assistant."
+              </p>
+
               {/* CTA Buttons */}
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <button className="btn-gradient px-8 py-4">
-                  <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                    <div className="bg-[var(--light-gray)] rounded-xl w-full h-full flex items-center justify-center">
-                      <span className="gradient-text">Ajanları Keşfet</span>
+                <Link href="/agents">
+                  <button className="btn-gradient px-8 py-4 w-full sm:w-auto">
+                    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
+                      <div className="bg-[var(--light-gray)] rounded-xl w-full h-full flex items-center justify-center">
+                        <span className="gradient-text">Ajanları Keşfet</span>
+                      </div>
                     </div>
-                  </div>
-                </button>
-                <button className="btn-black px-8 py-4 text-lg">
-                  Ajanınızı Satın
-                </button>
+                  </button>
+                </Link>
+                <Link href="/developer">
+                  <button className="btn-black px-8 py-4 text-lg w-full sm:w-auto">
+                    Ajanınızı Satın
+                  </button>
+                </Link>
               </div>
 
               {/* Stats */}
@@ -82,22 +91,38 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Hero Visual */}
+            {/* Hero Game */}
             <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-                  alt="AI technology interface dashboard" 
-                  className="w-full h-auto object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-[var(--dark-purple)]/20 to-transparent"></div>
-              </div>
-              
-              {/* Floating Magnet Visual */}
-              <div className="absolute -top-4 -right-4 w-16 h-16 gradient-main rounded-2xl shadow-xl flex items-center justify-center floating-animation">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M7 3v5c0 2.76 2.24 5 5 5s5-2.24 5-5V3h2v5c0 3.87-3.13 7-7 7s-7-3.13-7-7V3h2zm10 0v5c0 1.66-1.34 3-3 3s-3-1.34-3-3V3h6z"/>
-                </svg>
+              <div className="relative glassmorphic rounded-2xl p-8 shadow-2xl">
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-2">Mıknatıs Oyunu</h3>
+                  <p className="text-gray-600">Fareyi hareket ettirin ve mıknatısın çekici gücünü hissedin!</p>
+                </div>
+                
+                {/* Game Area */}
+                <div className="relative w-full h-64 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl overflow-hidden">
+                  {/* Central Magnet */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 gradient-main rounded-2xl shadow-xl flex items-center justify-center floating-animation magnet-game-center">
+                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M7 3v5c0 2.76 2.24 5 5 5s5-2.24 5-5V3h2v5c0 3.87-3.13 7-7 7s-7-3.13-7-7V3h2zm10 0v5c0 1.66-1.34 3-3 3s-3-1.34-3-3V3h6z"/>
+                    </svg>
+                  </div>
+                  
+                  {/* Game Particles */}
+                  <div className="game-particles">
+                    <div className="magnetic-dot game-particle absolute top-12 left-12 w-3 h-3 bg-purple-400 rounded-full opacity-70 transition-all duration-300"></div>
+                    <div className="magnetic-dot game-particle absolute top-20 right-16 w-2 h-2 bg-pink-400 rounded-full opacity-80 transition-all duration-300"></div>
+                    <div className="magnetic-dot game-particle absolute bottom-16 left-20 w-2.5 h-2.5 bg-blue-400 rounded-full opacity-60 transition-all duration-300"></div>
+                    <div className="magnetic-dot game-particle absolute bottom-12 right-12 w-2 h-2 bg-purple-300 rounded-full opacity-90 transition-all duration-300"></div>
+                    <div className="magnetic-dot game-particle absolute top-1/3 left-8 w-1.5 h-1.5 bg-indigo-400 rounded-full opacity-75 transition-all duration-300"></div>
+                    <div className="magnetic-dot game-particle absolute bottom-1/3 right-8 w-2 h-2 bg-cyan-400 rounded-full opacity-65 transition-all duration-300"></div>
+                  </div>
+                  
+                  {/* Instructions */}
+                  <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
+                    💡 Fareyi mıknatısın üzerine getirin
+                  </div>
+                </div>
               </div>
             </div>
           </div>

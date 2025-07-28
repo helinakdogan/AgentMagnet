@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 :root {
   --background: hsl(0, 0%, 100%);
@@ -130,6 +130,26 @@
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* Game Particles Magnetic Effect */
+.game-particles {
+  position: relative;
+}
+
+.game-particle {
+  transition: all 0.3s ease-out;
+  will-change: transform;
+}
+
+.magnet-game-center:hover ~ .game-particles .game-particle {
+  animation: attractToCenter 0.8s ease-out forwards;
+}
+
+@keyframes attractToCenter {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.5); }
+  100% { transform: translate(-50%, -50%) scale(0.8); }
 }
 
 /* Smooth Scrolling */

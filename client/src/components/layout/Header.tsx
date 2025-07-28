@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
+import Navigation from "@/components/Navigation";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -59,18 +60,7 @@ export default function Header() {
 
           {/* Navigation Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-[var(--dark-purple)] font-medium transition-colors">
-              Ana Sayfa
-            </Link>
-            <button className="text-gray-700 hover:text-[var(--dark-purple)] font-medium transition-colors">
-              Ajanlar
-            </button>
-            <Link href="/pricing" className="text-gray-700 hover:text-[var(--dark-purple)] font-medium transition-colors">
-              Fiyatlandırma
-            </Link>
-            <button className="text-gray-700 hover:text-[var(--dark-purple)] font-medium transition-colors">
-              Geliştirici
-            </button>
+            <Navigation />
           </div>
 
           {/* CTA Buttons */}
@@ -101,10 +91,7 @@ export default function Header() {
           <div className="md:hidden glassmorphic rounded-xl shadow-md mt-2 mb-4">
             <div className="px-4 py-6">
               <div className="flex flex-col space-y-4">
-                <Link href="/" className="text-gray-700 font-medium">Ana Sayfa</Link>
-                <button className="text-gray-700 font-medium text-left">Ajanlar</button>
-                <Link href="/pricing" className="text-gray-700 font-medium">Fiyatlandırma</Link>
-                <button className="text-gray-700 font-medium text-left">Geliştirici</button>
+                <Navigation isMobile={true} onItemClick={() => setIsMobileMenuOpen(false)} />
                 <div className="pt-4 border-t border-white/10">
                   <button className="w-full px-4 py-2 text-sm font-medium text-gray-700 mb-2">Giriş Yap</button>
                   <button className="w-full btn-black text-sm">Kayıt Ol</button>

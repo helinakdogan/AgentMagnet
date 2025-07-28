@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import { ArrowLeft, CheckCircle, Zap, Shield, Globe } from "lucide-react";
+import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X } from "lucide-react";
 import type { Agent } from "@shared/schema";
 
 export default function AgentDetail() {
   const [match, params] = useRoute("/agent/:id");
   const agentId = params?.id;
+  const [selectedPlan, setSelectedPlan] = useState<"free" | "plus" | "premium">("plus");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   const { data: agent, isLoading, error } = useQuery<Agent>({
     queryKey: ["/api/agents", agentId],
@@ -114,20 +117,86 @@ export default function AgentDetail() {
 
   const iconColorClasses = getIconColorClasses(agent.iconColor);
 
+  // Plan configurations
+  const planConfigs = {
+    free: {
+      name: "Ücretsiz",
+      price: 0,
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      features: [
+        "Günlük 10 sorgu",
+        "Temel özellikler",
+        "E-posta desteği",
+        "Topluluk forumu"
+      ],
+      limitations: [
+        "API erişimi yok",
+        "Öncelikli destek yok",
+        "Gelişmiş özellikler yok",
+        "Entegrasyonlar sınırlı"
+      ],
+      integrations: agent.integrations.slice(0, 2),
+    },
+    plus: {
+      name: "Plus",
+      price: agent.price,
+      monthlyPrice: agent.price,
+      yearlyPrice: Math.round(agent.price * 12 * 0.8), // 20% indirim
+      features: [
+        "Günlük 1000 sorgu",
+        "Tüm temel özellikler",
+        "API erişimi",
+        "Öncelikli e-posta desteği",
+        "Gelişmiş entegrasyonlar",
+        "Analitik dashboard"
+      ],
+      limitations: [
+        "Premium özellikler yok",
+        "Özel model eğitimi yok"
+      ],
+      integrations: agent.integrations.slice(0, 4),
+    },
+    premium: {
+      name: "Premium",
+      price: Math.round(agent.price * 2.5),
+      monthlyPrice: Math.round(agent.price * 2.5),
+      yearlyPrice: Math.round(agent.price * 2.5 * 12 * 0.75), // 25% indirim
+      features: [
+        "Sınırsız sorgu",
+        "Tüm özellikler",
+        "API erişimi + webhooks",
+        "7/24 canlı destek",
+        "Özel entegrasyonlar",
+        "Gelişmiş analitik",
+        "Özel model eğitimi",
+        "Beyaz etiket çözümü",
+        "SLA garantisi"
+      ],
+      limitations: [],
+      integrations: agent.integrations,
+    }
+  };
+
+  const currentPlan = planConfigs[selectedPlan];
+  const displayPrice = billingCycle === "yearly" 
+    ? Math.round(currentPlan.yearlyPrice / 12) 
+    : currentPlan.monthlyPrice;
+
   return (
     <div className="min-h-screen py-20 bg-[var(--light-gray)]">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
-        <Link href="/">
+        <Link href="/agents">
           <button className="flex items-center space-x-2 text-gray-600 hover:text-[var(--dark-purple)] font-medium mb-8 transition-colors">
             <ArrowLeft className="w-5 h-5" />
-            <span>Geri Dön</span>
+            <span>Ajanlar Mağazasına Dön</span>
           </button>
         </Link>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Agent Details */}
-          <div>
+          <div className="lg:col-span-2">
             <div className="flex items-center space-x-4 mb-6">
               <div className={`w-16 h-16 bg-gradient-to-br ${iconColorClasses} rounded-2xl flex items-center justify-center shadow-lg`}>
                 {getCategoryIcon(agent.category)}
@@ -144,24 +213,88 @@ export default function AgentDetail() {
               {agent.description}
             </p>
 
-            {/* Features */}
+            {/* Plan Selection */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Özellikler</h3>
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Plan Seçimi</h3>
+              <div className="flex flex-wrap gap-3 mb-4">
+                {(["free", "plus", "premium"] as const).map((plan) => (
+                  <button
+                    key={plan}
+                    onClick={() => setSelectedPlan(plan)}
+                    className={`px-6 py-3 rounded-xl font-medium transition-colors ${
+                      selectedPlan === plan
+                        ? "bg-[var(--dark-purple)] text-white"
+                        : "glassmorphic text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {planConfigs[plan].name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Billing Cycle Toggle */}
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-gray-700">Faturalama:</span>
+                <div className="flex glassmorphic rounded-xl p-1">
+                  <button
+                    onClick={() => setBillingCycle("monthly")}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      billingCycle === "monthly" ? "bg-purple-500 text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Aylık
+                  </button>
+                  <button
+                    onClick={() => setBillingCycle("yearly")}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      billingCycle === "yearly" ? "bg-purple-500 text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Yıllık
+                    <span className="ml-1 text-xs bg-green-500 text-white px-1 rounded">
+                      {selectedPlan === "premium" ? "%25" : "%20"} indirim
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Plan Features */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">
+                {currentPlan.name} Planı Özellikleri
+              </h3>
               <div className="space-y-3">
-                {agent.features.map((feature, index) => (
+                {currentPlan.features.map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <span className="text-gray-700">{feature}</span>
                   </div>
                 ))}
               </div>
+
+              {currentPlan.limitations.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="text-lg font-medium text-gray-800 mb-3">Kısıtlamalar</h4>
+                  <div className="space-y-2">
+                    {currentPlan.limitations.map((limitation, index) => (
+                      <div key={index} className="flex items-center space-x-3 opacity-70">
+                        <X className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <span className="text-gray-600">{limitation}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Integrations */}
+            {/* Plan Integrations */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Entegrasyonlar</h3>
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">
+                {currentPlan.name} Planında Kullanılabilir Entegrasyonlar
+              </h3>
               <div className="flex flex-wrap gap-2">
-                {agent.integrations.map((integration, index) => (
+                {currentPlan.integrations.map((integration, index) => (
                   <span 
                     key={index}
                     className="px-3 py-1 text-sm font-medium text-gray-700 glassmorphic rounded-lg"
@@ -169,6 +302,11 @@ export default function AgentDetail() {
                     {integration}
                   </span>
                 ))}
+                {currentPlan.integrations.length < agent.integrations.length && (
+                  <span className="px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-lg">
+                    +{agent.integrations.length - currentPlan.integrations.length} daha fazla Premium'da
+                  </span>
+                )}
               </div>
             </div>
 
@@ -194,45 +332,66 @@ export default function AgentDetail() {
             <div className="glassmorphic rounded-2xl p-8 shadow-lg">
               <div className="text-center mb-6">
                 <div className="text-4xl font-semibold text-[var(--dark-purple)] mb-2">
-                  ₺{agent.price}
-                  <span className="text-lg text-gray-600 font-normal">/ay</span>
+                  {selectedPlan === "free" ? (
+                    <span>Ücretsiz</span>
+                  ) : (
+                    <>
+                      ₺{displayPrice}
+                      <span className="text-lg text-gray-600 font-normal">/ay</span>
+                    </>
+                  )}
                 </div>
-                <p className="text-gray-600">Aylık abonelik</p>
+                <p className="text-gray-600">
+                  {selectedPlan === "free" 
+                    ? "Süresiz ücretsiz" 
+                    : billingCycle === "yearly" 
+                      ? `₺${currentPlan.yearlyPrice} yıllık ödeme`
+                      : "Aylık abonelik"
+                  }
+                </p>
+                {billingCycle === "yearly" && selectedPlan !== "free" && (
+                  <p className="text-green-600 text-sm font-medium">
+                    Yıllık ödemeyle {selectedPlan === "premium" ? "%25" : "%20"} tasarruf edin!
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">7 gün ücretsiz deneme</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">Sınırsız kullanım</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">24/7 destek</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">API erişimi</span>
-                </div>
+              <div className="space-y-3 mb-8">
+                {currentPlan.features.slice(0, 4).map((feature, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">{feature}</span>
+                  </div>
+                ))}
+                {selectedPlan !== "free" && (
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">
+                      {selectedPlan === "plus" ? "7" : "14"} gün ücretsiz deneme
+                    </span>
+                  </div>
+                )}
               </div>
 
-              <button className="w-full btn-gradient px-8 py-4 text-lg">
+              <button className="w-full btn-gradient px-8 py-4 text-lg mb-4">
                 <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
                   <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
-                    <span className="gradient-text font-semibold">Hemen Başla</span>
+                    <span className="gradient-text font-semibold">
+                      {selectedPlan === "free" ? "Ücretsiz Başla" : "Denemeyi Başlat"}
+                    </span>
                   </div>
                 </div>
               </button>
 
-              <button className="w-full mt-4 btn-black px-8 py-3">
+              <button className="w-full btn-black px-8 py-3">
                 Demo İzle
               </button>
 
               <p className="text-xs text-gray-500 text-center mt-4">
-                İstediğiniz zaman iptal edebilirsiniz. Kredi kartı gerekmez.
+                {selectedPlan === "free" 
+                  ? "Kredi kartı gerektirmez. İstediğiniz zaman yükseltebilirsiniz."
+                  : "İstediğiniz zaman iptal edebilirsiniz. Kredi kartı gerekmez."
+                }
               </p>
             </div>
           </div>
