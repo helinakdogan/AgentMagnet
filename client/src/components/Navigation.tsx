@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface NavigationItem {
-  label: string;
+  key: string;
   href: string;
   external?: boolean;
 }
@@ -12,14 +13,15 @@ interface NavigationProps {
 }
 
 const navigationItems: NavigationItem[] = [
-  { label: "Ana Sayfa", href: "/" },
-  { label: "Ajanlar", href: "/agents" },
-  { label: "Fiyatlandırma", href: "/pricing" },
-  { label: "Geliştirici", href: "/developer" },
+  { key: "nav.home", href: "/" },
+  { key: "nav.agents", href: "/agents" },
+  { key: "nav.pricing", href: "/pricing" },
+  { key: "nav.developer", href: "/developer" },
 ];
 
 export default function Navigation({ isMobile = false, onItemClick }: NavigationProps) {
   const [location] = useLocation();
+  const { t } = useLanguage();
 
   const handleItemClick = () => {
     if (onItemClick) {
@@ -46,7 +48,7 @@ export default function Navigation({ isMobile = false, onItemClick }: Navigation
         {navigationItems.map((item) => (
           <Link key={item.href} href={item.href}>
             <div className={getItemClassName(item.href)} onClick={handleItemClick}>
-              {item.label}
+              {t(item.key)}
             </div>
           </Link>
         ))}
@@ -59,7 +61,7 @@ export default function Navigation({ isMobile = false, onItemClick }: Navigation
       {navigationItems.map((item) => (
         <Link key={item.href} href={item.href}>
           <div className={getItemClassName(item.href)} onClick={handleItemClick}>
-            {item.label}
+            {t(item.key)}
           </div>
         </Link>
       ))}

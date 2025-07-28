@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Agent } from "@shared/schema";
 
 interface AgentCardProps {
@@ -28,22 +29,22 @@ const getIconColorClasses = (iconColor: string) => {
   }
 };
 
-const getStatusLabel = (status: string) => {
+const getStatusLabel = (status: string, t: any) => {
   switch (status) {
     case "active":
-      return { text: "Aktif", color: "text-green-600 bg-green-100" };
+      return { text: t("status.active"), color: "text-green-600 bg-green-100" };
     case "popular":
-      return { text: "Popüler", color: "text-yellow-600 bg-yellow-100" };
+      return { text: t("status.popular"), color: "text-yellow-600 bg-yellow-100" };
     case "new":
-      return { text: "Yeni", color: "text-green-600 bg-green-100" };
+      return { text: t("status.new"), color: "text-green-600 bg-green-100" };
     case "trend":
-      return { text: "Trend", color: "text-blue-600 bg-blue-100" };
+      return { text: t("status.trend"), color: "text-blue-600 bg-blue-100" };
     case "pro":
-      return { text: "Pro", color: "text-purple-600 bg-purple-100" };
+      return { text: t("status.pro"), color: "text-purple-600 bg-purple-100" };
     case "automatic":
-      return { text: "Otomatik", color: "text-orange-600 bg-orange-100" };
+      return { text: t("status.automatic"), color: "text-orange-600 bg-orange-100" };
     default:
-      return { text: "Aktif", color: "text-green-600 bg-green-100" };
+      return { text: t("status.active"), color: "text-green-600 bg-green-100" };
   }
 };
 
@@ -107,7 +108,8 @@ const getCategoryIcon = (category: string) => {
 };
 
 export default function AgentCard({ agent }: AgentCardProps) {
-  const statusLabel = getStatusLabel(agent.status);
+  const { t, getCategoryMapping } = useLanguage();
+  const statusLabel = getStatusLabel(agent.status, t);
   const iconColorClasses = getIconColorClasses(agent.iconColor);
 
   return (
@@ -121,11 +123,11 @@ export default function AgentCard({ agent }: AgentCardProps) {
             {statusLabel.text}
           </span>
         </div>
-        <h3 className="text-lg font-semibold text-[var(--dark-purple)] mb-2">{agent.name}</h3>
-        <p className="text-sm text-gray-600 mb-4 font-normal">{agent.description}</p>
+        <h3 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-2">{agent.name}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 font-normal">{agent.description}</p>
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-500">{agent.category}</span>
-          <span className="text-lg font-semibold text-[var(--dark-purple)]">₺{agent.price}/ay</span>
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{getCategoryMapping(agent.category)}</span>
+          <span className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white">₺{agent.price}{t("pricing.monthly")}</span>
         </div>
       </div>
     </Link>

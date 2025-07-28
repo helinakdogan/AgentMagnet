@@ -2,10 +2,14 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LanguageToggle } from "@/components/ui/language-toggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [location] = useLocation();
+  const { t } = useLanguage();
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -54,7 +58,7 @@ export default function Header() {
                   <div className="absolute -bottom-1 -right-2 w-1 h-1 bg-purple-300 rounded-full magnetic-dot transition-all duration-300"></div>
                 </div>
               </div>
-              <span className="text-xl font-semibold tracking-tight text-[var(--dark-purple)]">Agent Magnet</span>
+              <span className="text-xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white">Agent Magnet</span>
             </div>
           </Link>
 
@@ -63,13 +67,15 @@ export default function Header() {
             <Navigation />
           </div>
 
-          {/* CTA Buttons */}
-          <div className="flex items-center space-x-4">
-            <button className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 hover:text-[var(--dark-purple)] transition-colors">
-              Giriş Yap
+          {/* Settings and CTA Buttons */}
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
+            <LanguageToggle />
+            <button className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[var(--dark-purple)] dark:hover:text-white transition-colors">
+              {t("header.login")}
             </button>
             <button className="btn-black text-sm">
-              Kayıt Ol
+              {t("header.signup")}
             </button>
           </div>
 

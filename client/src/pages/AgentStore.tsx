@@ -3,10 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Search, Filter, Grid, List } from "lucide-react";
 import AgentCard from "@/components/AgentCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Agent } from "@shared/schema";
 
 export default function AgentStore() {
-  const [selectedCategory, setSelectedCategory] = useState("Tümü");
+  const { t } = useLanguage();
+  const [selectedCategory, setSelectedCategory] = useState(t("category.all"));
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"popular" | "price" | "name">("popular");
@@ -14,9 +16,12 @@ export default function AgentStore() {
   const { data: agents = [], isLoading, error } = useQuery<Agent[]>({
     queryKey: ["/api/agents", selectedCategory],
     queryFn: async () => {
-      const url = selectedCategory === "Tümü" 
+      const categoryParam = selectedCategory === t("category.all") 
+        ? "Tümü"
+        : selectedCategory;
+      const url = categoryParam === "Tümü" 
         ? "/api/agents" 
-        : `/api/agents?category=${encodeURIComponent(selectedCategory)}`;
+        : `/api/agents?category=${encodeURIComponent(categoryParam)}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch agents");
@@ -25,13 +30,41 @@ export default function AgentStore() {
     },
   });
 
-  const categories = ["Tümü", "Yazım", "Görsel", "Ses", "Analiz", "Sohbet", "Kod", "Dil", "Pazarlama"];
+  const categories = [
+    t("category.all"), 
+    t("category.writing"), 
+    t("category.visual"), 
+    t("category.audio"), 
+    t("category.analysis"), 
+    t("category.chat"), 
+    t("category.code"), 
+    t("category.language"), 
+    t("category.marketing")
+  ];
 
   const filteredAgents = agents
     .filter(agent => 
       agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agent.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
+    .filter(agent => {
+      if (selectedCategory === t("category.all")) return true;
+      
+      // Map backend category to current language
+      const categoryMapping = {
+        "Yazım": { tr: t("category.writing"), en: "Writing" },
+        "Görsel": { tr: t("category.visual"), en: "Visual" },
+        "Ses": { tr: t("category.audio"), en: "Audio" },
+        "Analiz": { tr: t("category.analysis"), en: "Analysis" },
+        "Sohbet": { tr: t("category.chat"), en: "Chat" },
+        "Kod": { tr: t("category.code"), en: "Code" },
+        "Dil": { tr: t("category.language"), en: "Language" },
+        "Pazarlama": { tr: t("category.marketing"), en: "Marketing" }
+      };
+      
+      const mappedCategory = categoryMapping[agent.category as keyof typeof categoryMapping];
+      return mappedCategory && (mappedCategory.tr === selectedCategory || mappedCategory.en === selectedCategory);
+    })
     .sort((a, b) => {
       switch (sortBy) {
         case "price":
@@ -40,7 +73,7 @@ export default function AgentStore() {
           return a.name.localeCompare(b.name);
         case "popular":
         default:
-          return b.isPopular ? 1 : -1;
+          return 0; // Keep original order for popular
       }
     });
 
@@ -48,8 +81,8 @@ export default function AgentStore() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">Hata Oluştu</h2>
-          <p className="text-gray-600">Ajanlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">{t("common.error")}</h2>
+          <p className="text-gray-600 dark:text-gray-400">Ajanlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
         </div>
       </div>
     );
@@ -60,12 +93,11 @@ export default function AgentStore() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[var(--dark-purple)] mb-4">
-            AI Ajan <span className="gradient-text">Mağazası</span>
+          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white mb-4">
+            {t("store.title")} <span className="gradient-text">{t("store.title.highlight")}</span>
           </h1>
-          <p className="text-xl text-gray-600 font-normal max-w-3xl">
-            Binlerce yapay zeka ajanı arasından ihtiyacınıza en uygun olanları keşfedin. 
-            Her kategoriden profesyonel çözümler burada.
+          <p className="text-xl text-gray-600 dark:text-gray-300 font-normal max-w-3xl">
+            {t("store.description")}
           </p>
         </div>
 

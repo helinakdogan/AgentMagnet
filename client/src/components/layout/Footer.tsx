@@ -1,8 +1,10 @@
 import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
+  const { t } = useLanguage();
   return (
-    <footer className="bg-[var(--dark-purple)] text-white py-16">
+    <footer className="bg-[var(--dark-purple)] dark:bg-black text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -40,22 +42,22 @@ export default function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-6">Platform</h4>
+            <h4 className="text-lg font-semibold mb-6">{t("footer.platform")}</h4>
             <div className="space-y-4">
-              <Link href="/" className="block text-gray-300 hover:text-white font-normal transition-colors">Ana Sayfa</Link>
-              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">Ajanlar</button>
-              <Link href="/pricing" className="block text-gray-300 hover:text-white font-normal transition-colors">Fiyatlandırma</Link>
-              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">Geliştirici API</button>
+              <Link href="/" className="block text-gray-300 hover:text-white font-normal transition-colors">{t("nav.home")}</Link>
+              <Link href="/agents" className="block text-gray-300 hover:text-white font-normal transition-colors">{t("nav.agents")}</Link>
+              <Link href="/pricing" className="block text-gray-300 hover:text-white font-normal transition-colors">{t("nav.pricing")}</Link>
+              <Link href="/developer" className="block text-gray-300 hover:text-white font-normal transition-colors">{t("nav.developer")}</Link>
             </div>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-6">Destek</h4>
+            <h4 className="text-lg font-semibold mb-6">{t("footer.support")}</h4>
             <div className="space-y-4">
-              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">Yardım Merkezi</button>
-              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">Dokümantasyon</button>
-              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">İletişim</button>
-              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">Topluluk</button>
+              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">{t("footer.help")}</button>
+              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">{t("footer.docs")}</button>
+              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">{t("footer.contact")}</button>
+              <button className="block text-gray-300 hover:text-white font-normal transition-colors text-left">{t("footer.community")}</button>
             </div>
           </div>
         </div>
@@ -63,12 +65,12 @@ export default function Footer() {
         <div className="border-t border-white/10 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 font-normal text-sm">
-              © 2024 Agent Magnet. Tüm hakları saklıdır.
+              {t("footer.rights")}
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <button className="text-gray-400 hover:text-white text-sm font-normal transition-colors">Gizlilik Politikası</button>
-              <button className="text-gray-400 hover:text-white text-sm font-normal transition-colors">Kullanım Şartları</button>
-              <button className="text-gray-400 hover:text-white text-sm font-normal transition-colors">Çerezler</button>
+              <button className="text-gray-400 hover:text-white text-sm font-normal transition-colors">{t("footer.privacy")}</button>
+              <button className="text-gray-400 hover:text-white text-sm font-normal transition-colors">{t("footer.terms")}</button>
+              <button className="text-gray-400 hover:text-white text-sm font-normal transition-colors">{t("footer.cookies")}</button>
             </div>
           </div>
         </div>

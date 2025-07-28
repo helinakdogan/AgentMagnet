@@ -55,6 +55,11 @@
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 4.9%, 83.9%);
+
+  /* Agent Magnet Dark Mode Colors */
+  --primary-white: hsl(240, 10%, 3.9%);
+  --light-gray: hsl(240, 8%, 8%);
+  --dark-purple: hsl(0, 0%, 98%);
 }
 
 @layer base {
@@ -63,7 +68,7 @@
   }
 
   body {
-    @apply font-montserrat antialiased bg-[var(--light-gray)] text-[var(--dark-purple)];
+    @apply font-montserrat antialiased bg-[var(--light-gray)] text-[var(--dark-purple)] transition-colors;
   }
 }
 
@@ -74,11 +79,11 @@
 
 /* Glassmorphism Components */
 .glassmorphic {
-  @apply bg-white/5 backdrop-blur-sm border border-white/10 shadow-md;
+  @apply bg-white/5 dark:bg-black/5 backdrop-blur-sm border border-white/10 dark:border-white/5 shadow-md;
 }
 
 .glassmorphic-menu {
-  @apply bg-white/80 backdrop-blur-sm border border-white/20;
+  @apply bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-white/20 dark:border-white/10;
 }
 
 /* Gradient Utilities */
@@ -177,5 +182,5 @@ html {
 }
 
 .btn-black {
-  @apply px-6 py-2 font-semibold text-white bg-black rounded-xl hover:bg-gray-800 transition-colors;
+  @apply px-6 py-2 font-semibold text-white bg-black dark:bg-white dark:text-black rounded-xl hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors;
 }

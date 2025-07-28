@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import AgentCard from "@/components/AgentCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Agent } from "@shared/schema";
 
 export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("Tümü");
+  const { t, language } = useLanguage();
+  const [selectedCategory, setSelectedCategory] = useState(t("category.all"));
 
   // Magnetic game effect
   useEffect(() => {
@@ -99,9 +101,12 @@ export default function Home() {
   const { data: agents = [], isLoading, error } = useQuery<Agent[]>({
     queryKey: ["/api/agents", selectedCategory],
     queryFn: async () => {
-      const url = selectedCategory === "Tümü" 
+      const categoryParam = selectedCategory === t("category.all") 
+        ? "Tümü"
+        : selectedCategory;
+      const url = categoryParam === "Tümü" 
         ? "/api/agents" 
-        : `/api/agents?category=${encodeURIComponent(selectedCategory)}`;
+        : `/api/agents?category=${encodeURIComponent(categoryParam)}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch agents");
@@ -110,14 +115,24 @@ export default function Home() {
     },
   });
 
-  const categories = ["Tümü", "Yazım", "Görsel", "Ses", "Analiz", "Sohbet", "Kod", "Dil", "Pazarlama"];
+  const categories = [
+    t("category.all"), 
+    t("category.writing"), 
+    t("category.visual"), 
+    t("category.audio"), 
+    t("category.analysis"), 
+    t("category.chat"), 
+    t("category.code"), 
+    t("category.language"), 
+    t("category.marketing")
+  ];
 
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">Hata Oluştu</h2>
-          <p className="text-gray-600">Ajanlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">{t("common.error")}</h2>
+          <p className="text-gray-600 dark:text-gray-400">Ajanlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
         </div>
       </div>
     );
@@ -131,13 +146,12 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Hero Content */}
             <div className="text-center lg:text-left">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-[var(--dark-purple)] leading-tight">
-                AI Ajanlarınızı
-                <span className="gradient-text ml-3">Keşfedin</span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white leading-tight">
+                {t("home.hero.title")}
+                <span className="gradient-text ml-3">{t("home.hero.subtitle")}</span>
               </h1>
-              <p className="mt-6 text-lg sm:text-xl text-gray-600 font-normal leading-relaxed">
-                Yapay zeka ajanlarının büyülü dünyasına hoş geldiniz. Binlerce AI ajana erişin, 
-                kendi ajanlarınızı satışa sunun ve dijital dönüşümünüzü hızlandırın.
+              <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 font-normal leading-relaxed">
+                {t("home.hero.description")}
               </p>
               
               {/* Slogan */}
@@ -150,15 +164,15 @@ export default function Home() {
                 <Link href="/agents">
                   <button className="btn-gradient px-8 py-4 w-full sm:w-auto">
                     <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                      <div className="bg-[var(--light-gray)] rounded-xl w-full h-full flex items-center justify-center">
-                        <span className="gradient-text">Ajanları Keşfet</span>
+                      <div className="bg-[var(--light-gray)] dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
+                        <span className="gradient-text">{t("home.hero.cta")}</span>
                       </div>
                     </div>
                   </button>
                 </Link>
                 <Link href="/developer">
                   <button className="btn-black px-8 py-4 text-lg w-full sm:w-auto">
-                    Ajanınızı Satın
+                    {t("home.hero.learn")}
                   </button>
                 </Link>
               </div>
@@ -166,16 +180,16 @@ export default function Home() {
               {/* Stats */}
               <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
                 <div>
-                  <div className="text-2xl font-semibold text-[var(--dark-purple)]">500+</div>
-                  <div className="text-sm text-gray-600 font-normal">AI Ajan</div>
+                  <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">500+</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">AI Ajan</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-semibold text-[var(--dark-purple)]">10K+</div>
-                  <div className="text-sm text-gray-600 font-normal">Kullanıcı</div>
+                  <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">10K+</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">Kullanıcı</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-semibold text-[var(--dark-purple)]">24/7</div>
-                  <div className="text-sm text-gray-600 font-normal">Destek</div>
+                  <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">24/7</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">Destek</div>
                 </div>
               </div>
             </div>
@@ -184,8 +198,8 @@ export default function Home() {
             <div className="relative">
               <div className="relative glassmorphic rounded-2xl p-8 shadow-2xl">
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-2">Mıknatıs Oyunu</h3>
-                  <p className="text-gray-600">Fareyi hareket ettirin ve mıknatısın çekici gücünü hissedin!</p>
+                  <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-2">Mıknatıs Oyunu</h3>
+                  <p className="text-gray-600 dark:text-gray-300">Fareyi hareket ettirin ve mıknatısın çekici gücünü hissedin!</p>
                 </div>
                 
                 {/* Game Area */}
@@ -233,14 +247,14 @@ export default function Home() {
       </section>
 
       {/* Agent Grid Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[var(--dark-purple)] mb-4">
-              Popüler AI Ajanları
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white mb-4">
+              {t("home.featured.title")}
             </h2>
-            <p className="text-lg text-gray-600 font-normal max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 font-normal max-w-2xl mx-auto">
               En çok tercih edilen yapay zeka ajanlarını keşfedin ve iş akışlarınızı optimize edin.
             </p>
           </div>
@@ -253,8 +267,8 @@ export default function Home() {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-6 py-3 text-sm font-medium rounded-xl transition-colors ${
                   selectedCategory === category
-                    ? "bg-[var(--dark-purple)] text-white"
-                    : "text-gray-600 glassmorphic hover:bg-gray-50"
+                    ? "bg-[var(--dark-purple)] text-white dark:bg-white dark:text-[var(--dark-purple)]"
+                    : "text-gray-600 dark:text-gray-300 glassmorphic hover:bg-gray-50 dark:hover:bg-gray-800"
                 }`}
               >
                 {category}
@@ -287,10 +301,10 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-2">
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-2">
                 Bu kategoride ajan bulunamadı
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 Lütfen farklı bir kategori seçin veya daha sonra tekrar deneyin.
               </p>
             </div>
@@ -305,9 +319,11 @@ export default function Home() {
           {/* View More Button */}
           {!isLoading && agents.length > 0 && (
             <div className="text-center mt-12">
-              <button className="px-8 py-4 text-lg font-semibold text-[var(--dark-purple)] glassmorphic rounded-xl hover:bg-gray-50 transition-colors shadow-md">
-                Tüm Ajanları Görüntüle
-              </button>
+              <Link href="/agents">
+                <button className="px-8 py-4 text-lg font-semibold text-[var(--dark-purple)] dark:text-white glassmorphic rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-md">
+                  {t("home.view.all")}
+                </button>
+              </Link>
             </div>
           )}
         </div>
