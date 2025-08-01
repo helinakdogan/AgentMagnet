@@ -166,7 +166,7 @@ export default function Home() {
 <Link href="/agents">
   <div className="relative inline-flex items-center justify-center px-1 py-1 rounded-xl group">
     <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
-    <div className="relative rounded-xl bg-white dark:bg-background px-4 py-1">
+    <div className="relative rounded-xl bg-muted dark:bg-muted px-4 py-1">
       <span className="text-black dark:text-white font-medium">
         {t("home.hero.cta")}
       </span>
@@ -260,7 +260,7 @@ export default function Home() {
       </section>
 
       {/* Agent Grid Section */}
-      <section className="py-20 bg-white dark:bg-gray-900">
+      <section className="py-20 bg-white dark:bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">

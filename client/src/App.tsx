@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -12,6 +13,8 @@ import AgentDetail from "@/pages/AgentDetail";
 import Pricing from "@/pages/Pricing";
 import Developer from "@/pages/Developer";
 import NotFound from "@/pages/NotFound";
+import AgentStart from './pages/AgentStart';
+import AgentUsage from './pages/AgentUsage';
 
 function Router() {
   return (
@@ -19,6 +22,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/agents" component={AgentStore} />
       <Route path="/agent/:id" component={AgentDetail} />
+      <Route path="/agent/:id/start" component={AgentStart} />
+      <Route path="/agent/:id/usage" component={AgentUsage} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/developer" component={Developer} />
       <Route component={NotFound} />
@@ -28,18 +33,19 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <MainLayout>
-              <Router />
-            </MainLayout>
-          </TooltipProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+<GoogleOAuthProvider clientId="370597034951-8o7ig5kum0gd4g83vm8km7roarehng6v.apps.googleusercontent.com">      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <LanguageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <MainLayout>
+                <Router />
+              </MainLayout>
+            </TooltipProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </GoogleOAuthProvider>
   );
 }
 

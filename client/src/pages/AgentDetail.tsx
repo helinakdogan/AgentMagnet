@@ -373,15 +373,18 @@ export default function AgentDetail() {
                 )}
               </div>
 
-              <button className="w-full btn-gradient px-8 py-4 text-lg mb-4">
-                <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                  <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
-                    <span className="gradient-text font-semibold">
-                      {selectedPlan === "free" ? "Ücretsiz Başla" : "Denemeyi Başlat"}
-                    </span>
-                  </div>
-                </div>
-              </button>
+          <Link href={`/agent/${agentId}/start`}>
+  <button className="w-full btn-gradient px-8 py-4 text-lg mb-4">
+    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
+      <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
+        <span className="gradient-text font-semibold">
+          {selectedPlan === "free" ? "Ücretsiz Başla" : "Denemeyi Başlat"}
+        </span>
+      </div>
+    </div>
+  </button>
+</Link>
+
 
               <button className="w-full btn-black px-8 py-3">
                 Demo İzle
