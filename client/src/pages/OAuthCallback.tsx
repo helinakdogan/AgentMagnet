@@ -1,0 +1,145 @@
+import { useEffect, useState } from 'react';
+import { useLocation } from 'wouter';
+import { Loading } from '@/components/ui/loading';
+import { authApi } from '@/lib/api';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle, AlertCircle } from 'lucide-react';
+
+export default function OAuthCallback() {
+  const [, setLocation] = useLocation();
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const handleCallback = async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+
+        if (error) {
+          setStatus('error');
+          setMessage('OAuth bağlantısında hata oluştu. Lütfen tekrar deneyin.');
+          return;
+        }
+
+        if (!code) {
+          setStatus('error');
+          setMessage('OAuth kodu bulunamadı.');
+          return;
+        }
+
+        // Parse state to get returnTo and type
+        let returnTo = '/agents';
+        let oauthType = 'agent_oauth';
+        let agentId = '';
+        
+        try {
+          if (state) {
+            const stateData = JSON.parse(decodeURIComponent(state));
+            returnTo = stateData.returnTo || '/agents';
+            oauthType = stateData.type || 'agent_oauth';
+            agentId = stateData.agentId || '';
+          }
+        } catch (e) {
+          console.error('State parse error:', e);
+        }
+
+        // Handle different OAuth types
+        // Handle different OAuth types
+        if (oauthType === 'website_login') {
+          try {
+            // Send code to backend for authentication
+            await authApi.googleToken(code);
+            setStatus('success');
+            setMessage('Website girişi başarıyla tamamlandı!');
+            
+            // Redirect back to the original page
+            setTimeout(() => {
+              setLocation(returnTo);
+            }, 2000);
+          } catch (error) {
+            console.error('Google token error:', error);
+            setStatus('error');
+            setMessage('Giriş işlemi başarısız oldu. Lütfen tekrar deneyin.');
+          }
+        } else {
+          // Agent OAuth (Gmail)
+          setStatus('success');
+          setMessage('Gmail bağlantısı başarıyla kuruldu!');
+          
+          // Redirect to Gmail usage page
+          setTimeout(() => {
+            if (agentId) {
+              setLocation(`/agent/${agentId}/gmail`);
+            } else {
+              setLocation('/agents');
+            }
+          }, 2000);
+        }
+
+      } catch (error) {
+        console.error('OAuth callback error:', error);
+        setStatus('error');
+        setMessage('Beklenmeyen bir hata oluştu.');
+      }
+    };
+
+    handleCallback();
+  }, [setLocation]);
+
+  return (
+    <div className="min-h-screen py-20 bg-[var(--light-gray)]">
+      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+        <Card className="glassmorphic rounded-2xl p-8 shadow-lg text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl font-semibold text-[var(--dark-purple)] mb-4">
+              {status === 'loading' && 'Bağlantı Kuruluyor...'}
+              {status === 'success' && 'Başarılı!'}
+              {status === 'error' && 'Hata Oluştu'}
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="space-y-6">
+            {status === 'loading' && (
+              <>
+                <Loading size="lg" text="Bağlantı kuruluyor..." />
+                <p className="text-gray-600">
+                  Lütfen bekleyin, hesabınız güvenli bir şekilde bağlanıyor...
+                </p>
+              </>
+            )}
+
+            {status === 'success' && (
+              <>
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <p className="text-gray-600">{message}</p>
+                <p className="text-sm text-gray-500">
+                  Kullanım sayfasına yönlendiriliyorsunuz...
+                </p>
+              </>
+            )}
+
+            {status === 'error' && (
+              <>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-8 h-8 text-red-600" />
+                </div>
+                <p className="text-gray-600">{message}</p>
+                <button
+                  onClick={() => setLocation('/agents')}
+                  className="mt-4 px-6 py-2 bg-[var(--dark-purple)] text-white rounded-lg hover:bg-opacity-90 transition-colors"
+                >
+                  Agent Mağazasına Dön
+                </button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+} 

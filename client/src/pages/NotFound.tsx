@@ -48,10 +48,7 @@ export default function NotFound() {
           </button>
         </div>
 
-        {/* Fun magnetic interaction hint */}
-        <p className="text-sm text-gray-500 mt-8">
-          💡 İpucu: Fareyi mıknatısın üzerine getirin ve büyüyü görün!
-        </p>
+       
       </div>
     </div>
   );

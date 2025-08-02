@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Search, Filter, Grid, List } from "lucide-react";
 import AgentCard from "@/components/AgentCard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Agent } from "@shared/schema";
+import { useAgents } from "@/hooks/use-api";
+import { LoadingCard } from "@/components/ui/loading";
+import { ErrorFallback } from "@/components/ui/error-boundary";
+import type { Agent } from "@/lib/api";
 
 export default function AgentStore() {
   const { t } = useLanguage();
@@ -13,22 +15,8 @@ export default function AgentStore() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"popular" | "price" | "name">("popular");
 
-  const { data: agents = [], isLoading, error } = useQuery<Agent[]>({
-    queryKey: ["/api/agents", selectedCategory],
-    queryFn: async () => {
-      const categoryParam = selectedCategory === t("category.all") 
-        ? "Tümü"
-        : selectedCategory;
-      const url = categoryParam === "Tümü" 
-        ? "/api/agents" 
-        : `/api/agents?category=${encodeURIComponent(categoryParam)}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error("Failed to fetch agents");
-      }
-      return response.json();
-    },
-  });
+  const categoryParam = selectedCategory === t("category.all") ? undefined : selectedCategory;
+  const { data: agents = [], isLoading, error } = useAgents(categoryParam);
 
   const categories = [
     t("category.all"), 
@@ -43,11 +31,11 @@ export default function AgentStore() {
   ];
 
   const filteredAgents = agents
-    .filter(agent => 
+    .filter((agent: Agent) => 
       agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agent.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .filter(agent => {
+    .filter((agent: Agent) => {
       if (selectedCategory === t("category.all")) return true;
       
       // Map backend category to current language
@@ -65,7 +53,7 @@ export default function AgentStore() {
       const mappedCategory = categoryMapping[agent.category as keyof typeof categoryMapping];
       return mappedCategory && (mappedCategory.tr === selectedCategory || mappedCategory.en === selectedCategory);
     })
-    .sort((a, b) => {
+    .sort((a: Agent, b: Agent) => {
       switch (sortBy) {
         case "price":
           return a.price - b.price;
@@ -79,10 +67,12 @@ export default function AgentStore() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">{t("common.error")}</h2>
-          <p className="text-gray-600 dark:text-gray-400">Ajanlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+      <div className="min-h-screen py-20 bg-[var(--light-gray)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ErrorFallback 
+            error={error as Error} 
+            resetError={() => window.location.reload()} 
+          />
         </div>
       </div>
     );
@@ -181,18 +171,7 @@ export default function AgentStore() {
         {isLoading ? (
           <div className={viewMode === "grid" ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
             {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="glassmorphic rounded-xl p-6 animate-pulse">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-gray-300 rounded-xl"></div>
-                  <div className="w-16 h-6 bg-gray-300 rounded-full"></div>
-                </div>
-                <div className="h-6 bg-gray-300 rounded mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded mb-4"></div>
-                <div className="flex items-center justify-between">
-                  <div className="w-16 h-4 bg-gray-300 rounded"></div>
-                  <div className="w-20 h-6 bg-gray-300 rounded"></div>
-                </div>
-              </div>
+              <LoadingCard key={index} />
             ))}
           </div>
         ) : filteredAgents.length === 0 ? (
@@ -222,7 +201,7 @@ export default function AgentStore() {
               ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               : "space-y-4"
           }>
-            {filteredAgents.map((agent) => (
+            {filteredAgents.map((agent: Agent) => (
               <AgentCard key={agent.id} agent={agent} />
             ))}
           </div>

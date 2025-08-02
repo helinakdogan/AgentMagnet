@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import AgentCard from "@/components/AgentCard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Agent } from "@shared/schema";
+import { useAgents } from "@/hooks/use-api";
+import { Loading, LoadingCard } from "@/components/ui/loading";
+import { ErrorFallback } from "@/components/ui/error-boundary";
+import type { Agent } from "@/lib/api";
 import Logo from "@/assets/agentmagnetlogolight.png"; 
 
 export default function Home() {
@@ -99,22 +101,8 @@ export default function Home() {
     };
   }, []);
 
-  const { data: agents = [], isLoading, error } = useQuery<Agent[]>({
-    queryKey: ["/api/agents", selectedCategory],
-    queryFn: async () => {
-      const categoryParam = selectedCategory === t("category.all") 
-        ? "Tümü"
-        : selectedCategory;
-      const url = categoryParam === "Tümü" 
-        ? "/api/agents" 
-        : `/api/agents?category=${encodeURIComponent(categoryParam)}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error("Failed to fetch agents");
-      }
-      return response.json();
-    },
-  });
+  const categoryParam = selectedCategory === t("category.all") ? undefined : selectedCategory;
+  const { data: agents = [], isLoading, error } = useAgents(categoryParam);
 
   const categories = [
     t("category.all"), 
@@ -130,10 +118,12 @@ export default function Home() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">{t("common.error")}</h2>
-          <p className="text-gray-600 dark:text-gray-400">Ajanlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+      <div className="min-h-screen py-20 bg-[var(--light-gray)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ErrorFallback 
+            error={error as Error} 
+            resetError={() => window.location.reload()} 
+          />
         </div>
       </div>
     );
@@ -189,12 +179,12 @@ export default function Home() {
               {/* Stats */}
               <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
                 <div>
-                  <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">500+</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">AI Ajan</div>
+                  <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">1</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">Demo Ajan</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">10K+</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">Kullanıcı</div>
+                  <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">100+</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">Demo Kullanıcısı</div>
                 </div>
                 <div>
                   <div className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white">24/7</div>
@@ -293,18 +283,7 @@ export default function Home() {
           {isLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, index) => (
-                <div key={index} className="glassmorphic rounded-xl p-6 animate-pulse">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-gray-300 rounded-xl"></div>
-                    <div className="w-16 h-6 bg-gray-300 rounded-full"></div>
-                  </div>
-                  <div className="h-6 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-300 rounded mb-4"></div>
-                  <div className="flex items-center justify-between">
-                    <div className="w-16 h-4 bg-gray-300 rounded"></div>
-                    <div className="w-20 h-6 bg-gray-300 rounded"></div>
-                  </div>
-                </div>
+                <LoadingCard key={index} />
               ))}
             </div>
           ) : agents.length === 0 ? (
@@ -323,7 +302,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {agents.map((agent) => (
+              {agents.map((agent: Agent) => (
                 <AgentCard key={agent.id} agent={agent} />
               ))}
             </div>
@@ -369,7 +348,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Keşfet & Seç</h3>
               <p className="text-gray-600 font-normal leading-relaxed">
-                İhtiyacınıza uygun AI ajanını kategoriler arasından kolayca bulun ve özelliklerini inceleyin.
+                İhtiyacınıza uygun YZ ajanını kategoriler arasından kolayca bulun ve özelliklerini inceleyin.
               </p>
             </div>
 
@@ -383,10 +362,9 @@ export default function Home() {
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 gradient-main rounded-full flex items-center justify-center text-white font-semibold text-sm">2</div>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Yapılandır</h3>
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Plan Seç</h3>
               <p className="text-gray-600 font-normal leading-relaxed">
-                Seçtiğiniz ajanı kişiselleştirin, API anahtarlarınızı bağlayın ve tercihlerinizi ayarlayın.
-              </p>
+İlginizi çeken ajan için size en uygun planı seçin ve gerekli izinleri onaylayın.              </p>
             </div>
 
             {/* Step 3 */}
@@ -399,9 +377,9 @@ export default function Home() {
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 gradient-main rounded-full flex items-center justify-center text-white font-semibold text-sm">3</div>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Otomatikleştir</h3>
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Hemen Kullan</h3>
               <p className="text-gray-600 font-normal leading-relaxed">
-                AI ajanınız devreye girsin ve iş süreçlerinizi otomatik olarak optimize etsin.
+                Kullanım sayfasına gidin ve ajanınız iş süreçlerinizi otomatik olarak optimize etsin.
               </p>
             </div>
           </div>

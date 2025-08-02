@@ -14,17 +14,19 @@ const translations = {
     // Header
     "header.login": "Giriş Yap",
     "header.signup": "Kayıt Ol",
+    "header.logout": "Çıkış",
     
     // Navigation
     "nav.home": "Ana Sayfa",
     "nav.agents": "Ajanlar",
+    "nav.myAgents": "Ajanlarım",
     "nav.pricing": "Fiyatlandırma",
     "nav.developer": "Geliştirici",
     
     // Home Page
     "home.hero.title": "Yapay Zeka Ajanlarının",
     "home.hero.subtitle": "Büyülü Dünyası",
-    "home.hero.description": "Binlerce AI ajana erişin, kendi ajanlarınızı satışa sunun ve dijital dönüşümünüzü hızlandırın.",
+    "home.hero.description": "Binlerce YZ ajanına erişin, kendi ajanlarınızı satışa sunun ve dijital dönüşümünüzü hızlandırın.",
     "home.hero.cta": "Ajanları Keşfet",
     "home.hero.learn": "Geliştirici Ol",
     "home.categories.title": "Kategoriler",
@@ -32,7 +34,7 @@ const translations = {
     "home.view.all": "Tümünü Görüntüle",
     
     // Agent Store
-    "store.title": "AI Ajan",
+    "store.title": "YZ Ajan",
     "store.title.highlight": "Mağazası",
     "store.description": "Binlerce yapay zeka ajanı arasından ihtiyacınıza en uygun olanları keşfedin. Her kategoriden profesyonel çözümler burada.",
     "store.search.placeholder": "Ajan ara...",
@@ -68,6 +70,51 @@ const translations = {
     "pricing.plus": "Plus",
     "pricing.premium": "Premium",
     
+    // My Agents Page
+    "myAgents.title": "Ajanlarım",
+    "myAgents.description": "Satın aldığınız ajanları yönetin ve kullanın",
+    "myAgents.gmailAgent": "Gmail Ajan",
+    "myAgents.useGmail": "Gmail Kullan",
+    
+    // Agent Detail Page
+    "agentDetail.purchase": "Ajan'ı Al",
+    "agentDetail.purchasing": "Satın Alınıyor...",
+    "agentDetail.loginAndPurchase": "Giriş Yap ve Ajan'ı Al",
+    "agentDetail.alreadyOwned": "Bu ajana sahipsiniz",
+    "agentDetail.alreadyOwnedDescription": "Ajanlarım bölümünden kullanmaya devam edin.",
+    "agentDetail.goToMyAgents": "Ajanlarım'a Git",
+    
+    // Agent Start Page
+    "agentStart.title": "Giriş Yapın",
+    "agentStart.description": "ajan'ını kullanabilmek için önce giriş yapmanız gerekiyor.",
+    "agentStart.whyLogin": "Neden giriş yapmalıyım?",
+    "agentStart.loginReason1": "Ajan kullanımınızı takip edebiliriz",
+    "agentStart.loginReason2": "Güvenli ve kişiselleştirilmiş deneyim",
+    "agentStart.loginReason3": "Kullanım geçmişinizi görebilirsiniz",
+    "agentStart.googleLogin": "Google ile Giriş Yap",
+    
+    // Gmail Agent Usage
+    "gmail.title": "Gmail Agent Kullanımı",
+    "gmail.description": "Gmail hesabınızdan son maillerinizi görüntüleyin ve AI ile özetleyin",
+    "gmail.backToAgent": "Ajan'a Dön",
+    "gmail.connectGmail": "Gmail Hesabımı Bağla",
+    "gmail.getEmails": "Mailleri Getir",
+    "gmail.loading": "Yükleniyor...",
+    "gmail.loadingEmails": "Mailler yükleniyor...",
+    "gmail.showSnippets": "Snippet'leri Göster",
+    "gmail.hideSnippets": "Snippet'leri Gizle",
+    "gmail.recentEmails": "Son Mailler",
+    "gmail.aiSummary": "Kısa Özet",
+    "gmail.noEmails": "Mail Bulunamadı",
+    "gmail.noEmailsDescription": "Gmail hesabınızda mail bulunamadı veya henüz mailleri getirmediniz.",
+    "gmail.connectRequired": "Gmail Bağlantısı Gerekli",
+    "gmail.connectDescription": "Gmail hesabınızı bağlayarak maillerinizi görüntüleyebilir ve AI ile özetleyebilirsiniz.",
+    "gmail.aiFeature": "AI Özetleme Özelliği",
+    "gmail.aiFeature1": "Her e-posta için AI özeti oluşturulur",
+    "gmail.aiFeature2": "Rate limit nedeniyle kademeli işlenir (2 saniye aralıklarla)",
+    "gmail.aiFeature3": "Türkçe, kısa ve öz özetler",
+    "gmail.aiFeature4": "Google Gemini 2.0 Flash modeli kullanılır",
+    
     // Common
     "common.loading": "Yükleniyor...",
     "common.error": "Hata Oluştu",
@@ -84,16 +131,18 @@ const translations = {
     "footer.privacy": "Gizlilik Politikası",
     "footer.terms": "Kullanım Şartları",
     "footer.cookies": "Çerezler",
-    "footer.rights": "© 2024 Agent Magnet. Tüm hakları saklıdır."
+    "footer.rights": "© 2025 Agent Magnet. Tüm hakları saklıdır."
   },
   en: {
     // Header
     "header.login": "Sign In",
     "header.signup": "Sign Up",
+    "header.logout": "Logout",
     
     // Navigation
     "nav.home": "Home",
     "nav.agents": "Agents",
+    "nav.myAgents": "My Agents",
     "nav.pricing": "Pricing",
     "nav.developer": "Developer",
     
@@ -144,6 +193,41 @@ const translations = {
     "pricing.plus": "Plus",
     "pricing.premium": "Premium",
     
+    // My Agents Page
+    "myAgents.title": "My Agents",
+    "myAgents.description": "Manage and use your purchased agents",
+    "myAgents.gmailAgent": "Gmail Agent",
+    "myAgents.useGmail": "Use Gmail",
+    
+    // Agent Detail Page
+    "agentDetail.purchase": "Buy Agent",
+    "agentDetail.purchasing": "Purchasing...",
+    "agentDetail.loginAndPurchase": "Login and Buy Agent",
+    "agentDetail.alreadyOwned": "You already own this agent",
+    "agentDetail.alreadyOwnedDescription": "Continue using it from My Agents section.",
+    "agentDetail.goToMyAgents": "Go to My Agents",
+    
+    // Agent Start Page
+    "agentStart.title": "Login",
+    "agentStart.description": "agent to use it, you need to login first.",
+    "agentStart.whyLogin": "Why should I login?",
+    "agentStart.loginReason1": "We can track your agent usage",
+    "agentStart.loginReason2": "Secure and personalized experience",
+    "agentStart.loginReason3": "You can see your usage history",
+    "agentStart.googleLogin": "Login with Google",
+    
+    // Gmail Agent Usage
+    "gmail.title": "Gmail Agent Usage",
+    "gmail.loginRequired": "You need to login to use this feature.",
+    "gmail.connectAccount": "Connect My Gmail Account",
+    "gmail.getEmails": "Get Last 10 Emails and Summarize",
+    "gmail.loading": "Loading Emails and AI Summarizing...",
+    "gmail.aiFeature": "AI Summarization Feature",
+    "gmail.aiFeature1": "AI summary is created for each email",
+    "gmail.aiFeature2": "Processed gradually due to rate limits (2 second intervals)",
+    "gmail.aiFeature3": "Turkish, short and concise summaries",
+    "gmail.aiFeature4": "Google Gemini 2.0 Flash model is used",
+    
     // Common
     "common.loading": "Loading...",
     "common.error": "Error Occurred",
@@ -160,7 +244,7 @@ const translations = {
     "footer.privacy": "Privacy Policy",
     "footer.terms": "Terms of Service",
     "footer.cookies": "Cookies",
-    "footer.rights": "© 2024 Agent Magnet. All rights reserved."
+    "footer.rights": "© 2025 Agent Magnet. All rights reserved."
   }
 };
 

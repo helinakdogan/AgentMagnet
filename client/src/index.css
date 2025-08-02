@@ -88,11 +88,11 @@
 
 /* Gradient Utilities */
 .gradient-main {
-  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  background: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  background: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -126,7 +126,7 @@
 
 /* Gradient Border Animation */
 .gradient-border {
-  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  background: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
   background-size: 200% 200%;
   animation: gradientMove 3s linear infinite;
 }
@@ -174,7 +174,7 @@ html {
   position: absolute;
   inset: 0;
   padding: 1px;
-  background: linear-gradient(90deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  background: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
   border-radius: inherit;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: xor;

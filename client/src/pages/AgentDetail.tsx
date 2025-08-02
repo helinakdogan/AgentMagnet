@@ -1,63 +1,67 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X } from "lucide-react";
-import type { Agent } from "@shared/schema";
+import { useAgent, useAgentPurchase, useUserAgents } from "@/hooks/use-api";
+import { LoadingPage } from "@/components/ui/loading";
+import { ErrorFallback } from "@/components/ui/error-boundary";
+import type { Agent } from "@/lib/api";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AgentDetail() {
   const [match, params] = useRoute("/agent/:id");
   const agentId = params?.id;
+  const { t } = useLanguage();
   const [selectedPlan, setSelectedPlan] = useState<"free" | "plus" | "premium">("plus");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [user, setUser] = useState<any>(null);
 
-  const { data: agent, isLoading, error } = useQuery<Agent>({
-    queryKey: ["/api/agents", agentId],
-    enabled: !!agentId,
-  });
+  // Sayfa yüklendiğinde localStorage'dan user bilgisini al
+  useEffect(() => {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  // localStorage değişikliklerini dinle
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      } else {
+        setUser(null);
+      }
+    };
+
+    // Custom event listener for localStorage changes
+    window.addEventListener('userDataChanged', handleStorageChange);
+    return () => window.removeEventListener('userDataChanged', handleStorageChange);
+  }, []);
+
+  const { data: agent, isLoading, error } = useAgent(agentId || '');
+  const { purchaseAgent, isLoading: isPurchasing } = useAgentPurchase();
+  const { data: userAgents } = useUserAgents(user?.id);
+
+  // Kullanıcının bu agent'ı zaten alıp almadığını kontrol et
+  const isAgentOwned = userAgents?.some(userAgent => userAgent.agentId === agentId);
 
   if (!match || !agentId) {
     return <div>Agent ID gerekli</div>;
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-300 rounded w-32 mb-8"></div>
-            <div className="grid lg:grid-cols-2 gap-12">
-              <div>
-                <div className="h-12 bg-gray-300 rounded mb-4"></div>
-                <div className="h-6 bg-gray-300 rounded mb-6"></div>
-                <div className="space-y-3">
-                  <div className="h-4 bg-gray-300 rounded"></div>
-                  <div className="h-4 bg-gray-300 rounded"></div>
-                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                </div>
-              </div>
-              <div className="glassmorphic rounded-2xl p-8">
-                <div className="h-6 bg-gray-300 rounded mb-4"></div>
-                <div className="h-8 bg-gray-300 rounded mb-6"></div>
-                <div className="h-12 bg-gray-300 rounded"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingPage />;
   }
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen py-20">
+      <div className="min-h-screen py-20 bg-[var(--light-gray)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-red-600 mb-4">Agent Bulunamadı</h2>
-            <p className="text-gray-600 mb-8">İstediğiniz agent mevcut değil veya kaldırılmış olabilir.</p>
-            <Link href="/">
-              <button className="btn-black px-6 py-3">Ana Sayfaya Dön</button>
-            </Link>
-          </div>
+          <ErrorFallback 
+            error={error as Error || new Error('Agent not found')} 
+            resetError={() => window.location.reload()} 
+          />
         </div>
       </div>
     );
@@ -125,14 +129,13 @@ export default function AgentDetail() {
       monthlyPrice: 0,
       yearlyPrice: 0,
       features: [
-        "Günlük 10 sorgu",
-        "Temel özellikler",
-        "E-posta desteği",
-        "Topluluk forumu"
+        "Günlük 5 sorgu",
+        "Son 10 mailinizin özetleri",
+        "example@gmail.com uzantılı mail adresleri ile çalışır",
+    
       ],
       limitations: [
-        "API erişimi yok",
-        "Öncelikli destek yok",
+   
         "Gelişmiş özellikler yok",
         "Entegrasyonlar sınırlı"
       ],
@@ -144,16 +147,12 @@ export default function AgentDetail() {
       monthlyPrice: agent.price,
       yearlyPrice: Math.round(agent.price * 12 * 0.8), // 20% indirim
       features: [
-        "Günlük 1000 sorgu",
-        "Tüm temel özellikler",
-        "API erişimi",
-        "Öncelikli e-posta desteği",
-        "Gelişmiş entegrasyonlar",
-        "Analitik dashboard"
+        "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
+        
       ],
       limitations: [
-        "Premium özellikler yok",
-        "Özel model eğitimi yok"
+        "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
+
       ],
       integrations: agent.integrations.slice(0, 4),
     },
@@ -163,15 +162,8 @@ export default function AgentDetail() {
       monthlyPrice: Math.round(agent.price * 2.5),
       yearlyPrice: Math.round(agent.price * 2.5 * 12 * 0.75), // 25% indirim
       features: [
-        "Sınırsız sorgu",
-        "Tüm özellikler",
-        "API erişimi + webhooks",
-        "7/24 canlı destek",
-        "Özel entegrasyonlar",
-        "Gelişmiş analitik",
-        "Özel model eğitimi",
-        "Beyaz etiket çözümü",
-        "SLA garantisi"
+        "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
+
       ],
       limitations: [],
       integrations: agent.integrations,
@@ -223,7 +215,7 @@ export default function AgentDetail() {
                     onClick={() => setSelectedPlan(plan)}
                     className={`px-6 py-3 rounded-xl font-medium transition-colors ${
                       selectedPlan === plan
-                        ? "bg-[var(--dark-purple)] text-white"
+                        ? "bg-[var(--foreground)] text-[var(--background)]"
                         : "glassmorphic text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -272,7 +264,7 @@ export default function AgentDetail() {
                   </div>
                 ))}
               </div>
-
+{/* 
               {currentPlan.limitations.length > 0 && (
                 <div className="mt-6">
                   <h4 className="text-lg font-medium text-gray-800 mb-3">Kısıtlamalar</h4>
@@ -285,7 +277,7 @@ export default function AgentDetail() {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* Plan Integrations */}
@@ -294,7 +286,7 @@ export default function AgentDetail() {
                 {currentPlan.name} Planında Kullanılabilir Entegrasyonlar
               </h3>
               <div className="flex flex-wrap gap-2">
-                {currentPlan.integrations.map((integration, index) => (
+                {currentPlan.integrations.map((integration: string, index: number) => (
                   <span 
                     key={index}
                     className="px-3 py-1 text-sm font-medium text-gray-700 glassmorphic rounded-lg"
@@ -363,32 +355,69 @@ export default function AgentDetail() {
                     <span className="text-sm text-gray-700">{feature}</span>
                   </div>
                 ))}
-                {selectedPlan !== "free" && (
+                {/* {selectedPlan !== "free" && (
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                     <span className="text-sm text-gray-700">
                       {selectedPlan === "plus" ? "7" : "14"} gün ücretsiz deneme
                     </span>
                   </div>
-                )}
+                )} */}
               </div>
 
+          {!user ? (
           <Link href={`/agent/${agentId}/start`}>
   <button className="w-full btn-gradient px-8 py-4 text-lg mb-4">
     <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
       <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
         <span className="gradient-text font-semibold">
-          {selectedPlan === "free" ? "Ücretsiz Başla" : "Denemeyi Başlat"}
+                      {t("agentDetail.loginAndPurchase")}
         </span>
       </div>
     </div>
   </button>
 </Link>
+          ) : isAgentOwned ? (
+            <div className="w-full px-8 py-4 text-lg mb-4">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-green-800 mb-2">
+                  {t("agentDetail.alreadyOwned")}
+                </h3>
+                <p className="text-green-700 text-sm mb-4">
+                  {t("agentDetail.alreadyOwnedDescription")}
+                </p>
+                <Link href="/my-agents">
+                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                    {t("agentDetail.goToMyAgents")}
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <button 
+              onClick={() => {
+                if (agentId && user?.id) {
+                  purchaseAgent(agentId, user.id);
+                }
+              }}
+              disabled={isPurchasing}
+              className="w-full btn-gradient px-8 py-4 text-lg mb-4"
+            >
+              <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
+                <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
+                  <span className="gradient-text font-semibold">
+                    {isPurchasing ? t("agentDetail.purchasing") : t("agentDetail.purchase")}
+                  </span>
+                </div>
+              </div>
+            </button>
+          )}
 
 
-              <button className="w-full btn-black px-8 py-3">
-                Demo İzle
-              </button>
+              
 
               <p className="text-xs text-gray-500 text-center mt-4">
                 {selectedPlan === "free" 

@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Agent } from "@shared/schema";
+import type { Agent } from "@/lib/api";
 
 interface AgentCardProps {
   agent: Agent;

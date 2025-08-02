@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageToggle } from "@/components/ui/language-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Logo from "@/assets/agentmagnetlogolight.png";
-import { useGoogleLogin, googleLogout } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -14,22 +14,74 @@ export default function Header() {
   const { t } = useLanguage();
   const [user, setUser] = useState<any>(null);
 
+  // Sayfa yüklendiğinde localStorage'dan user bilgisini al
+  useEffect(() => {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  // localStorage değişikliklerini dinle
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      } else {
+        setUser(null);
+      }
+    };
+
+    // Custom event listener for localStorage changes
+    window.addEventListener('userDataChanged', handleStorageChange);
+    return () => window.removeEventListener('userDataChanged', handleStorageChange);
+  }, []);
+
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-        headers: {
-          Authorization: `Bearer ${tokenResponse.access_token}`,
-        },
-      });
-      const data = await res.json();
-      setUser(data);
+      try {
+        const response = await fetch('/api/auth/google/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            access_token: tokenResponse.access_token,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Google OAuth success, data:', data);
+              
+          // Set user directly
+          setUser(data.data);
+          console.log('User set:', data.data);
+          
+          // Store user data in localStorage for other pages
+          localStorage.setItem('userData', JSON.stringify(data.data));
+          
+          // Trigger custom event for other components
+          window.dispatchEvent(new Event('userDataChanged'));
+        } else {
+          alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
+      }
     },
     onError: () => alert("Google girişi başarısız oldu"),
   });
 
   const logout = () => {
-    googleLogout();
     setUser(null);
+    localStorage.removeItem('userData');
+    
+    // Trigger custom event for other components
+    window.dispatchEvent(new Event('userDataChanged'));
+    console.log('User logged out');
   };
 
   useEffect(() => {
@@ -89,11 +141,11 @@ export default function Header() {
               </button>
             ) : (
               <div className="flex items-center space-x-2">
-                <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full border border-white shadow" />
+                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border border-white shadow" />
                 <span className="text-sm font-medium text-purple hidden sm:inline">
                   {user.name.split(" ")[0]}
                 </span>
-                <button onClick={logout} className="btn-black text-sm">Çıkış</button>
+                <button onClick={logout} className="btn-black text-sm">{t("header.logout")}</button>
               </div>
             )}
           </div>
@@ -117,7 +169,7 @@ export default function Header() {
                       {t("header.login")}
                     </button>
                   ) : (
-                    <button onClick={logout} className="w-full btn-outline text-sm">Çıkış</button>
+                    <button onClick={logout} className="w-full btn-outline text-sm">{t("header.logout")}</button>
                   )}
                 </div>
               </div>

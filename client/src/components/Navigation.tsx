@@ -15,6 +15,7 @@ interface NavigationProps {
 const navigationItems: NavigationItem[] = [
   { key: "nav.home", href: "/" },
   { key: "nav.agents", href: "/agents" },
+  { key: "nav.myAgents", href: "/my-agents" },
   { key: "nav.pricing", href: "/pricing" },
   { key: "nav.developer", href: "/developer" },
 ];

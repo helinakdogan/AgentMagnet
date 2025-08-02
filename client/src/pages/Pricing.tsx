@@ -3,17 +3,15 @@ import { CheckCircle, X } from "lucide-react";
 export default function Pricing() {
   const plans = [
     {
-      name: "Başlangıç",
-      price: 0,
-      description: "Bireysel kullanıcılar için ideal",
+      name: "Free",
+      price: "",
+      description: "Temel özelliklerle başlayın",
       features: [
-        "5 AI ajan erişimi",
-        "Aylık 100 sorgu",
-        "E-posta desteği",
+        "Sınırlı ajan özellikleri",
+        "Düşük kotalı kullanım",
         "Temel entegrasyonlar",
       ],
       limitations: [
-        "API erişimi yok",
         "Özel entegrasyonlar yok",
         "Öncelikli destek yok",
       ],
@@ -22,38 +20,35 @@ export default function Pricing() {
       buttonStyle: "btn-black",
     },
     {
-      name: "Profesyonel",
-      price: 99,
-      description: "Küçük işletmeler ve takımlar için",
+      name: "Plus",
+      price: "",
+      description: "Gelişmiş özellikler ve yüksek kotalar",
       features: [
-        "Tüm AI ajanlara erişim",
-        "Sınırsız sorgu",
+        "Gelişmiş ajan özellikleri",
+        "Yüksek kotalı kullanım",
+        "Yüksek API erişimi",
         "Öncelikli destek",
-        "API erişimi",
         "Özel entegrasyonlar",
-        "Analitik dashboard",
-        "Takım işbirliği",
       ],
       limitations: [
-        "Özel AI modelleri yok",
+        "Sınırsız kullanım yok",
       ],
       popular: true,
       buttonText: "14 Gün Ücretsiz Dene",
       buttonStyle: "btn-gradient",
     },
     {
-      name: "Kurumsal",
-      price: 299,
-      description: "Büyük şirketler için kapsamlı çözüm",
+      name: "Premium",
+      price: "",
+      description: "Tüm gelişmiş özellikler ve sınırsız kotalar",
       features: [
-        "Tüm Profesyonel özellikleri",
-        "Özel AI modelleri",
-        "Dedike destek",
-        "SLA garantisi",
-        "Beyaz etiket çözümü",
-        "On-premise deployment",
-        "Gelişmiş güvenlik",
-        "Sınırsız takım üyesi",
+        "Daha gelişmiş ajan özellikleri",
+        "Sınırsız kullanım",
+        "Tam API erişimi",
+        "7/24 öncelikli destek",
+        "Özel entegrasyonlar",
+        "Gelişmiş analitik",
+        "Takım işbirliği",
       ],
       limitations: [],
       popular: false,
@@ -71,8 +66,7 @@ export default function Pricing() {
             Size Uygun Planı <span className="gradient-text">Seçin</span>
           </h1>
           <p className="text-xl text-gray-600 font-normal max-w-3xl mx-auto">
-            İhtiyaçlarınıza göre tasarlanmış planlarımızla AI ajanlarının gücünden yararlanın. 
-            Tüm planlarda 7 gün ücretsiz deneme imkanı.
+            Her AI ajanı için uygun plan seçenekleri. Yıllık ödemede %20 indirim fırsatı.
           </p>
         </div>
 
@@ -99,9 +93,9 @@ export default function Pricing() {
                 </h3>
                 <div className="mb-2">
                   <span className="text-5xl font-semibold text-[var(--dark-purple)]">
-                    ₺{plan.price}
+                    {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
                   </span>
-                  {plan.price > 0 && (
+                  {typeof plan.price === 'number' && plan.price > 0 && (
                     <span className="text-lg text-gray-600 font-normal">/ay</span>
                   )}
                 </div>
@@ -124,31 +118,28 @@ export default function Pricing() {
                 ))}
               </div>
 
-              {/* CTA Button */}
-              <button
-                className={`w-full px-8 py-4 text-lg font-semibold rounded-xl transition-all ${
-                  plan.buttonStyle === "btn-gradient" 
-                    ? "btn-gradient relative overflow-hidden" 
-                    : "btn-black"
-                }`}
-              >
-                {plan.buttonStyle === "btn-gradient" && (
-                  <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                    <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
-                      <span className="gradient-text">{plan.buttonText}</span>
-                    </div>
-                  </div>
-                )}
-                {plan.buttonStyle === "btn-black" && plan.buttonText}
-              </button>
+   
 
-              {plan.price > 0 && (
+              
                 <p className="text-xs text-gray-500 text-center mt-4">
-                  İstediğiniz zaman iptal edebilirsiniz
+                  {plan.name === "Premium" 
+                    ? "Özel fiyatlandırma için iletişime geçin" 
+                    : "İstediğiniz zaman iptal edebilirsiniz"}
                 </p>
-              )}
+            
             </div>
           ))}
+        </div>
+
+        {/* Payment Options */}
+        <div className="mt-12 glassmorphic rounded-2xl p-8 max-w-3xl mx-auto text-center">
+          <h3 className="text-2xl font-semibold text-[var(--dark-purple)] mb-4">
+            Ödeme Seçenekleri
+          </h3>
+          <p className="text-gray-600 mb-6">
+            Her plan yıllık veya aylık olarak alınabilir. Yıllık ödemelerde <span className="font-semibold"> ay bazında %20 indirim</span> uygulanır. 
+          </p>
+          
         </div>
 
         {/* FAQ Section */}
@@ -165,41 +156,37 @@ export default function Pricing() {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="glassmorphic rounded-xl p-6">
               <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                Ücretsiz deneme süresince kredi kartı gerekir mi?
+                Fiyatlar ajan başına mı hesaplanıyor?
               </h4>
               <p className="text-gray-600">
-                Hayır, ücretsiz deneme için kredi kartı bilgisi gerekmez. 7 gün boyunca 
-                tüm özellikleri ücretsiz olarak deneyebilirsiniz.
+                Evet, Agent Magnet'te her bir ajan ayrı olarak satılır. Her ajanın fiyatı farklı olabilir. Ödeme sayfasında detaylı olarak inceleyebilirsiniz.
               </p>
             </div>
 
             <div className="glassmorphic rounded-xl p-6">
               <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                Plan değişikliği nasıl yapılır?
+                Yıllık ödeme indirimi nasıl çalışır?
               </h4>
               <p className="text-gray-600">
-                İstediğiniz zaman planınızı yükseltebilir veya düşürebilirsiniz. 
-                Değişiklik anında geçerli olur ve ödeme prorata hesaplanır.
+                Yıllık ödemede aylık ücretin %20 indirimlisini peşin olarak ödersiniz. Bu size yıllık %20 tasarruf sağlar.
               </p>
             </div>
 
             <div className="glassmorphic rounded-xl p-6">
               <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                API kullanımında limit var mı?
+                Farklı ajanlar için farklı planlar seçebilir miyim?
               </h4>
               <p className="text-gray-600">
-                Başlangıç planında aylık 100 sorgu limiti vardır. Profesyonel ve 
-                Kurumsal planlarda sınırsız API kullanımı mevcuttur.
+                Evet, her AI ajanı için farklı plan seçebilirsiniz. Örneğin bir ajan için Premium, diğeri için Plus planı kullanabilirsiniz.
               </p>
             </div>
 
             <div className="glassmorphic rounded-xl p-6">
               <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                İptal işlemi nasıl yapılır?
+                Kurumsal çözümler için ne yapmalıyım?
               </h4>
               <p className="text-gray-600">
-                Hesap ayarlarınızdan istediğiniz zaman aboneliğinizi iptal edebilirsiniz. 
-                Mevcut dönem sonuna kadar hizmetten yararlanmaya devam edersiniz.
+                Çoklu ajan yönetimi, özel entegrasyonlar ve kurumsal çözümler için satış ekibimizle iletişime geçebilirsiniz.
               </p>
             </div>
           </div>
@@ -212,8 +199,8 @@ export default function Pricing() {
               Özel İhtiyaçlarınız mı Var?
             </h3>
             <p className="text-gray-600 mb-6">
-              Kurumsal çözümler, özel entegrasyonlar ve hacim indirimleri için 
-              satış ekibimizle iletişime geçin.
+              Kurumsal çözümler, çoklu ajan yönetimi, özel entegrasyonlar ve 
+              hacim indirimleri için satış ekibimizle iletişime geçin.
             </p>
             <button className="btn-black px-8 py-3">
               Satış Ekibi ile İletişime Geç

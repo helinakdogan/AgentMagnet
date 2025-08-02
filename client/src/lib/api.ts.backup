@@ -1,0 +1,298 @@
+import { toast } from "@/hooks/use-toast";
+
+// API Base URL - in development, this will be proxied through the Vite dev server
+const API_BASE_URL = import.meta.env.PROD ? '/api' : '/api';
+
+// Types for API responses
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+export interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  status: string;
+  iconColor: string;
+  features: string[];
+  integrations: string[];
+  isPopular: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  picture?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UserAgent {
+  id: string;
+  userId: string;
+  agentId: string;
+  oauthTokens?: any;
+  usageCount: number;
+  lastUsed?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface GmailEmails {
+  recentEmails: Array<{
+    id: string;
+    subject: string;
+    sender: string;
+    date: string;
+    snippet: string;
+    isRead: boolean;
+  }>;
+  totalCount: number;
+  summary: string;
+}
+
+export interface GmailSummary {
+  summary: string;
+  unreadCount: number;
+  recentEmails: Array<{
+    subject: string;
+    sender: string;
+    date: string;
+    snippet: string;
+  }>;
+}
+
+// Error handling utility
+class ApiError extends Error {
+  constructor(
+    public status: number,
+    public message: string,
+    public data?: any
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+// API request utility with proper error handling
+async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
+  
+  const config: RequestInit = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    credentials: 'include', // Include cookies for session management
+    ...options,
+  };
+
+  try {
+    const response = await fetch(url, config);
+    
+    // Handle different response types
+    const contentType = response.headers.get('content-type');
+    let data: any;
+    
+    if (contentType?.includes('application/json')) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
+
+    if (!response.ok) {
+      throw new ApiError(
+        response.status,
+        data.message || data.error || `HTTP ${response.status}`,
+        data
+      );
+    }
+
+    // Handle backend response structure {success: true, data: [...]}
+    if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+      return data.data;
+    }
+
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    
+    // Network or other errors
+    throw new ApiError(
+      0,
+      error instanceof Error ? error.message : 'Network error',
+      error
+    );
+  }
+}
+
+// Authentication API
+export const authApi = {
+  // Get current user
+  getCurrentUser: () => apiRequest<User>('/auth/me'),
+  
+  // Google OAuth login
+  googleLogin: () => {
+    window.location.href = `${API_BASE_URL}/auth/google`;
+  },
+  
+  // Logout
+  logout: () => apiRequest('/auth/logout', { method: 'POST' }),
+  
+  // Check if user is authenticated
+  isAuthenticated: async (): Promise<boolean> => {
+    try {
+      await authApi.getCurrentUser();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+};
+
+// Agents API
+export const agentsApi = {
+  // Get all agents
+  getAll: (category?: string) => {
+    const params = category && category !== 'Tümü' ? `?category=${encodeURIComponent(category)}` : '';
+    return apiRequest<Agent[]>(`/agents${params}`);
+  },
+  
+  // Get single agent
+  getById: (id: string) => apiRequest<Agent>(`/agents/${id}`),
+  
+  // Purchase agent (protected)
+  purchase: (id: string) => apiRequest<{ success: boolean; message: string }>(`/agents/${id}/purchase`, { 
+    method: 'POST' 
+  }),
+  
+  // Create agent (admin only)
+  create: (agent: Omit<Agent, 'id'>) => 
+    apiRequest<Agent>('/agents', {
+      method: 'POST',
+      body: JSON.stringify(agent),
+    }),
+  
+  // Update agent (admin only)
+  update: (id: string, agent: Partial<Agent>) =>
+    apiRequest<Agent>(`/agents/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(agent),
+    }),
+  
+  // Delete agent (admin only)
+  delete: (id: string) =>
+    apiRequest(`/agents/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+// Users API
+export const usersApi = {
+  // Get current user profile
+  getProfile: () => apiRequest<User>('/users/me'),
+  
+  // Get user's purchased agents
+  getPurchasedAgents: () => apiRequest<UserAgent[]>('/users/me/agents'),
+  
+  // Purchase an agent
+  purchaseAgent: (agentId: string) =>
+    apiRequest<UserAgent>(`/users/me/agents/${agentId}/purchase`, {
+      method: 'POST',
+    }),
+};
+
+// Gmail API
+export const gmailApi = {
+  // Get last 10 emails (instead of summary)
+  getLastEmails: () => apiRequest<GmailEmails>('/gmail/emails', {
+    method: 'POST',
+  }),
+  
+  // Get Gmail summary (legacy)
+  getSummary: () => apiRequest<GmailSummary>('/gmail/summary', {
+    method: 'POST',
+  }),
+  
+  // Store OAuth tokens
+  storeTokens: (tokens: any) =>
+    apiRequest('/gmail/tokens', {
+      method: 'POST',
+      body: JSON.stringify(tokens),
+    }),
+  
+  // Get usage statistics
+  getUsage: () => apiRequest('/gmail/usage'),
+};
+
+// OAuth API
+export const oauthApi = {
+  // Gmail OAuth callback
+  gmailCallback: (code: string) =>
+    apiRequest('/oauth/google/callback', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }),
+};
+
+// Error handler with toast notifications
+export const handleApiError = (error: unknown, customMessage?: string) => {
+  let message = customMessage || 'An error occurred';
+  
+  if (error instanceof ApiError) {
+    switch (error.status) {
+      case 401:
+        message = 'Please log in to continue';
+        // Redirect to login if needed
+        break;
+      case 403:
+        message = 'You do not have permission to perform this action';
+        break;
+      case 404:
+        message = 'The requested resource was not found';
+        break;
+      case 429:
+        message = 'Too many requests. Please try again later';
+        break;
+      case 500:
+        message = 'Server error. Please try again later';
+        break;
+      default:
+        message = error.message || 'An unexpected error occurred';
+    }
+  } else if (error instanceof Error) {
+    message = error.message;
+  }
+  
+  toast({
+    title: "Error",
+    description: message,
+    variant: "destructive",
+  });
+  
+  console.error('API Error:', error);
+  return message;
+};
+
+// Success handler with toast notifications
+export const handleApiSuccess = (message: string) => {
+  toast({
+    title: "Success",
+    description: message,
+  });
+};
+
+export { ApiError }; 
