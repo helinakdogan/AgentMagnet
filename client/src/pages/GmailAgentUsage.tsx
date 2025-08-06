@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRoute } from 'wouter';
-import { ArrowLeft, Mail, Clock, User, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Mail, Clock, User, Eye, EyeOff, RefreshCw, AlertCircle } from 'lucide-react';
 import { Link } from 'wouter';
 import { Loading } from '@/components/ui/loading';
 import { ErrorFallback } from '@/components/ui/error-boundary';
@@ -47,6 +47,7 @@ export default function GmailAgentUsage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [tokenExpired, setTokenExpired] = useState(false);
   
   // Sayfa yüklendiğinde localStorage'dan Gmail token'ını al
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function GmailAgentUsage() {
     onSuccess: async (tokenResponse) => {
       console.log('Gmail OAuth success, token:', tokenResponse);
       setAccessToken(tokenResponse.access_token);
+      setTokenExpired(false);
       
       // Token'ı localStorage'a kaydet
       localStorage.setItem('gmailAccessToken', tokenResponse.access_token);
@@ -78,6 +80,7 @@ export default function GmailAgentUsage() {
   // Gmail bağlantısını kes
   const disconnectGmail = () => {
     setAccessToken(null);
+    setTokenExpired(false);
     localStorage.removeItem('gmailAccessToken');
     setEmails([]);
     alert("Gmail bağlantısı kesildi.");
@@ -98,85 +101,62 @@ export default function GmailAgentUsage() {
       const response = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
         },
       });
 
       if (!response.ok) {
-        throw new Error('Gmail API error: ' + response.statusText);
+        if (response.status === 401) {
+          // Token expired
+          setTokenExpired(true);
+          setAccessToken(null);
+          localStorage.removeItem('gmailAccessToken');
+          throw new Error('Gmail bağlantısı süresi dolmuş. Lütfen tekrar bağlanın.');
+        }
+        throw new Error('Gmail API hatası: ' + response.statusText);
       }
 
       const data = await response.json();
-      const messageIds = data.messages || [];
-
-      // Her mail için detayları getir
-      const emailPromises = messageIds.map(async (msg: { id: string }) => {
-        const emailResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
+      
+      if (data.messages && data.messages.length > 0) {
+        // Her mail için detay bilgilerini getir
+        const emailPromises = data.messages.map(async (message: any) => {
+          const emailResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+          
+          if (emailResponse.ok) {
+            const emailData = await emailResponse.json();
+            return emailData;
+          }
+          return null;
         });
 
-        if (emailResponse.ok) {
-          return await emailResponse.json();
-        }
-        return null;
-      });
-
-      const emailDetails = await Promise.all(emailPromises);
-      const validEmails = emailDetails.filter(email => email !== null);
-
-            // E-postaları basit özetle
-      const emailsWithSummaries = validEmails.map((email: GmailEmail) => {
-        const snippet = email.snippet || '';
-        const subject = getHeaderValue(email.payload.headers, 'Subject') || '';
+        const emailDetails = await Promise.all(emailPromises);
+        const validEmails = emailDetails.filter(email => email !== null);
         
-        // Basit özet oluştur
-        let summary = '';
-        if (snippet.length > 0) {
-          // İlk 100 karakteri al ve cümle sonunda kes
-          const shortSnippet = snippet.substring(0, 100);
-          const lastPeriod = shortSnippet.lastIndexOf('.');
-          const lastExclamation = shortSnippet.lastIndexOf('!');
-          const lastQuestion = shortSnippet.lastIndexOf('?');
-          
-          const lastEnd = Math.max(lastPeriod, lastExclamation, lastQuestion);
-          
-          if (lastEnd > 50) {
-            summary = shortSnippet.substring(0, lastEnd + 1);
-          } else {
-            summary = shortSnippet + '...';
-          }
-        } else if (subject.length > 0) {
-          summary = `Konu: ${subject}`;
-        } else {
-          summary = 'Mail içeriği bulunamadı';
-        }
-        
-        return {
-          ...email,
-          summary: summary
-        };
-      });
-
-      setEmails(emailsWithSummaries);
-      console.log('Emails fetched:', emailsWithSummaries);
-    } catch (error) {
-      console.error('Fetch emails error:', error);
-      setError('Mailler getirilirken hata oluştu: ' + (error as Error).message);
+        setEmails(validEmails);
+      } else {
+        setEmails([]);
+      }
+    } catch (err) {
+      console.error('Gmail API error:', err);
+      setError(err instanceof Error ? err.message : 'Gmail API hatası');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!match || !agentId) {
-    return <div>Agent ID gerekli</div>;
-  }
-
   const formatDate = (dateString: string) => {
     const date = new Date(parseInt(dateString));
-    return date.toLocaleString('tr-TR');
+    return date.toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const extractEmailFromSender = (sender: string) => {
@@ -185,181 +165,252 @@ export default function GmailAgentUsage() {
   };
 
   const getHeaderValue = (headers: Array<{ name: string; value: string }>, name: string) => {
-    const header = headers.find(h => h.name.toLowerCase() === name.toLowerCase());
+    const header = headers.find(h => h.name === name);
     return header ? header.value : '';
   };
 
   return (
-    <div className="min-h-screen py-20 bg-[var(--light-gray)]">
+    <div className="min-h-screen py-8 sm:py-12 bg-[var(--light-gray)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href={`/agent/${agentId}`}>
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t("gmail.backToAgent")}
-            </Button>
-          </Link>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-[var(--dark-purple)] mb-2">
-                {t("gmail.title")}
-              </h1>
-                             <p className="text-gray-600">
-                 {t("gmail.description")}
-               </p>
-               {accessToken && (
-                 <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
-                   <p className="text-sm text-green-700">
-                     ✅ Gmail hesabınız bağlı - Maillerinizi getirebilirsiniz
-                   </p>
-                 </div>
-               )}
+        {/* Modern Header */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Link href="/my-agents">
+              <Button variant="ghost" size="sm" className="p-2 hover:bg-white/10 rounded-xl">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Mail className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-[var(--dark-purple)]">
+                  Gmail Agent
+                </h1>
+                <p className="text-[var(--muted-foreground)] text-xs sm:text-sm">
+                  {t("gmail.description")}
+                </p>
+              </div>
             </div>
+          </div>
+
+          {/* Token Expired Warning */}
+          {tokenExpired && (
+            <div className="glassmorphic rounded-xl p-3 mb-4 border-l-4 border-orange-500 bg-orange-50/50 dark:bg-orange-950/20">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-orange-600" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-orange-800 dark:text-orange-200 text-sm">
+                    Gmail Bağlantısı Süresi Dolmuş
+                  </h3>
+                  <p className="text-xs text-orange-700 dark:text-orange-300">
+                    Maillerinizi görüntülemek için tekrar bağlanmanız gerekiyor.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => gmailLogin()} 
+                  size="sm"
+                  className="bg-orange-600 hover:bg-orange-700 text-white text-xs px-3 py-1"
+                >
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                  Tekrar Bağlan
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-2 sm:gap-3">
+            {!accessToken ? (
+              <Button 
+                onClick={() => gmailLogin()} 
+                className="relative inline-flex items-center justify-center px-1 py-1 rounded-lg group transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
+                <div className="relative rounded-lg bg-white dark:bg-background px-4 py-2">
+                  <span className="text-black dark:text-white text-sm font-medium leading-none flex items-center">
+                    <Mail className="w-3 h-3 mr-2" />
+                    {t("gmail.connectGmail")}
+                  </span>
+                </div>
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  onClick={fetchEmails} 
+                  disabled={loading} 
+                  className="relative inline-flex items-center justify-center px-1 py-1 rounded-lg group transition-all duration-300 hover:scale-105"
+                >
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
+                  <div className="relative rounded-lg bg-white dark:bg-background px-4 py-2">
+                    <span className="text-black dark:text-white text-sm font-medium leading-none flex items-center">
+                      <Mail className="w-3 h-3 mr-2" />
+                      {loading ? t("gmail.loading") : t("gmail.getEmails")}
+                    </span>
+                  </div>
+                </Button>
+                
+                <Button 
+                  onClick={disconnectGmail} 
+                  variant="outline" 
+                  className="text-red-600 border-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 px-4 py-2 rounded-lg text-sm"
+                >
+                  {t("gmail.disconnect")}
+                </Button>
+              </>
+            )}
             
-                         <div className="flex gap-4">
-               {!accessToken ? (
-                 <Button onClick={() => gmailLogin()} className="bg-blue-600 hover:bg-blue-700">
-                   <Mail className="w-4 h-4 mr-2" />
-                   {t("gmail.connectGmail")}
-                 </Button>
-               ) : (
-                 <>
-                   <Button onClick={fetchEmails} disabled={loading} className="bg-green-600 hover:bg-green-700">
-                     <Mail className="w-4 h-4 mr-2" />
-                     {loading ? t("gmail.loading") : t("gmail.getEmails")}
-                   </Button>
-                   
-                   <Button 
-                     onClick={disconnectGmail} 
-                     variant="outline" 
-                     className="text-red-600 border-red-600 hover:bg-red-50"
-                   >
-                     Bağlantıyı Kes
-                   </Button>
-                 </>
-               )}
-               
-               <Button
-                 variant="outline"
-                 onClick={() => setShowSnippets(!showSnippets)}
-               >
-                 {showSnippets ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-                 {showSnippets ? t("gmail.hideSnippets") : t("gmail.showSnippets")}
-               </Button>
-             </div>
+            <Button
+              variant="outline"
+              onClick={() => setShowSnippets(!showSnippets)}
+              className="px-4 py-2 rounded-lg text-sm"
+            >
+              {showSnippets ? <EyeOff className="w-3 h-3 mr-2" /> : <Eye className="w-3 h-3 mr-2" />}
+              {showSnippets ? t("gmail.hideSnippets") : t("gmail.showSnippets")}
+            </Button>
           </div>
         </div>
 
         {/* Error Display */}
         {error && (
-          <Card className="mb-6 border-red-200 bg-red-50">
-            <CardContent className="pt-6">
-              <p className="text-red-600">{error}</p>
-            </CardContent>
-          </Card>
+          <div className="glassmorphic rounded-xl p-4 mb-4 border-l-4 border-red-500 bg-red-50/50 dark:bg-red-950/20">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600" />
+              <div>
+                <h3 className="font-semibold text-red-800 dark:text-red-200 text-sm mb-1">
+                  Hata Oluştu
+                </h3>
+                <p className="text-red-700 dark:text-red-300 text-xs">{error}</p>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Loading State */}
         {loading && (
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <Loading size="lg" text={t("gmail.loadingEmails")} />
-            </CardContent>
-          </Card>
+          <div className="glassmorphic rounded-xl p-6 text-center">
+            <Loading size="lg" text={t("gmail.loadingEmails")} />
+          </div>
         )}
 
-        {/* Emails List */}
+        {/* Compact Emails List */}
         {emails.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-[var(--dark-purple)]">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-[var(--dark-purple)]">
                 {t("gmail.recentEmails")} ({emails.length})
               </h2>
             </div>
             
-            {emails.map((email) => (
-              <Card key={email.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <User className="w-4 h-4 text-gray-500" />
-                        <span className="font-medium text-gray-900">
-                          {getHeaderValue(email.payload.headers, 'From')}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          ({extractEmailFromSender(getHeaderValue(email.payload.headers, 'From'))})
-                        </span>
-                      </div>
-                      
-                      <h3 className="font-semibold text-lg text-[var(--dark-purple)] mb-2">
-                        {getHeaderValue(email.payload.headers, 'Subject')}
-                      </h3>
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
+            <div className="grid gap-3">
+              {emails.map((email) => (
+                <div key={email.id} className="glassmorphic rounded-xl p-4 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] group">
+                  <div className="flex items-start gap-3">
+                    {/* Sender Avatar */}
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      {/* Header Row */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-[var(--foreground)] text-sm truncate">
+                            {getHeaderValue(email.payload.headers, 'From')}
+                          </div>
+                          <div className="text-xs text-[var(--muted-foreground)] truncate">
+                            {extractEmailFromSender(getHeaderValue(email.payload.headers, 'From'))}
+                          </div>
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)] flex items-center gap-1 ml-2">
+                          <Clock className="w-3 h-3" />
                           {formatDate(email.internalDate)}
                         </div>
                       </div>
                       
+                      {/* Subject */}
+                      <h3 className="font-bold text-[var(--dark-purple)] text-sm mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-blue-600 group-hover:bg-clip-text transition-all duration-300 line-clamp-2">
+                        {getHeaderValue(email.payload.headers, 'Subject')}
+                      </h3>
+                      
+                      {/* Snippet */}
                       {showSnippets && email.snippet && (
-                        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
-                          <p className="text-gray-700">{email.snippet}</p>
+                        <div className="mb-3 p-3 bg-white/50 dark:bg-black/20 rounded-lg backdrop-blur-sm border border-white/20 dark:border-white/10">
+                          <p className="text-[var(--foreground)] text-xs leading-relaxed line-clamp-3">{email.snippet}</p>
                         </div>
                       )}
                       
+                      {/* AI Summary */}
                       {email.summary && (
-                        <div className="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                          <h4 className="font-medium text-blue-900 mb-1">{t("gmail.aiSummary")}</h4>
-                          <p className="text-blue-800">{email.summary}</p>
+                        <div className="p-3 bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-950/30 dark:to-purple-950/30 rounded-lg border border-blue-200/50 dark:border-blue-800/30">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+                            <h4 className="font-semibold text-blue-900 dark:text-blue-100 text-xs">{t("gmail.aiSummary")}</h4>
+                          </div>
+                          <p className="text-blue-800 dark:text-blue-200 text-xs leading-relaxed line-clamp-2">{email.summary}</p>
                         </div>
                       )}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Compact Empty State */}
         {!loading && emails.length === 0 && accessToken && (
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <Mail className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t("gmail.noEmails")}
-              </h3>
-              <p className="text-gray-500 mb-4">
-                {t("gmail.noEmailsDescription")}
-              </p>
-              <Button onClick={fetchEmails}>
-                {t("gmail.getEmails")}
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="glassmorphic rounded-xl p-6 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Mail className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-[var(--dark-purple)] mb-2">
+              {t("gmail.noEmails")}
+            </h3>
+            <p className="text-[var(--muted-foreground)] mb-4 text-sm">
+              {t("gmail.noEmailsDescription")}
+            </p>
+            <Button 
+              onClick={fetchEmails}
+              className="relative inline-flex items-center justify-center px-1 py-1 rounded-lg group transition-all duration-300 hover:scale-105"
+            >
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
+              <div className="relative rounded-lg bg-white dark:bg-background px-4 py-2">
+                <span className="text-black dark:text-white text-sm font-medium leading-none flex items-center">
+                  <RefreshCw className="w-3 h-3 mr-2" />
+                  {t("gmail.getEmails")}
+                </span>
+              </div>
+            </Button>
+          </div>
         )}
 
-        {/* Connect Gmail State */}
+        {/* Compact Connect State */}
         {!accessToken && (
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <Mail className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t("gmail.connectRequired")}
-              </h3>
-              <p className="text-gray-500 mb-4">
-                {t("gmail.connectDescription")}
-              </p>
-              <Button onClick={() => gmailLogin()} className="bg-blue-600 hover:bg-blue-700">
-                <Mail className="w-4 h-4 mr-2" />
-                {t("gmail.connectGmail")}
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="glassmorphic rounded-xl p-6 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Mail className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-[var(--dark-purple)] mb-2">
+              {t("gmail.connectRequired")}
+            </h3>
+            <p className="text-[var(--muted-foreground)] mb-4 text-sm">
+              {t("gmail.connectDescription")}
+            </p>
+            <Button 
+              onClick={() => gmailLogin()} 
+              className="relative inline-flex items-center justify-center px-1 py-1 rounded-lg group transition-all duration-300 hover:scale-105"
+            >
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
+              <div className="relative rounded-lg bg-white dark:bg-background px-4 py-2">
+                <span className="text-black dark:text-white text-sm font-medium leading-none flex items-center">
+                  <Mail className="w-3 h-3 mr-2" />
+                  {t("gmail.connectGmail")}
+                </span>
+              </div>
+            </Button>
+          </div>
         )}
       </div>
     </div>

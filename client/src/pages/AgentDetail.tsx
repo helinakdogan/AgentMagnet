@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
-import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X } from "lucide-react";
+import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X, Mail } from "lucide-react";
 import { useAgent, useAgentPurchase, useUserAgents } from "@/hooks/use-api";
 import { LoadingPage } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/ui/error-boundary";
@@ -91,6 +91,11 @@ export default function AgentDetail() {
   };
 
   const getCategoryIcon = (category: string) => {
+    // Gmail agent için özel kontrol - kategoriden bağımsız olarak Mail iconu göster
+    if (agent.name.toLowerCase().includes('gmail')) {
+      return <Mail className="w-8 h-8 text-white" />;
+    }
+
     switch (category.toLowerCase()) {
       case "yazım":
         return (
@@ -110,6 +115,16 @@ export default function AgentDetail() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
           </svg>
         );
+      case "analiz":
+        return (
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        );
+      case "gmail":
+      case "email":
+      case "e-posta":
+        return <Mail className="w-8 h-8 text-white" />;
       default:
         return (
           <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +197,7 @@ export default function AgentDetail() {
         <Link href="/agents">
           <button className="flex items-center space-x-2 text-gray-600 hover:text-[var(--dark-purple)] font-medium mb-8 transition-colors">
             <ArrowLeft className="w-5 h-5" />
-            <span>Ajanlar Mağazasına Dön</span>
+            <span>{t("agentDetail.backToAgents")}</span>
           </button>
         </Link>
 
@@ -207,7 +222,7 @@ export default function AgentDetail() {
 
             {/* Plan Selection */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">Plan Seçimi</h3>
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">{t("agentDetail.planSelection")}</h3>
               <div className="flex flex-wrap gap-3 mb-4">
                 {(["free", "plus", "premium"] as const).map((plan) => (
                   <button
@@ -226,26 +241,23 @@ export default function AgentDetail() {
 
               {/* Billing Cycle Toggle */}
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-gray-700">Faturalama:</span>
+                <span className="text-[var(--muted-foreground)]">{t("agentDetail.billing")}</span>
                 <div className="flex glassmorphic rounded-xl p-1">
                   <button
                     onClick={() => setBillingCycle("monthly")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
-                      billingCycle === "monthly" ? "bg-purple-500 text-white" : "text-gray-600"
+                      billingCycle === "monthly" ? "bg-purple-500 text-white" : "text-[var(--muted-foreground)]"
                     }`}
                   >
-                    Aylık
+                    {t("agentDetail.monthly")}
                   </button>
                   <button
                     onClick={() => setBillingCycle("yearly")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
-                      billingCycle === "yearly" ? "bg-purple-500 text-white" : "text-gray-600"
+                      billingCycle === "yearly" ? "bg-purple-500 text-white" : "text-[var(--muted-foreground)]"
                     }`}
                   >
-                    Yıllık
-                    <span className="ml-1 text-xs bg-green-500 text-white px-1 rounded">
-                      {selectedPlan === "premium" ? "%25" : "%20"} indirim
-                    </span>
+                    {t("agentDetail.yearly")}
                   </button>
                 </div>
               </div>
@@ -254,49 +266,35 @@ export default function AgentDetail() {
             {/* Plan Features */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">
-                {currentPlan.name} Planı Özellikleri
+                {currentPlan.name} {t("agentDetail.planFeatures")}
               </h3>
               <div className="space-y-3">
                 {currentPlan.features.map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
+                    <span className="text-[var(--foreground)]">{feature}</span>
                   </div>
                 ))}
               </div>
-{/* 
-              {currentPlan.limitations.length > 0 && (
-                <div className="mt-6">
-                  <h4 className="text-lg font-medium text-gray-800 mb-3">Kısıtlamalar</h4>
-                  <div className="space-y-2">
-                    {currentPlan.limitations.map((limitation, index) => (
-                      <div key={index} className="flex items-center space-x-3 opacity-70">
-                        <X className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                        <span className="text-gray-600">{limitation}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )} */}
             </div>
 
             {/* Plan Integrations */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">
-                {currentPlan.name} Planında Kullanılabilir Entegrasyonlar
+                {currentPlan.name} {t("agentDetail.planIntegrations")}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {currentPlan.integrations.map((integration: string, index: number) => (
                   <span 
                     key={index}
-                    className="px-3 py-1 text-sm font-medium text-gray-700 glassmorphic rounded-lg"
+                    className="px-3 py-1 text-sm font-medium text-[var(--foreground)] glassmorphic rounded-lg"
                   >
                     {integration}
                   </span>
                 ))}
                 {currentPlan.integrations.length < agent.integrations.length && (
-                  <span className="px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-lg">
-                    +{agent.integrations.length - currentPlan.integrations.length} daha fazla Premium'da
+                  <span className="px-3 py-1 text-sm font-medium text-[var(--muted-foreground)] card-muted rounded-lg">
+                    +{agent.integrations.length - currentPlan.integrations.length} {t("agentDetail.moreInPremium")}
                   </span>
                 )}
               </div>
@@ -306,15 +304,15 @@ export default function AgentDetail() {
             <div className="grid sm:grid-cols-3 gap-4">
               <div className="text-center p-4 glassmorphic rounded-xl">
                 <Zap className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-                <div className="text-sm font-medium text-gray-700">Hızlı Kurulum</div>
+                <div className="text-sm font-medium text-[var(--foreground)]">{t("agentDetail.fastSetup")}</div>
               </div>
               <div className="text-center p-4 glassmorphic rounded-xl">
                 <Shield className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                <div className="text-sm font-medium text-gray-700">Güvenli</div>
+                <div className="text-sm font-medium text-[var(--foreground)]">{t("agentDetail.secure")}</div>
               </div>
               <div className="text-center p-4 glassmorphic rounded-xl">
                 <Globe className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                <div className="text-sm font-medium text-gray-700">Global Erişim</div>
+                <div className="text-sm font-medium text-[var(--foreground)]">{t("agentDetail.globalAccess")}</div>
               </div>
             </div>
           </div>
@@ -325,25 +323,25 @@ export default function AgentDetail() {
               <div className="text-center mb-6">
                 <div className="text-4xl font-semibold text-[var(--dark-purple)] mb-2">
                   {selectedPlan === "free" ? (
-                    <span>Ücretsiz</span>
+                    <span>{t("agentDetail.free")}</span>
                   ) : (
                     <>
                       ₺{displayPrice}
-                      <span className="text-lg text-gray-600 font-normal">/ay</span>
+                      <span className="text-lg text-[var(--muted-foreground)] font-normal">{t("agentDetail.perMonth")}</span>
                     </>
                   )}
                 </div>
-                <p className="text-gray-600">
+                <p className="text-[var(--muted-foreground)]">
                   {selectedPlan === "free" 
-                    ? "Süresiz ücretsiz" 
+                    ? t("agentDetail.freeDescription") 
                     : billingCycle === "yearly" 
-                      ? `₺${currentPlan.yearlyPrice} yıllık ödeme`
-                      : "Aylık abonelik"
+                      ? `₺${currentPlan.yearlyPrice} ${t("agentDetail.yearlyPayment")}`
+                      : t("agentDetail.monthlySubscription")
                   }
                 </p>
                 {billingCycle === "yearly" && selectedPlan !== "free" && (
                   <p className="text-green-600 text-sm font-medium">
-                    Yıllık ödemeyle {selectedPlan === "premium" ? "%25" : "%20"} tasarruf edin!
+                    {t("agentDetail.yearlySavings")}
                   </p>
                 )}
               </div>
@@ -421,8 +419,8 @@ export default function AgentDetail() {
 
               <p className="text-xs text-gray-500 text-center mt-4">
                 {selectedPlan === "free" 
-                  ? "Kredi kartı gerektirmez. İstediğiniz zaman yükseltebilirsiniz."
-                  : "İstediğiniz zaman iptal edebilirsiniz. Kredi kartı gerekmez."
+                  ? t("agentDetail.freeCreditCard")
+                  : t("agentDetail.cancelAnytime")
                 }
               </p>
             </div>

@@ -43,7 +43,7 @@ const MyAgents: FC = () => {
       <div className="min-h-screen py-20 bg-[var(--light-gray)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <Loading size="lg" text="Agentlarınız yükleniyor..." />
+            <Loading size="lg" text={t("myAgents.loading")} />
           </div>
         </div>
       </div>
@@ -55,10 +55,10 @@ const MyAgents: FC = () => {
       <div className="min-h-screen py-20 bg-[var(--light-gray)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-red-600 mb-4">Hata Oluştu</h2>
-            <p className="text-gray-600 mb-8">Agentlarınız yüklenirken bir hata oluştu.</p>
+            <h2 className="text-2xl font-semibold text-red-600 mb-4">{t("myAgents.errorTitle")}</h2>
+            <p className="text-gray-600 mb-8">{t("myAgents.errorDescription")}</p>
             <Button onClick={() => window.location.reload()}>
-              Tekrar Dene
+              {t("myAgents.tryAgain")}
             </Button>
           </div>
         </div>
@@ -72,17 +72,17 @@ const MyAgents: FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-semibold text-[var(--dark-purple)] mb-4">
-              Henüz Agent Satın Almadınız
+              {t("myAgents.noAgentsTitle")}
             </h2>
             <p className="text-gray-600 mb-8">
-              Agent mağazasından agent satın alarak başlayın.
+              {t("myAgents.noAgentsDescription")}
             </p>
             <Button 
               onClick={() => setLocation('/agents')}
               size="lg"
               className="px-8 py-4 text-lg"
             >
-              Agent Mağazasına Git
+              {t("myAgents.goToStore")}
             </Button>
           </div>
         </div>
@@ -98,7 +98,7 @@ const MyAgents: FC = () => {
           <h1 className="text-4xl font-bold text-[var(--dark-purple)] mb-4">
             {t("myAgents.title")}
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-[var(--muted-foreground)] text-lg">
             {t("myAgents.description")}
           </p>
         </div>
@@ -112,61 +112,35 @@ const MyAgents: FC = () => {
                   <CardTitle className="text-xl font-semibold text-[var(--dark-purple)]">
                     {t("myAgents.gmailAgent")}
                   </CardTitle>
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Mail className="w-6 h-6 text-white" />
                   </div>
                 </div>
               </CardHeader>
               
               <CardContent className="space-y-4">
                 {/* Agent Description */}
-                <p className="text-gray-600 text-sm">
-                  Gmail entegrasyonu ile e-postalarınızı yönetin
+                <p className="text-[var(--muted-foreground)] text-sm">
+                  {t("myAgents.gmailDescription")}
                 </p>
 
-                {/* Usage Stats */}
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Kullanım Sayısı:</span>
-                    <span className="font-semibold text-[var(--dark-purple)]">
-                      {userAgent.usageCount || 0}
-                    </span>
-                  </div>
-                  {userAgent.lastUsed && (
-                    <div className="flex items-center justify-between text-sm mt-1">
-                      <span className="text-gray-600">Son Kullanım:</span>
-                      <span className="text-gray-500">
-                        {new Date(userAgent.lastUsed).toLocaleDateString('tr-TR')}
-                      </span>
-                    </div>
-                  )}
-                </div>
+             
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   <Button
                     onClick={() => setLocation(`/agent/${userAgent.agentId}/gmail`)}
-                    className="flex-1"
+                    className="flex-1 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition-colors"
                     size="sm"
                   >
                     <Mail className="w-4 h-4 mr-2" />
-                    {t("myAgents.useGmail")}
+                    {t("myAgents.useAgent")}
                   </Button>
                   
-                  <Button
-                    onClick={() => setLocation(`/agent/${userAgent.agentId}/usage`)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                  </Button>
+                 
                 </div>
 
-                {/* Purchase Date */}
-                <div className="text-xs text-gray-500 flex items-center">
-                  <Calendar className="w-3 h-3 mr-1" />
-                  Satın alınma: {userAgent.createdAt ? new Date(userAgent.createdAt).toLocaleDateString('tr-TR') : 'Bilinmiyor'}
-                </div>
+               
               </CardContent>
             </Card>
           ))}
@@ -181,7 +155,7 @@ const MyAgents: FC = () => {
             className="px-8 py-4"
           >
             <ExternalLink className="w-5 h-5 mr-2" />
-            Daha Fazla Agent Satın Al
+            {t("myAgents.buyMoreAgents")}
           </Button>
         </div>
       </div>

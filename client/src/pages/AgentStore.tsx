@@ -150,8 +150,8 @@ export default function AgentStore() {
               onClick={() => setSelectedCategory(category)}
               className={`px-6 py-3 text-sm font-medium rounded-xl transition-colors ${
                 selectedCategory === category
-                  ? "bg-[var(--dark-purple)] text-white"
-                  : "text-gray-600 glassmorphic hover:bg-gray-50"
+                  ? "bg-[var(--dark-purple)] text-white dark:bg-white dark:text-[var(--border)]"
+                  : "text-gray-500 glassmorphic hover:bg-gray-50"
               }`}
             >
               {category}

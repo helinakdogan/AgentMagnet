@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Agent } from "@/lib/api";
 
@@ -48,7 +49,12 @@ const getStatusLabel = (status: string, t: any) => {
   }
 };
 
-const getCategoryIcon = (category: string) => {
+const getCategoryIcon = (category: string, agentName: string) => {
+  // Gmail agent için özel kontrol - kategoriden bağımsız olarak Mail iconu göster
+  if (agentName.toLowerCase().includes('gmail')) {
+    return <Mail className="w-6 h-6 text-white" />;
+  }
+
   switch (category.toLowerCase()) {
     case "yazım":
       return (
@@ -98,6 +104,10 @@ const getCategoryIcon = (category: string) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       );
+    case "gmail":
+    case "email":
+    case "e-posta":
+      return <Mail className="w-6 h-6 text-white" />;
     default:
       return (
         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +127,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
       <div className="agent-card-hover glassmorphic rounded-xl p-6 group cursor-pointer">
         <div className="flex items-center justify-between mb-4">
           <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg`}>
-            {getCategoryIcon(agent.category)}
+            {getCategoryIcon(agent.category, agent.name)}
           </div>
           <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusLabel.color}`}>
             {statusLabel.text}
