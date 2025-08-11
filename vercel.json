@@ -5,14 +5,29 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist/public"
+        "distDir": "dist"
       }
     }
   ],
   "routes": [
     {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
     }
   ]
 } 
