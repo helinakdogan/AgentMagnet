@@ -91,7 +91,7 @@ export default function TestIntegration() {
                 <div>
                   <h4 className="font-medium mb-2">Agents Query:</h4>
                   {agentsLoading ? (
-                    <Loading size="sm" text="Loading agents..." />
+                    <Loading size="sm" text={t("test.loadingAgents")} />
                   ) : agentsError ? (
                     <div className="text-red-600 text-sm">
                       Error: {agentsError.message}
@@ -106,7 +106,7 @@ export default function TestIntegration() {
                 <div>
                   <h4 className="font-medium mb-2">Auth Query:</h4>
                   {authLoading ? (
-                    <Loading size="sm" text="Loading auth..." />
+                    <Loading size="sm" text={t("test.loadingAuth")} />
                   ) : authError ? (
                     <div className="text-red-600 text-sm">
                       Error: {authError.message}
@@ -121,7 +121,7 @@ export default function TestIntegration() {
                 <div>
                   <h4 className="font-medium mb-2">Gmail Mailleri:</h4>
                   {gmailEmails.isPending ? (
-                    <Loading size="sm" text="Mailler yükleniyor..." />
+                    <Loading size="sm" text={t("gmail.loadingEmails")} />
                   ) : gmailEmails.error ? (
                     <div className="text-red-600 text-sm">
                       Hata: {gmailEmails.error.message}
@@ -178,7 +178,7 @@ export default function TestIntegration() {
               <p>1. <strong>Start your backend server</strong> on port 3000</p>
               <p>2. <strong>Set up your database</strong> and run migrations</p>
               <p>3. <strong>Configure environment variables</strong> for OAuth and database</p>
-              <p>4. <strong>Test the integration</strong> by clicking "Test API Connection"</p>
+              <p>4. <strong>{t("test.testIntegration")}</strong> {t("test.testIntegrationDesc")}</p>
               <p>5. <strong>Navigate to /agents</strong> to see the agent store</p>
             </div>
           </CardContent>

@@ -214,16 +214,28 @@ export const useIsAuthenticated = () => {
 
 // Custom hook for agent purchase with authentication check
 export const useAgentPurchase = () => {
-  const { isAuthenticated } = useIsAuthenticated();
   const purchaseMutation = usePurchaseAgent();
   
   const purchaseAgent = (agentId: string, userId: string) => {
-    if (!isAuthenticated) {
+    // localStorage'dan user bilgisini kontrol et
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
       handleApiError(new Error('Please log in to purchase agents'), 'Authentication required');
       return;
     }
     
-    purchaseMutation.mutate({ id: agentId, userId });
+    try {
+      const user = JSON.parse(userData);
+      if (!user || !user.id) {
+        handleApiError(new Error('Please log in to purchase agents'), 'Authentication required');
+        return;
+      }
+      
+      // User ID'yi localStorage'dan al, parametre olarak gelen userId'yi kullanma
+      purchaseMutation.mutate({ id: agentId, userId: user.id });
+    } catch (error) {
+      handleApiError(new Error('Please log in to purchase agents'), 'Authentication required');
+    }
   };
   
   return {

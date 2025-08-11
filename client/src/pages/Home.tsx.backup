@@ -6,15 +6,13 @@ import { useAgents } from "@/hooks/use-api";
 import { Loading, LoadingCard } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/ui/error-boundary";
 import type { Agent } from "@/lib/api";
-import Logo from "@/assets/agentmagnetlogolight.png";
-import ChocolateGrid from "@/components/ChocolateGrid"; 
+import Logo from "@/assets/agentmagnetlogolight.png"; 
 
 export default function Home() {
   const { t, language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState(t("category.all"));
   const [gameState, setGameState] = useState<'playing' | 'won'>('playing');
   const [collectedParticles, setCollectedParticles] = useState(0);
-  const [sliderPosition, setSliderPosition] = useState(0);
   const [totalParticles] = useState(10);
 
   // Magnetic game effect
@@ -255,24 +253,6 @@ export default function Home() {
   const categoryParam = selectedCategory === t("category.all") ? undefined : selectedCategory;
   const { data: agents = [], isLoading, error } = useAgents(categoryParam);
 
-  // Slider navigation functions
-  const handleSliderPrev = () => {
-    setSliderPosition(prev => Math.max(prev - 1, 0));
-  };
-
-  const handleSliderNext = () => {
-    setSliderPosition(prev => Math.min(prev + 1, 2)); // 3 agents total
-  };
-
-  // Auto-rotate slider
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSliderPosition(prev => (prev + 1) % 3); // Loop back to 0 after 2
-    }, 2500); // Change every 2.5 seconds (faster)
-
-    return () => clearInterval(interval);
-  }, []);
-
   const categories = [
     t("category.all"), 
     t("category.writing"), 
@@ -316,33 +296,30 @@ export default function Home() {
               
               {/* Slogan */}
               <p className="mt-4 text-lg text-gray-500 italic">
-                "{t("home.hero.slogan")}"
+                "Herkesin akıllı bir asistana ihtiyacı vardır."
               </p>
 
               {/* CTA Buttons */}
-         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-  {/* Gradient Border Button */}
-<Link href="/agents">
-  <div className="relative inline-flex items-center justify-center px-1 py-1 rounded-xl group">
-    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
-    <div className="relative rounded-xl bg-muted dark:bg-muted px-4 py-1">
-      <span className="text-black dark:text-white font-medium">
-        {t("home.hero.cta")}
-      </span>
-    </div>
-  </div>
-</Link>
+              <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                {/* Gradient Border Button */}
+                <Link href="/agents">
+                  <div className="relative inline-flex items-center justify-center px-1 py-1 rounded-xl group">
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 p-[2px] group-hover:opacity-80 transition-opacity"></div>
+                    <div className="relative rounded-xl bg-muted dark:bg-muted px-4 py-1">
+                      <span className="text-black dark:text-white font-medium">
+                        {t("home.hero.cta")}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
 
-
-
-
-  {/* Solid Black Button */}
-  <Link href="/developer">
-    <button className="btn-black px-6 py-3 text-base rounded-lg font-medium">
-      {t("home.hero.learn")}
-    </button>
-  </Link>
-</div>
+                {/* Solid Black Button */}
+                <Link href="/developer">
+                  <button className="btn-black px-6 py-3 text-base rounded-lg font-medium">
+                    {t("home.hero.learn")}
+                  </button>
+                </Link>
+              </div>
 
 
               {/* Stats */}
@@ -376,7 +353,7 @@ export default function Home() {
                   <div className="text-center mb-4 sm:mb-6 lg:mb-8">
                     <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 glassmorphic rounded-full mb-3 sm:mb-4">
                       <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm sm:text-base font-medium text-[var(--muted-foreground)]">{t("home.game.interactiveExperience")}</span>
+                      <span className="text-xs sm:text-sm font-medium text-[var(--muted-foreground)]">Interactive Experience</span>
                     </div>
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-[var(--dark-purple)] dark:text-white mb-2 sm:mb-3">{t("home.game.title")}</h3>
                     <p className="text-sm sm:text-base text-[var(--muted-foreground)] font-normal mb-2">{t("home.game.description")}</p>
@@ -385,7 +362,7 @@ export default function Home() {
                     {gameState === 'playing' && (
                       <div className="mt-3 sm:mt-4">
                         <div className="flex items-center justify-center gap-2 text-sm sm:text-base">
-                          <span className="text-[var(--muted-foreground)]">{t("home.game.collected")}</span>
+                          <span className="text-[var(--muted-foreground)]">Collected:</span>
                           <span className="font-semibold text-[var(--dark-purple)] dark:text-white">{collectedParticles}/{totalParticles}</span>
                         </div>
                         <div className="w-32 sm:w-40 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mt-2 overflow-hidden">
@@ -491,90 +468,57 @@ export default function Home() {
             </div>
           </div>
         </div>
-              </section>
+      </div>
+        </section>
 
         {/* Magnetic Agents Section */}
-        <section className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-transparent">
-          {/* Magnetic Field Background */}
-          <div className="absolute inset-0 magnetic-field-bg">
-            <div className="magnetic-dots"></div>
-            <div className="magnetic-dots" style={{animationDelay: '-5s'}}></div>
-            <div className="magnetic-dots" style={{animationDelay: '-10s'}}></div>
-          </div>
-          <div className="max-w-7xl mx-auto relative z-10">
+        <section className="py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
             {/* Section Header */}
-            <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--dark-purple)] dark:text-white mb-4 sm:mb-6">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl sm:text-5xl font-bold text-[var(--dark-purple)] dark:text-white mb-6">
                 {t("home.magneticAgents.title")}
               </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-[var(--muted-foreground)] max-w-3xl sm:max-w-4xl mx-auto leading-relaxed">
+              <p className="text-lg sm:text-xl text-[var(--muted-foreground)] max-w-4xl mx-auto leading-relaxed">
                 {t("home.magneticAgents.description")}
               </p>
             </div>
 
             {/* Magnetic Agents Slider */}
             <div className="relative overflow-hidden">
-              {/* Navigation Arrows */}
-              <button
-                onClick={handleSliderPrev}
-                disabled={sliderPosition === 0}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group hidden lg:flex"
-              >
-                <svg className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              
-              <button
-                onClick={handleSliderNext}
-                disabled={sliderPosition === 2}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group hidden lg:flex"
-              >
-                <svg className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-
-              <div 
-                className="flex gap-4 sm:gap-6 lg:gap-8 transition-transform duration-500 ease-in-out" 
-                style={{ 
-                  width: 'fit-content',
-                  transform: `translateX(-${sliderPosition * (288 + 32)}px)` // 288px card width + 32px gap for desktop
-                }}
-              >
-
+              <div className="flex gap-8 animate-magnetic-slide" style={{ width: 'fit-content' }}>
                 {/* Gmail Agent */}
-                <div className="flex-shrink-0 w-56 sm:w-64 lg:w-72">
+                <div className="flex-shrink-0 w-80">
                   <div className="group relative">
-                    <div className="glassmorphic rounded-2xl p-3 sm:p-5 lg:p-6 h-72 sm:h-80 lg:h-88 relative overflow-hidden cursor-pointer magnetic-card">
+                    <div className="glassmorphic rounded-2xl p-8 h-96 relative overflow-hidden cursor-pointer magnetic-card">
                       {/* Background Image */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-indigo-500/10 to-purple-500/20 rounded-2xl overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 via-orange-500/10 to-yellow-500/20 rounded-2xl overflow-hidden">
                         <img 
                           src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop&crop=center" 
                           alt="Gmail Agent"
-                          className="w-full h-full object-cover opacity-60 dark:opacity-40"
+                          className="w-full h-full object-cover opacity-40"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/50 via-indigo-500/40 to-purple-500/50 dark:from-blue-500/30 dark:via-indigo-500/20 dark:to-purple-500/30"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/30 via-orange-500/20 to-yellow-500/30"></div>
                       </div>
                       
                       {/* Content */}
                       <div className="relative z-10 h-full flex flex-col justify-between">
                         <div>
                           {/* Agent Icon */}
-                          <div className="relative mb-4">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
-                              <svg className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="relative mb-6">
+                            <div className="w-20 h-20 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
+                              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                               </svg>
                             </div>
                             {/* Magnetic Field Lines */}
-                            <div className="absolute inset-0 border-2 border-blue-500/20 rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none"></div>
+                            <div className="absolute inset-0 border-2 border-red-500/20 rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none"></div>
                           </div>
 
-                          <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-indigo-600 group-hover:bg-clip-text transition-all duration-300">
+                          <h3 className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-red-600 group-hover:to-orange-600 group-hover:bg-clip-text transition-all duration-300">
                             {t("home.magneticAgents.gmail.title")}
                           </h3>
-                          <p className="text-white/80 font-normal leading-relaxed text-base">
+                          <p className="text-[var(--muted-foreground)] font-normal leading-relaxed">
                             {t("home.magneticAgents.gmail.description")}
                           </p>
                         </div>
@@ -584,37 +528,37 @@ export default function Home() {
                 </div>
 
                 {/* Try On Agent */}
-                <div className="flex-shrink-0 w-56 sm:w-64 lg:w-72">
+                <div className="flex-shrink-0 w-80">
                   <div className="group relative">
-                    <div className="glassmorphic rounded-2xl p-3 sm:p-5 lg:p-6 h-72 sm:h-80 lg:h-88 relative overflow-hidden cursor-pointer magnetic-card">
+                    <div className="glassmorphic rounded-2xl p-8 h-96 relative overflow-hidden cursor-pointer magnetic-card">
                       {/* Background Image */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-red-500/10 to-yellow-500/20 rounded-2xl overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-teal-500/10 to-blue-500/20 rounded-2xl overflow-hidden">
                         <img 
-                          src="/src/assets/tryonphoto.png" 
+                          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop&crop=center" 
                           alt="Try On Agent"
-                          className="w-full h-full object-cover opacity-60 dark:opacity-40"
+                          className="w-full h-full object-cover opacity-40"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/50 via-red-500/40 to-yellow-500/50 dark:from-orange-500/30 dark:via-red-500/20 dark:to-yellow-500/30"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/30 via-teal-500/20 to-blue-500/30"></div>
                       </div>
                       
                       {/* Content */}
                       <div className="relative z-10 h-full flex flex-col justify-between">
                         <div>
                           {/* Agent Icon */}
-                          <div className="relative mb-4">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
-                              <svg className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="relative mb-6">
+                            <div className="w-20 h-20 bg-gradient-to-br from-green-500 via-teal-500 to-blue-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
+                              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                               </svg>
                             </div>
                             {/* Magnetic Field Lines */}
-                            <div className="absolute inset-0 border-2 border-orange-500/20 rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none"></div>
+                            <div className="absolute inset-0 border-2 border-green-500/20 rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none"></div>
                           </div>
 
-                          <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-orange-600 group-hover:to-red-600 group-hover:bg-clip-text transition-all duration-300">
+                          <h3 className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-teal-600 group-hover:bg-clip-text transition-all duration-300">
                             {t("home.magneticAgents.tryOn.title")}
                           </h3>
-                          <p className="text-white/80 font-normal leading-relaxed text-base">
+                          <p className="text-[var(--muted-foreground)] font-normal leading-relaxed">
                             {t("home.magneticAgents.tryOn.description")}
                           </p>
                         </div>
@@ -623,67 +567,27 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* WhatsApp Agent */}
-                <div className="flex-shrink-0 w-56 sm:w-64 lg:w-72">
-                  <div className="group relative">
-                    <div className="glassmorphic rounded-2xl p-3 sm:p-5 lg:p-6 h-72 sm:h-80 lg:h-88 relative overflow-hidden cursor-pointer magnetic-card">
-                      {/* Background Image */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-emerald-500/10 to-teal-500/20 rounded-2xl overflow-hidden">
-                        <img 
-                          src="/src/assets/whatsappohoto.png" 
-                          alt="WhatsApp Agent"
-                          className="w-full h-full object-cover opacity-60 dark:opacity-40"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/50 via-emerald-500/40 to-teal-500/50 dark:from-green-500/30 dark:via-emerald-500/20 dark:to-teal-500/30"></div>
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="relative z-10 h-full flex flex-col justify-between">
-                        <div>
-                          {/* Agent Icon */}
-                          <div className="relative mb-4">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
-                              <svg className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                              </svg>
-                            </div>
-                            {/* Magnetic Field Lines */}
-                            <div className="absolute inset-0 border-2 border-green-500/20 rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none"></div>
-                          </div>
-
-                          <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-emerald-600 group-hover:bg-clip-text transition-all duration-300">
-                            {t("home.magneticAgents.whatsapp.title")}
-                          </h3>
-                          <p className="text-white/80 font-normal leading-relaxed text-base">
-                            {t("home.magneticAgents.whatsapp.description")}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Instagram DM Control Agent */}
-                <div className="flex-shrink-0 w-56 sm:w-64 lg:w-72">
+                <div className="flex-shrink-0 w-80">
                   <div className="group relative">
-                    <div className="glassmorphic rounded-2xl p-3 sm:p-5 lg:p-6 h-72 sm:h-80 lg:h-88 relative overflow-hidden cursor-pointer magnetic-card">
+                    <div className="glassmorphic rounded-2xl p-8 h-96 relative overflow-hidden cursor-pointer magnetic-card">
                       {/* Background Image */}
                       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-purple-500/10 to-indigo-500/20 rounded-2xl overflow-hidden">
                         <img 
-                          src="/src/assets/instagramdmphoto.png" 
+                          src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&h=600&fit=crop&crop=center" 
                           alt="Instagram DM Control Agent"
-                          className="w-full h-full object-cover opacity-60 dark:opacity-40"
+                          className="w-full h-full object-cover opacity-40"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/50 via-purple-500/40 to-indigo-500/50 dark:from-pink-500/30 dark:via-purple-500/20 dark:to-indigo-500/30"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/30 via-purple-500/20 to-indigo-500/30"></div>
                       </div>
                       
                       {/* Content */}
                       <div className="relative z-10 h-full flex flex-col justify-between">
                         <div>
                           {/* Agent Icon */}
-                          <div className="relative mb-4">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
-                              <svg className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="relative mb-6">
+                            <div className="w-20 h-20 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
+                              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                               </svg>
                             </div>
@@ -691,10 +595,10 @@ export default function Home() {
                             <div className="absolute inset-0 border-2 border-pink-500/20 rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none"></div>
                           </div>
 
-                          <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-600 group-hover:to-purple-600 group-hover:bg-clip-text transition-all duration-300">
+                          <h3 className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-600 group-hover:to-purple-600 group-hover:bg-clip-text transition-all duration-300">
                             {t("home.magneticAgents.instagram.title")}
                           </h3>
-                          <p className="text-white/80 font-normal leading-relaxed text-base">
+                          <p className="text-[var(--muted-foreground)] font-normal leading-relaxed">
                             {t("home.magneticAgents.instagram.description")}
                           </p>
                         </div>
@@ -703,97 +607,61 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* WhatsApp Agent */}
+                <div className="flex-shrink-0 w-80">
+                  <div className="group relative">
+                    <div className="glassmorphic rounded-2xl p-8 h-96 relative overflow-hidden cursor-pointer magnetic-card">
+                      {/* Background Image */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-emerald-500/10 to-teal-500/20 rounded-2xl overflow-hidden">
+                        <img 
+                          src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=800&h=600&fit=crop&crop=center" 
+                          alt="WhatsApp Agent"
+                          className="w-full h-full object-cover opacity-40"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/30 via-emerald-500/20 to-teal-500/30"></div>
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="relative z-10 h-full flex flex-col justify-between">
+                        <div>
+                          {/* Agent Icon */}
+                          <div className="relative mb-6">
+                            <div className="w-20 h-20 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon">
+                              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                            </div>
+                            {/* Magnetic Field Lines */}
+                            <div className="absolute inset-0 border-2 border-green-500/20 rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none"></div>
+                          </div>
 
-              </div>
-            </div>
-
-                            {/* More to Come Section */}
-                <div className="text-center mt-16">
-                  {/* Main Message */}
-                  <div className="mb-8">
-                    <h3 className="text-xl sm:text-2xl font-bold text-[var(--dark-purple)] dark:text-white mb-4">
-                      {t("home.magneticAgents.futureTitle")}
-                    </h3>
-                    <p className="text-base text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed mb-6">
-                      {t("home.magneticAgents.futureDescription")}
-                    </p>
-                    
-                    {/* Customer Vision Slogan */}
-                    <div className="inline-flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-3 glassmorphic rounded-full mb-8 max-w-4xl mx-auto">
-                      <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse flex-shrink-0"></div>
-                      <span className="text-xs sm:text-sm lg:text-base font-medium text-[var(--muted-foreground)] italic">
-                        {t("home.magneticAgents.customerVision")}
-                      </span>
+                          <h3 className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-emerald-600 group-hover:bg-clip-text transition-all duration-300">
+                            {t("home.magneticAgents.whatsapp.title")}
+                          </h3>
+                          <p className="text-[var(--muted-foreground)] font-normal leading-relaxed">
+                            {t("home.magneticAgents.whatsapp.description")}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                            {/* Industry Chocolate Grid */}
-              <div className="relative mb-12">
-                <ChocolateGrid
-                  items={[
-                    {
-                      icon: (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                      ),
-                      title: t("home.magneticAgents.industries.beauty.title"),
-                      description: t("home.magneticAgents.industries.beauty.description")
-                    },
-                    {
-                      icon: (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                      ),
-                      title: t("home.magneticAgents.industries.boutique.title"),
-                      description: t("home.magneticAgents.industries.boutique.description")
-                    },
-                    {
-                      icon: (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                        </svg>
-                      ),
-                      title: t("home.magneticAgents.industries.it.title"),
-                      description: t("home.magneticAgents.industries.it.description")
-                    },
-                    {
-                      icon: (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                      ),
-                      title: t("home.magneticAgents.industries.students.title"),
-                      description: t("home.magneticAgents.industries.students.description")
-                    },
-                    {
-                      icon: (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                        </svg>
-                      ),
-                      title: t("home.magneticAgents.industries.aiEnthusiasts.title"),
-                      description: t("home.magneticAgents.industries.aiEnthusiasts.description")
-                    },
-                    {
-                      icon: (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                      ),
-                      title: t("home.magneticAgents.industries.automation.title"),
-                      description: t("home.magneticAgents.industries.automation.description")
-                    }
-                  ]}
-                />
+                </div>
               </div>
+            </div>
 
-
+            {/* More to Come Section */}
+            <div className="text-center mt-12">
+              <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-pink-500/10 rounded-full border border-purple-500/20">
+                <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-[var(--muted-foreground)]">
+                  {t("home.magneticAgents.moreToCome")}
+                </span>
+              </div>
             </div>
           </div>
+          
         </section>
-
+        
       {/* Agent Grid Section */}
       <section className="py-20 bg-white dark:bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -903,7 +771,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text transition-all duration-300">
                   {t("home.howItWorks.step1.title")}
                 </h3>
-                <p className="text-base text-[var(--muted-foreground)] font-normal leading-relaxed">
+                <p className="text-[var(--muted-foreground)] font-normal leading-relaxed">
                   {t("home.howItWorks.step1.description")}
                 </p>
               </div>
@@ -930,7 +798,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-600 group-hover:to-red-600 group-hover:bg-clip-text transition-all duration-300">
                   {t("home.howItWorks.step2.title")}
                 </h3>
-                <p className="text-base text-[var(--muted-foreground)] font-normal leading-relaxed">
+                <p className="text-[var(--muted-foreground)] font-normal leading-relaxed">
                   {t("home.howItWorks.step2.description")}
                 </p>
               </div>
@@ -957,7 +825,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-teal-600 group-hover:bg-clip-text transition-all duration-300">
                   {t("home.howItWorks.step3.title")}
                 </h3>
-                <p className="text-base text-[var(--muted-foreground)] font-normal leading-relaxed">
+                <p className="text-[var(--muted-foreground)] font-normal leading-relaxed">
                   {t("home.howItWorks.step3.description")}
                 </p>
               </div>
@@ -976,10 +844,10 @@ export default function Home() {
                   <span className="text-sm font-medium text-[var(--muted-foreground)]">Ready to Start?</span>
                 </div>
                 
-                <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">
+                <h3 className="text-2xl font-semibold text-[var(--dark-purple)] mb-4">
                   {t("home.howItWorks.cta.title")}
                 </h3>
-                <p className="text-base text-[var(--muted-foreground)] font-normal mb-8 max-w-2xl mx-auto">
+                <p className="text-[var(--muted-foreground)] font-normal mb-8 max-w-2xl mx-auto">
                   {t("home.howItWorks.cta.description")}
                 </p>
                 

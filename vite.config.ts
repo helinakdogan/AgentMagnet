@@ -29,13 +29,14 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 5001,
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },

@@ -1,59 +1,62 @@
-import { CheckCircle, X } from "lucide-react";
+import { CheckCircle, X, Star, Zap, Crown } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Pricing() {
+  const { t } = useLanguage();
+  
   const plans = [
     {
-      name: "Free",
+      name: t("pricing.free"),
       price: "",
-      description: "Temel özelliklerle başlayın",
+      description: t("pricing.free.description"),
+      icon: <Star className="w-8 h-8 text-white" />,
       features: [
-        "Sınırlı ajan özellikleri",
-        "Düşük kotalı kullanım",
-        "Temel entegrasyonlar",
+        t("pricing.free.feature1"),
+        t("pricing.free.feature2"),
+        t("pricing.free.feature3"),
       ],
       limitations: [
-        "Özel entegrasyonlar yok",
-        "Öncelikli destek yok",
+        t("pricing.free.limitation1"),
+        t("pricing.free.limitation2"),
       ],
       popular: false,
-      buttonText: "Ücretsiz Başla",
-      buttonStyle: "btn-black",
+      gradient: "from-gray-400 to-gray-600",
     },
     {
-      name: "Plus",
+      name: t("pricing.plus"),
       price: "",
-      description: "Gelişmiş özellikler ve yüksek kotalar",
+      description: t("pricing.plus.description"),
+      icon: <Zap className="w-8 h-8 text-white" />,
       features: [
-        "Gelişmiş ajan özellikleri",
-        "Yüksek kotalı kullanım",
-        "Yüksek API erişimi",
-        "Öncelikli destek",
-        "Özel entegrasyonlar",
+        t("pricing.plus.feature1"),
+        t("pricing.plus.feature2"),
+        t("pricing.plus.feature3"),
+        t("pricing.plus.feature4"),
+        t("pricing.plus.feature5"),
       ],
       limitations: [
-        "Sınırsız kullanım yok",
+        t("pricing.plus.limitation1"),
       ],
       popular: true,
-      buttonText: "14 Gün Ücretsiz Dene",
-      buttonStyle: "btn-gradient",
+      gradient: "from-blue-500 to-purple-600",
     },
     {
-      name: "Premium",
+      name: t("pricing.premium"),
       price: "",
-      description: "Tüm gelişmiş özellikler ve sınırsız kotalar",
+      description: t("pricing.premium.description"),
+      icon: <Crown className="w-8 h-8 text-white" />,
       features: [
-        "Daha gelişmiş ajan özellikleri",
-        "Sınırsız kullanım",
-        "Tam API erişimi",
-        "7/24 öncelikli destek",
-        "Özel entegrasyonlar",
-        "Gelişmiş analitik",
-        "Takım işbirliği",
+        t("pricing.premium.feature1"),
+        t("pricing.premium.feature2"),
+        t("pricing.premium.feature3"),
+        t("pricing.premium.feature4"),
+        t("pricing.premium.feature5"),
+        t("pricing.premium.feature6"),
+        t("pricing.premium.feature7"),
       ],
       limitations: [],
       popular: false,
-      buttonText: "Satış Ekibi ile Görüş",
-      buttonStyle: "btn-black",
+      gradient: "from-purple-500 to-pink-600",
     },
   ];
 
@@ -63,10 +66,10 @@ export default function Pricing() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[var(--dark-purple)] mb-4">
-            Size Uygun Planı <span className="gradient-text">Seçin</span>
+            {t("pricing.title")} <span className="gradient-text">{t("pricing.titleHighlight")}</span>
           </h1>
           <p className="text-xl text-gray-600 font-normal max-w-3xl mx-auto">
-            Her AI ajanı için uygun plan seçenekleri. Yıllık ödemede %20 indirim fırsatı.
+            {t("pricing.subtitle")}
           </p>
         </div>
 
@@ -75,118 +78,132 @@ export default function Pricing() {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative glassmorphic rounded-2xl p-8 shadow-lg ${
-                plan.popular ? "ring-2 ring-purple-500 scale-105" : ""
+              className={`relative group transition-all duration-500 hover:scale-105 ${
+                plan.popular ? "lg:scale-105" : ""
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="gradient-main px-6 py-2 text-sm font-semibold text-white rounded-full">
-                    En Popüler
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <span className="bg-black dark:bg-white text-white dark:text-black px-6 py-2 text-sm font-semibold rounded-full shadow-lg">
+                    {t("pricing.mostPopular")}
                   </span>
                 </div>
               )}
 
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-semibold text-[var(--dark-purple)] mb-2">
-                  {plan.name}
-                </h3>
-                <div className="mb-2">
-                  <span className="text-5xl font-semibold text-[var(--dark-purple)]">
-                    {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
-                  </span>
-                  {typeof plan.price === 'number' && plan.price > 0 && (
-                    <span className="text-lg text-gray-600 font-normal">/ay</span>
-                  )}
+              {/* Card Background with Glassmorphism */}
+              <div className={`relative glassmorphic rounded-2xl p-8 shadow-xl border border-white/20 dark:border-white/10 backdrop-blur-sm h-full flex flex-col ${
+                plan.popular ? "ring-2 ring-purple-500/50" : ""
+              }`}>
+                
+                {/* Animated Background Elements */}
+                <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                  <div className={`absolute top-0 left-0 w-32 h-32 bg-gradient-to-br ${plan.gradient} opacity-5 rounded-full blur-2xl animate-pulse`} style={{animationDuration: '4s'}}></div>
+                  <div className={`absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-br ${plan.gradient} opacity-5 rounded-full blur-2xl animate-pulse`} style={{animationDelay: '2s', animationDuration: '4s'}}></div>
                 </div>
-                <p className="text-gray-600">{plan.description}</p>
-              </div>
 
-              {/* Features */}
-              <div className="space-y-4 mb-8">
-                {plan.features.map((feature, featureIndex) => (
-                  <div key={featureIndex} className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
+                <div className="relative z-10">
+                  {/* Plan Header */}
+                  <div className="text-center mb-8">
+                    <div className="flex justify-center mb-4">
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${plan.gradient} bg-opacity-10`}>
+                        {plan.icon}
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white mb-2">
+                      {plan.name}
+                    </h3>
+                    <div className="mb-2">
+                      <span className="text-5xl font-semibold text-[var(--dark-purple)] dark:text-white">
+                        {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
+                      </span>
+                      {typeof plan.price === 'number' && plan.price > 0 && (
+                        <span className="text-lg text-gray-600 dark:text-gray-400 font-normal">/ay</span>
+                      )}
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400">{plan.description}</p>
                   </div>
-                ))}
-                {plan.limitations.map((limitation, limitationIndex) => (
-                  <div key={limitationIndex} className="flex items-center space-x-3 opacity-60">
-                    <X className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                    <span className="text-gray-500">{limitation}</span>
+
+                  {/* Features */}
+                  <div className="space-y-4 mb-8 flex-grow">
+                    {plan.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center space-x-3 group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
+                        <div className="p-1 rounded-full bg-green-100 dark:bg-green-900/30">
+                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        </div>
+                        <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                      </div>
+                    ))}
+                    {plan.limitations.map((limitation, limitationIndex) => (
+                      <div key={limitationIndex} className="flex items-center space-x-3 opacity-60 group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
+                        <div className="p-1 rounded-full bg-gray-100 dark:bg-gray-800">
+                          <X className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        </div>
+                        <span className="text-gray-500 dark:text-gray-400">{limitation}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+
+                  {/* Note */}
+                  <div className="text-center mt-auto">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
+                      {plan.name === t("pricing.premium") 
+                        ? t("pricing.premium.note")
+                        : t("pricing.cancelNote")}
+                    </p>
+                  </div>
+                </div>
               </div>
-
-   
-
-              
-                <p className="text-xs text-gray-500 text-center mt-4">
-                  {plan.name === "Premium" 
-                    ? "Özel fiyatlandırma için iletişime geçin" 
-                    : "İstediğiniz zaman iptal edebilirsiniz"}
-                </p>
-            
             </div>
           ))}
         </div>
 
-        {/* Payment Options */}
-        <div className="mt-12 glassmorphic rounded-2xl p-8 max-w-3xl mx-auto text-center">
-          <h3 className="text-2xl font-semibold text-[var(--dark-purple)] mb-4">
-            Ödeme Seçenekleri
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Her plan yıllık veya aylık olarak alınabilir. Yıllık ödemelerde <span className="font-semibold"> ay bazında %20 indirim</span> uygulanır. 
-          </p>
-          
-        </div>
+
 
         {/* FAQ Section */}
         <div className="mt-20">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-semibold text-[var(--dark-purple)] mb-4">
-              Sıkça Sorulan Sorular
+            <h2 className="text-3xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">
+              {t("pricing.faq.title")}
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Fiyatlandırma planlarımız hakkında en çok merak edilen sorular.
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              {t("pricing.faq.subtitle")}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="glassmorphic rounded-xl p-6">
-              <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                Fiyatlar ajan başına mı hesaplanıyor?
+            <div className="glassmorphic rounded-xl p-6 border border-white/20 dark:border-white/10 backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+              <h4 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-3">
+                {t("pricing.faq.q1.title")}
               </h4>
-              <p className="text-gray-600">
-                Evet, Agent Magnet'te her bir ajan ayrı olarak satılır. Her ajanın fiyatı farklı olabilir. Ödeme sayfasında detaylı olarak inceleyebilirsiniz.
+              <p className="text-gray-600 dark:text-gray-400">
+                {t("pricing.faq.q1.answer")}
               </p>
             </div>
 
-            <div className="glassmorphic rounded-xl p-6">
-              <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                Yıllık ödeme indirimi nasıl çalışır?
+            <div className="glassmorphic rounded-xl p-6 border border-white/20 dark:border-white/10 backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+              <h4 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-3">
+                {t("pricing.faq.q2.title")}
               </h4>
-              <p className="text-gray-600">
-                Yıllık ödemede aylık ücretin %20 indirimlisini peşin olarak ödersiniz. Bu size yıllık %20 tasarruf sağlar.
+              <p className="text-gray-600 dark:text-gray-400">
+                {t("pricing.faq.q2.answer")}
               </p>
             </div>
 
-            <div className="glassmorphic rounded-xl p-6">
-              <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                Farklı ajanlar için farklı planlar seçebilir miyim?
+            <div className="glassmorphic rounded-xl p-6 border border-white/20 dark:border-white/10 backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+              <h4 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-3">
+                {t("pricing.faq.q3.title")}
               </h4>
-              <p className="text-gray-600">
-                Evet, her AI ajanı için farklı plan seçebilirsiniz. Örneğin bir ajan için Premium, diğeri için Plus planı kullanabilirsiniz.
+              <p className="text-gray-600 dark:text-gray-400">
+                {t("pricing.faq.q3.answer")}
               </p>
             </div>
 
-            <div className="glassmorphic rounded-xl p-6">
-              <h4 className="text-lg font-semibold text-[var(--dark-purple)] mb-3">
-                Kurumsal çözümler için ne yapmalıyım?
+            <div className="glassmorphic rounded-xl p-6 border border-white/20 dark:border-white/10 backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+              <h4 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-3">
+                {t("pricing.faq.q4.title")}
               </h4>
-              <p className="text-gray-600">
-                Çoklu ajan yönetimi, özel entegrasyonlar ve kurumsal çözümler için satış ekibimizle iletişime geçebilirsiniz.
+              <p className="text-gray-600 dark:text-gray-400">
+                {t("pricing.faq.q4.answer")}
               </p>
             </div>
           </div>
@@ -194,17 +211,21 @@ export default function Pricing() {
 
         {/* Contact CTA */}
         <div className="text-center mt-16">
-          <div className="glassmorphic rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-semibold text-[var(--dark-purple)] mb-4">
-              Özel İhtiyaçlarınız mı Var?
+          <div className="glassmorphic rounded-2xl p-8 max-w-2xl mx-auto border border-white/20 dark:border-white/10 backdrop-blur-sm">
+            <h3 className="text-2xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">
+              {t("pricing.contact.title")}
             </h3>
-            <p className="text-gray-600 mb-6">
-              Kurumsal çözümler, çoklu ajan yönetimi, özel entegrasyonlar ve 
-              hacim indirimleri için satış ekibimizle iletişime geçin.
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {t("pricing.contact.description")}
             </p>
-            <button className="btn-black px-8 py-3">
-              Satış Ekibi ile İletişime Geç
-            </button>
+            <a
+              href="https://www.instagram.com/agentmagnetai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-black px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg inline-block"
+            >
+              {t("pricing.contact.button")}
+            </a>
           </div>
         </div>
       </div>

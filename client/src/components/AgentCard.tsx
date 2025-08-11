@@ -124,19 +124,19 @@ export default function AgentCard({ agent }: AgentCardProps) {
 
   return (
     <Link href={`/agent/${agent.id}`}>
-      <div className="agent-card-hover glassmorphic rounded-xl p-6 group cursor-pointer">
+      <div className="agent-card-hover glassmorphic rounded-xl p-6 group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300">
         <div className="flex items-center justify-between mb-4">
-          <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg`}>
+          <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
             {getCategoryIcon(agent.category, agent.name)}
           </div>
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusLabel.color}`}>
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusLabel.color} shadow-sm`}>
             {statusLabel.text}
           </span>
         </div>
-        <h3 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-2">{agent.name}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 font-normal">{agent.description}</p>
+        <h3 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{agent.name}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 font-normal leading-relaxed">{agent.description}</p>
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{getCategoryMapping(agent.category)}</span>
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">{getCategoryMapping(agent.category)}</span>
           <span className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white">₺{agent.price}{t("pricing.monthly")}</span>
         </div>
       </div>

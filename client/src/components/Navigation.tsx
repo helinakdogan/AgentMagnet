@@ -40,7 +40,7 @@ export default function Navigation({ isMobile = false, onItemClick }: Navigation
       return `${baseClass} text-[var(--dark-purple)] gradient-text`;
     }
     
-    return `${baseClass} text-gray-700 hover:text-[var(--dark-purple)]`;
+    return `${baseClass} text-gray-700 dark:text-gray-300 hover:text-[var(--dark-purple)] dark:hover:text-white`;
   };
 
   if (isMobile) {

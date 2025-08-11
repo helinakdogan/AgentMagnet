@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
-import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X, Mail } from "lucide-react";
+import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X, Mail, LogIn } from "lucide-react";
 import { useAgent, useAgentPurchase, useUserAgents } from "@/hooks/use-api";
 import { LoadingPage } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/ui/error-boundary";
 import type { Agent } from "@/lib/api";
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function AgentDetail() {
   const [match, params] = useRoute("/agent/:id");
@@ -14,6 +15,13 @@ export default function AgentDetail() {
   const [selectedPlan, setSelectedPlan] = useState<"free" | "plus" | "premium">("plus");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [user, setUser] = useState<any>(null);
+
+  // Cube rotation states
+  const [cubeRotations, setCubeRotations] = useState({
+    fastSetup: { x: 0, y: 0 },
+    secure: { x: 0, y: 0 },
+    globalAccess: { x: 0, y: 0 }
+  });
 
   // Sayfa yüklendiğinde localStorage'dan user bilgisini al
   useEffect(() => {
@@ -39,12 +47,88 @@ export default function AgentDetail() {
     return () => window.removeEventListener('userDataChanged', handleStorageChange);
   }, []);
 
+  // Google OAuth login for website authentication
+  const websiteLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      console.log('Google OAuth success, token:', tokenResponse);
+      
+      try {
+        // Proxy kullandığımız için /api ile başlayan endpoint'i kullan
+        const response = await fetch('/api/auth/google/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            access_token: tokenResponse.access_token,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Google OAuth success, data:', data);
+              
+          // Set user directly
+          setUser(data.data);
+          console.log('User set:', data.data);
+          
+          // Store user data in localStorage for other pages
+          localStorage.setItem('userData', JSON.stringify(data.data));
+          
+          // Trigger custom event for other components
+          window.dispatchEvent(new Event('userDataChanged'));
+        } else {
+          console.log('Backend response not ok');
+          alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
+        }
+      } catch (error) {
+        console.error('Google OAuth error:', error);
+        alert("Giriş sırasında hata oluştu.");
+      }
+    },
+    onError: () => {
+      console.log('Google OAuth failed');
+      alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
+    },
+  });
+
+  const handleLogin = () => {
+    console.log('handleLogin called!');
+    websiteLogin();
+  };
+
   const { data: agent, isLoading, error } = useAgent(agentId || '');
   const { purchaseAgent, isLoading: isPurchasing } = useAgentPurchase();
   const { data: userAgents } = useUserAgents(user?.id);
 
   // Kullanıcının bu agent'ı zaten alıp almadığını kontrol et
   const isAgentOwned = userAgents?.some(userAgent => userAgent.agentId === agentId);
+
+  // Cube rotation handlers
+  const handleCubeMouseMove = (cubeType: keyof typeof cubeRotations, e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const mouseX = e.clientX - centerX;
+    const mouseY = e.clientY - centerY;
+    
+    // Slower rotation for better control
+    const rotateX = (mouseY / (rect.height / 2)) * 180; // Reduced to 180 degrees for slower rotation
+    const rotateY = (mouseX / (rect.width / 2)) * 180; // Reduced to 180 degrees for slower rotation
+    
+    setCubeRotations(prev => ({
+      ...prev,
+      [cubeType]: { x: rotateX, y: rotateY }
+    }));
+  };
+
+  const handleCubeMouseLeave = (cubeType: keyof typeof cubeRotations) => {
+    setCubeRotations(prev => ({
+      ...prev,
+      [cubeType]: { x: 0, y: 0 }
+    }));
+  };
 
   if (!match || !agentId) {
     return <div>Agent ID gerekli</div>;
@@ -147,10 +231,8 @@ export default function AgentDetail() {
         "Günlük 5 sorgu",
         "Son 10 mailinizin özetleri",
         "example@gmail.com uzantılı mail adresleri ile çalışır",
-    
       ],
       limitations: [
-   
         "Gelişmiş özellikler yok",
         "Entegrasyonlar sınırlı"
       ],
@@ -163,11 +245,9 @@ export default function AgentDetail() {
       yearlyPrice: Math.round(agent.price * 12 * 0.8), // 20% indirim
       features: [
         "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
-        
       ],
       limitations: [
         "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
-
       ],
       integrations: agent.integrations.slice(0, 4),
     },
@@ -178,7 +258,6 @@ export default function AgentDetail() {
       yearlyPrice: Math.round(agent.price * 2.5 * 12 * 0.75), // 25% indirim
       features: [
         "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
-
       ],
       limitations: [],
       integrations: agent.integrations,
@@ -195,7 +274,7 @@ export default function AgentDetail() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <Link href="/agents">
-          <button className="flex items-center space-x-2 text-gray-600 hover:text-[var(--dark-purple)] font-medium mb-8 transition-colors">
+          <button className="flex items-center space-x-2 text-[var(--muted-foreground)] hover:text-[var(--dark-purple)] dark:hover:text-white font-medium mb-8 transition-colors">
             <ArrowLeft className="w-5 h-5" />
             <span>{t("agentDetail.backToAgents")}</span>
           </button>
@@ -209,29 +288,29 @@ export default function AgentDetail() {
                 {getCategoryIcon(agent.category)}
               </div>
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight text-[var(--dark-purple)]">
+                <h1 className="text-3xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white">
                   {agent.name}
                 </h1>
-                <p className="text-lg text-gray-600">{agent.category}</p>
+                <p className="text-lg text-[var(--muted-foreground)]">{agent.category}</p>
               </div>
             </div>
 
-            <p className="text-lg text-gray-700 font-normal leading-relaxed mb-8">
+            <p className="text-lg text-[var(--foreground)] font-normal leading-relaxed mb-8">
               {agent.description}
             </p>
 
             {/* Plan Selection */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">{t("agentDetail.planSelection")}</h3>
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">{t("agentDetail.planSelection")}</h3>
               <div className="flex flex-wrap gap-3 mb-4">
                 {(["free", "plus", "premium"] as const).map((plan) => (
                   <button
                     key={plan}
                     onClick={() => setSelectedPlan(plan)}
-                    className={`px-6 py-3 rounded-xl font-medium transition-colors ${
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                       selectedPlan === plan
-                        ? "bg-[var(--foreground)] text-[var(--background)]"
-                        : "glassmorphic text-gray-700 hover:bg-gray-50"
+                        ? "bg-[var(--dark-purple)] dark:bg-white text-white dark:text-black shadow-lg"
+                        : "glassmorphic text-[var(--foreground)] hover:bg-white/20 dark:hover:bg-white/10 hover:shadow-md"
                     }`}
                   >
                     {planConfigs[plan].name}
@@ -246,7 +325,9 @@ export default function AgentDetail() {
                   <button
                     onClick={() => setBillingCycle("monthly")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
-                      billingCycle === "monthly" ? "bg-purple-500 text-white" : "text-[var(--muted-foreground)]"
+                      billingCycle === "monthly" 
+                        ? "bg-[var(--dark-purple)] dark:bg-white text-white dark:text-black" 
+                        : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     }`}
                   >
                     {t("agentDetail.monthly")}
@@ -254,7 +335,9 @@ export default function AgentDetail() {
                   <button
                     onClick={() => setBillingCycle("yearly")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
-                      billingCycle === "yearly" ? "bg-purple-500 text-white" : "text-[var(--muted-foreground)]"
+                      billingCycle === "yearly" 
+                        ? "bg-[var(--dark-purple)] dark:bg-white text-white dark:text-black" 
+                        : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     }`}
                   >
                     {t("agentDetail.yearly")}
@@ -265,7 +348,7 @@ export default function AgentDetail() {
 
             {/* Plan Features */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">
                 {currentPlan.name} {t("agentDetail.planFeatures")}
               </h3>
               <div className="space-y-3">
@@ -280,7 +363,7 @@ export default function AgentDetail() {
 
             {/* Plan Integrations */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-4">
+              <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">
                 {currentPlan.name} {t("agentDetail.planIntegrations")}
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -293,26 +376,202 @@ export default function AgentDetail() {
                   </span>
                 ))}
                 {currentPlan.integrations.length < agent.integrations.length && (
-                  <span className="px-3 py-1 text-sm font-medium text-[var(--muted-foreground)] card-muted rounded-lg">
+                  <span className="px-3 py-1 text-sm font-medium text-[var(--muted-foreground)] glassmorphic rounded-lg">
                     +{agent.integrations.length - currentPlan.integrations.length} {t("agentDetail.moreInPremium")}
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Benefits */}
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div className="text-center p-4 glassmorphic rounded-xl">
-                <Zap className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-                <div className="text-sm font-medium text-[var(--foreground)]">{t("agentDetail.fastSetup")}</div>
+            {/* Benefits - 3D Cube Cards */}
+            <div className="grid sm:grid-cols-3 gap-6">
+              {/* Fast Setup Cube */}
+              <div 
+                className="relative w-32 h-32 cursor-pointer perspective-1000 mx-auto"
+                onMouseMove={(e) => handleCubeMouseMove('fastSetup', e)}
+                onMouseLeave={() => handleCubeMouseLeave('fastSetup')}
+              >
+                <div 
+                  className="absolute inset-0 w-full h-full transition-transform duration-500 ease-out preserve-3d"
+                  style={{
+                    transform: `rotateX(${cubeRotations.fastSetup.x}deg) rotateY(${cubeRotations.fastSetup.y}deg)`
+                  }}
+                >
+                  {/* Front Face */}
+                  <div className="cube-face cube-front glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light yellow"></div>
+                    <Zap className="w-8 h-8 text-yellow-500 mb-2 relative z-10" />
+                    <div className="text-sm font-medium text-[var(--foreground)] text-center relative z-10">
+                      {t("agentDetail.fastSetup")}
+                    </div>
+                  </div>
+                  
+                  {/* Back Face */}
+                  <div className="cube-face cube-back glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light yellow"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Saniyeler içinde kurulum
+                    </div>
+                  </div>
+                  
+                  {/* Right Face */}
+                  <div className="cube-face cube-right glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light yellow"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Hızlı entegrasyon
+                    </div>
+                  </div>
+                  
+                  {/* Left Face */}
+                  <div className="cube-face cube-left glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light yellow"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Kolay kullanım
+                    </div>
+                  </div>
+                  
+                  {/* Top Face */}
+                  <div className="cube-face cube-top glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light yellow"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Anında erişim
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Face */}
+                  <div className="cube-face cube-bottom glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light yellow"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Otomatik kurulum
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-center p-4 glassmorphic rounded-xl">
-                <Shield className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                <div className="text-sm font-medium text-[var(--foreground)]">{t("agentDetail.secure")}</div>
+
+              {/* Secure Cube */}
+              <div 
+                className="relative w-32 h-32 cursor-pointer perspective-1000 mx-auto"
+                onMouseMove={(e) => handleCubeMouseMove('secure', e)}
+                onMouseLeave={() => handleCubeMouseLeave('secure')}
+              >
+                <div 
+                  className="absolute inset-0 w-full h-full transition-transform duration-500 ease-out preserve-3d"
+                  style={{
+                    transform: `rotateX(${cubeRotations.secure.x}deg) rotateY(${cubeRotations.secure.y}deg)`
+                  }}
+                >
+                  {/* Front Face */}
+                  <div className="cube-face cube-front glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light green"></div>
+                    <Shield className="w-8 h-8 text-green-500 mb-2 relative z-10" />
+                    <div className="text-sm font-medium text-[var(--foreground)] text-center relative z-10">
+                      {t("agentDetail.secure")}
+                    </div>
+                  </div>
+                  
+                  {/* Back Face */}
+                  <div className="cube-face cube-back glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light green"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      End-to-end şifreleme
+                    </div>
+                  </div>
+                  
+                  {/* Right Face */}
+                  <div className="cube-face cube-right glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light green"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Güvenli API
+                    </div>
+                  </div>
+                  
+                  {/* Left Face */}
+                  <div className="cube-face cube-left glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light green"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Veri koruması
+                    </div>
+                  </div>
+                  
+                  {/* Top Face */}
+                  <div className="cube-face cube-top glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light green"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      SSL sertifikası
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Face */}
+                  <div className="cube-face cube-bottom glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light green"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Güvenlik standartları
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-center p-4 glassmorphic rounded-xl">
-                <Globe className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                <div className="text-sm font-medium text-[var(--foreground)]">{t("agentDetail.globalAccess")}</div>
+
+              {/* Global Access Cube */}
+              <div 
+                className="relative w-32 h-32 cursor-pointer perspective-1000 mx-auto"
+                onMouseMove={(e) => handleCubeMouseMove('globalAccess', e)}
+                onMouseLeave={() => handleCubeMouseLeave('globalAccess')}
+              >
+                <div 
+                  className="absolute inset-0 w-full h-full transition-transform duration-500 ease-out preserve-3d"
+                  style={{
+                    transform: `rotateX(${cubeRotations.globalAccess.x}deg) rotateY(${cubeRotations.globalAccess.y}deg)`
+                  }}
+                >
+                  {/* Front Face */}
+                  <div className="cube-face cube-front glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light blue"></div>
+                    <Globe className="w-8 h-8 text-blue-500 mb-2 relative z-10" />
+                    <div className="text-sm font-medium text-[var(--foreground)] text-center relative z-10">
+                      {t("agentDetail.globalAccess")}
+                    </div>
+                  </div>
+                  
+                  {/* Back Face */}
+                  <div className="cube-face cube-back glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light blue"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Dünya çapında erişim
+                    </div>
+                  </div>
+                  
+                  {/* Right Face */}
+                  <div className="cube-face cube-right glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light blue"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      24/7 kullanılabilirlik
+                    </div>
+                  </div>
+                  
+                  {/* Left Face */}
+                  <div className="cube-face cube-left glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light blue"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Çoklu dil desteği
+                    </div>
+                  </div>
+                  
+                  {/* Top Face */}
+                  <div className="cube-face cube-top glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light blue"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Bulut tabanlı
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Face */}
+                  <div className="cube-face cube-bottom glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
+                    <div className="cube-inner-light blue"></div>
+                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
+                      Her cihazdan erişim
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -321,7 +580,7 @@ export default function AgentDetail() {
           <div className="lg:sticky lg:top-24 h-fit">
             <div className="glassmorphic rounded-2xl p-8 shadow-lg">
               <div className="text-center mb-6">
-                <div className="text-4xl font-semibold text-[var(--dark-purple)] mb-2">
+                <div className="text-4xl font-semibold text-[var(--dark-purple)] dark:text-white mb-2">
                   {selectedPlan === "free" ? (
                     <span>{t("agentDetail.free")}</span>
                   ) : (
@@ -350,74 +609,65 @@ export default function AgentDetail() {
                 {currentPlan.features.slice(0, 4).map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">{feature}</span>
+                    <span className="text-sm text-[var(--foreground)]">{feature}</span>
                   </div>
                 ))}
-                {/* {selectedPlan !== "free" && (
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">
-                      {selectedPlan === "plus" ? "7" : "14"} gün ücretsiz deneme
-                    </span>
+              </div>
+
+              {!user ? (
+                <button 
+                  onClick={handleLogin}
+                  className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
+                >
+                  <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
+                    <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
+                      <span className="gradient-text font-semibold flex items-center justify-center">
+                        <LogIn className="w-5 h-5 mr-2" />
+                        {t("agentDetail.loginAndPurchase")}
+                      </span>
+                    </div>
                   </div>
-                )} */}
-              </div>
-
-          {!user ? (
-          <Link href={`/agent/${agentId}/start`}>
-  <button className="w-full btn-gradient px-8 py-4 text-lg mb-4">
-    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-      <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
-        <span className="gradient-text font-semibold">
-                      {t("agentDetail.loginAndPurchase")}
-        </span>
-      </div>
-    </div>
-  </button>
-</Link>
-          ) : isAgentOwned ? (
-            <div className="w-full px-8 py-4 text-lg mb-4">
-              <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </button>
+              ) : isAgentOwned ? (
+                <div className="w-full px-8 py-4 text-lg mb-4">
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
+                    <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                      {t("agentDetail.alreadyOwned")}
+                    </h3>
+                    <p className="text-green-700 dark:text-green-300 text-sm mb-4">
+                      {t("agentDetail.alreadyOwnedDescription")}
+                    </p>
+                    <Link href="/my-agents">
+                      <button className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                        {t("agentDetail.goToMyAgents")}
+                      </button>
+                    </Link>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-green-800 mb-2">
-                  {t("agentDetail.alreadyOwned")}
-                </h3>
-                <p className="text-green-700 text-sm mb-4">
-                  {t("agentDetail.alreadyOwnedDescription")}
-                </p>
-                <Link href="/my-agents">
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                    {t("agentDetail.goToMyAgents")}
-                  </button>
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <button 
-              onClick={() => {
-                if (agentId && user?.id) {
-                  purchaseAgent(agentId, user.id);
-                }
-              }}
-              disabled={isPurchasing}
-              className="w-full btn-gradient px-8 py-4 text-lg mb-4"
-            >
-              <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                <div className="bg-white rounded-xl w-full h-full flex items-center justify-center">
-                  <span className="gradient-text font-semibold">
-                    {isPurchasing ? t("agentDetail.purchasing") : t("agentDetail.purchase")}
-                  </span>
-                </div>
-              </div>
-            </button>
-          )}
+              ) : (
+                <button 
+                  onClick={() => {
+                    if (agentId) {
+                      purchaseAgent(agentId, ''); // userId artık hook içinde localStorage'dan alınıyor
+                    }
+                  }}
+                  disabled={isPurchasing}
+                  className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
+                >
+                  <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
+                    <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
+                      <span className="gradient-text font-semibold">
+                        {isPurchasing ? t("agentDetail.purchasing") : t("agentDetail.purchase")}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              )}
 
-
-              
-
-              <p className="text-xs text-gray-500 text-center mt-4">
+              <p className="text-xs text-[var(--muted-foreground)] text-center mt-4">
                 {selectedPlan === "free" 
                   ? t("agentDetail.freeCreditCard")
                   : t("agentDetail.cancelAnytime")

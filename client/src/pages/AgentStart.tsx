@@ -54,6 +54,7 @@ const AgentStart: FC = () => {
       console.log('Google OAuth success, token:', tokenResponse);
       
       try {
+        // Proxy kullandığımız için /api ile başlayan endpoint'i kullan
         const response = await fetch('/api/auth/google/token', {
           method: 'POST',
           headers: {

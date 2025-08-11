@@ -140,26 +140,26 @@ async function apiRequest<T>(
   }
 }
 
-// Authentication API
+// 🔐 Authentication API - Google OAuth Giriş için
 export const authApi = {
-  // Get current user
+  // Mevcut kullanıcı bilgilerini getirir
   getCurrentUser: () => apiRequest<User>('/auth/me'),
   
-  // Google OAuth token exchange
+  // Google OAuth token exchange - Google token'ını işler
   googleToken: (access_token: string) => apiRequest<User>('/auth/google/token', {
     method: 'POST',
     body: JSON.stringify({ access_token }),
   }),
   
-  // Google OAuth login
+  // Google OAuth login - Google giriş sayfasına yönlendirir
   googleLogin: () => {
     window.location.href = `${API_BASE_URL}/auth/google`;
   },
   
-  // Logout
+  // Kullanıcı çıkışı
   logout: () => apiRequest('/auth/logout', { method: 'POST' }),
   
-  // Check if user is authenticated
+  // Kullanıcının giriş yapıp yapmadığını kontrol eder
   isAuthenticated: async (): Promise<boolean> => {
     try {
       await authApi.getCurrentUser();
@@ -170,89 +170,89 @@ export const authApi = {
   }
 };
 
-// Agents API
+// 🤖 Agents API - AI Agent yönetimi için
 export const agentsApi = {
-  // Get all agents
+  // Tüm agent'ları getirir (kategori filtresi ile)
   getAll: (category?: string) => {
     const params = category && category !== 'Tümü' ? `?category=${encodeURIComponent(category)}` : '';
     return apiRequest<Agent[]>(`/agents${params}`);
   },
   
-  // Get single agent
+  // Tek bir agent'ı ID ile getirir
   getById: (id: string) => apiRequest<Agent>(`/agents/${id}`),
   
-  // Purchase agent (protected)
+  // Agent satın alma (korumalı endpoint)
   purchase: (id: string, userId: string) => apiRequest<{ success: boolean; message: string }>(`/agents/${id}/purchase`, { 
     method: 'POST',
     body: JSON.stringify({ userId })
   }),
   
-  // Create agent (admin only)
+  // Agent oluşturma (sadece admin)
   create: (agent: Omit<Agent, 'id'>) => 
     apiRequest<Agent>('/agents', {
       method: 'POST',
       body: JSON.stringify(agent),
     }),
   
-  // Update agent (admin only)
+  // Agent güncelleme (sadece admin)
   update: (id: string, agent: Partial<Agent>) =>
     apiRequest<Agent>(`/agents/${id}`, {
       method: 'PUT',
       body: JSON.stringify(agent),
     }),
   
-  // Delete agent (admin only)
+  // Agent silme (sadece admin)
   delete: (id: string) =>
     apiRequest(`/agents/${id}`, {
       method: 'DELETE',
     }),
 };
 
-// Users API
+// 👤 Users API - Kullanıcı yönetimi için
 export const usersApi = {
-  // Get current user profile
+  // Mevcut kullanıcı profilini getirir
   getProfile: () => apiRequest<User>('/users/me'),
   
-  // Get user's purchased agents
+  // Kullanıcının satın aldığı agent'ları getirir
   getPurchasedAgents: (userId?: string) => {
     const url = userId ? `/users/me/agents?userId=${userId}` : '/users/me/agents';
     return apiRequest<UserAgent[]>(url);
   },
   
-  // Purchase an agent
+  // Agent satın alma
   purchaseAgent: (agentId: string) =>
     apiRequest<UserAgent>(`/users/me/agents/${agentId}/purchase`, {
       method: 'POST',
     }),
 };
 
-// Gmail API
+// 📧 Gmail API - Gmail Agent için ana endpoint'ler
 export const gmailApi = {
-  // Get last 10 emails (instead of summary)
+  // Son 10 e-postayı getirir (özet yerine)
   getLastEmails: (agentId: string, userId: string) => apiRequest<GmailEmails>('/gmail/emails', {
     method: 'POST',
     body: JSON.stringify({ agentId, userId }),
   }),
   
-  // Get Gmail summary (legacy)
+  // Gmail özeti getirir (eski versiyon)
   getSummary: () => apiRequest<GmailSummary>('/gmail/summary', {
     method: 'POST',
   }),
   
-  // Store OAuth tokens
+  // OAuth token'ları saklar
   storeTokens: (tokens: any) =>
     apiRequest('/gmail/tokens', {
       method: 'POST',
       body: JSON.stringify(tokens),
     }),
   
-  // Get usage statistics
+  // Kullanım istatistiklerini getirir
   getUsage: () => apiRequest('/gmail/usage'),
 };
 
-// OAuth API
+// 🔄 OAuth API - Gmail Agent OAuth için
 export const oauthApi = {
-  // Gmail OAuth callback
+  // Gmail OAuth callback - Gmail agent kullanımı için gerekli
   gmailCallback: (code: string) =>
     apiRequest('/oauth/google/callback', {
       method: 'POST',

@@ -41,6 +41,7 @@ export default function Header() {
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
+        // Proxy kullandığımız için /api ile başlayan endpoint'i kullan
         const response = await fetch('/api/auth/google/token', {
           method: 'POST',
           headers: {
