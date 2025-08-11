@@ -101,11 +101,11 @@
 }
 
 .dark .glassmorphic {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    0 4px 6px -1px rgba(0, 0, 0, 0.2),
+    0 2px 4px -1px rgba(0, 0, 0, 0.15);
 }
 
 .glassmorphic-menu {
@@ -1367,6 +1367,24 @@ html {
 .magnetic-dots:nth-child(3) {
   animation-delay: -80s;
   animation-duration: 140s;
+}
+
+/* Animation delay utilities */
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+/* Selected plan gradient border */
+.selected-plan-gradient {
+  background: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  background-image: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+}
+
+/* Popular tag gradient */
+.popular-tag-gradient {
+  background: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
 }
 
 /* Dark mode magnetic field background */

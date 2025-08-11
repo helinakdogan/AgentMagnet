@@ -233,14 +233,14 @@ export default function AgentDetail() {
   // Plan configurations
   const planConfigs = {
     free: {
-      name: "Ücretsiz",
+      name: t("agentDetail.freePlan"),
       price: 0,
       monthlyPrice: 0,
       yearlyPrice: 0,
       features: [
-        "Günlük 5 sorgu",
-        "Son 10 mailinizin özetleri",
-        "example@gmail.com uzantılı mail adresleri ile çalışır",
+        t("agentDetail.dailyQueries"),
+        t("agentDetail.last10Emails"),
+        t("agentDetail.emailExtension"),
       ],
       limitations: [
         "Gelişmiş özellikler yok",
@@ -249,12 +249,12 @@ export default function AgentDetail() {
       integrations: agent.integrations.slice(0, 2),
     },
     plus: {
-      name: "Plus",
+      name: t("agentDetail.plusPlan"),
       price: agent.price,
       monthlyPrice: agent.price,
       yearlyPrice: Math.round(agent.price * 12 * 0.8), // 20% indirim
       features: [
-        "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
+        t("agentDetail.demoPlanNote"),
       ],
       limitations: [
         "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
@@ -262,12 +262,12 @@ export default function AgentDetail() {
       integrations: agent.integrations.slice(0, 4),
     },
     premium: {
-      name: "Premium",
+      name: t("agentDetail.premiumPlan"),
       price: Math.round(agent.price * 2.5),
       monthlyPrice: Math.round(agent.price * 2.5),
       yearlyPrice: Math.round(agent.price * 2.5 * 12 * 0.75), // 25% indirim
       features: [
-        "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
+        t("agentDetail.demoPlanNote"),
       ],
       limitations: [],
       integrations: agent.integrations,
@@ -293,292 +293,123 @@ export default function AgentDetail() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Agent Details */}
           <div className="lg:col-span-2">
-            <div className="flex items-center space-x-4 mb-6">
-              <div className={`w-16 h-16 bg-gradient-to-br ${iconColorClasses} rounded-2xl flex items-center justify-center shadow-lg`}>
-                {getCategoryIcon(agent.category)}
+            {/* Agent Description Card */}
+            <div className="glassmorphic rounded-xl p-6 mb-8">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className={`w-16 h-16 bg-gradient-to-br ${iconColorClasses} rounded-2xl flex items-center justify-center shadow-lg`}>
+                  {getCategoryIcon(agent.category)}
+                </div>
+                <div>
+                  <h1 className="text-3xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white">
+                    {agent.name}
+                  </h1>
+                  <p className="text-lg text-[var(--muted-foreground)] dark:text-gray-300">{agent.category}</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-3xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white">
-                  {agent.name}
-                </h1>
-                <p className="text-lg text-[var(--muted-foreground)]">{agent.category}</p>
-              </div>
+              <p className="text-lg text-[var(--foreground)] dark:text-white font-normal leading-relaxed">
+                {agent.description}
+              </p>
             </div>
 
-            <p className="text-lg text-[var(--foreground)] font-normal leading-relaxed mb-8">
-              {agent.description}
-            </p>
-
             {/* Plan Selection */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">{t("agentDetail.planSelection")}</h3>
-              <div className="flex flex-wrap gap-3 mb-4">
-                {(["free", "plus", "premium"] as const).map((plan) => (
-                  <button
-                    key={plan}
-                    onClick={() => setSelectedPlan(plan)}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-                      selectedPlan === plan
-                        ? "bg-[var(--dark-purple)] dark:bg-white text-white dark:text-black shadow-lg"
-                        : "glassmorphic text-[var(--foreground)] hover:bg-white/20 dark:hover:bg-white/10 hover:shadow-md"
-                    }`}
-                  >
-                    {planConfigs[plan].name}
-                  </button>
-                ))}
-              </div>
-
-              {/* Billing Cycle Toggle */}
-              <div className="flex items-center gap-4 mb-6">
-                <span className="text-[var(--muted-foreground)]">{t("agentDetail.billing")}</span>
+            <div className="glassmorphic rounded-xl p-6 w-full max-w-[90vw] mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-[var(--foreground)] dark:text-white">{t("agentDetail.planSelectionTitle")}</h3>
+                
+                {/* Billing Cycle Toggle - Sağ köşede */}
                 <div className="flex glassmorphic rounded-xl p-1">
                   <button
                     onClick={() => setBillingCycle("monthly")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
                       billingCycle === "monthly" 
-                        ? "bg-[var(--dark-purple)] dark:bg-white text-white dark:text-black" 
-                        : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                        ? "bg-black text-white dark:bg-white dark:text-black" 
+                        : "text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
                     }`}
                   >
-                    {t("agentDetail.monthly")}
+                    {t("agentDetail.monthlyToggle")}
                   </button>
                   <button
                     onClick={() => setBillingCycle("yearly")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
                       billingCycle === "yearly" 
-                        ? "bg-[var(--dark-purple)] dark:bg-white text-white dark:text-black" 
-                        : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                        ? "bg-black text-white dark:bg-white dark:text-black" 
+                        : "text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
                     }`}
                   >
-                    {t("agentDetail.yearly")}
+                    {t("agentDetail.yearlyToggle")}
                   </button>
                 </div>
               </div>
-            </div>
 
-            {/* Plan Features */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">
-                {currentPlan.name} {t("agentDetail.planFeatures")}
-              </h3>
-              <div className="space-y-3">
-                {currentPlan.features.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-[var(--foreground)]">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Plan Integrations */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-[var(--dark-purple)] dark:text-white mb-4">
-                {currentPlan.name} {t("agentDetail.planIntegrations")}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {currentPlan.integrations.map((integration: string, index: number) => (
-                  <span 
-                    key={index}
-                    className="px-3 py-1 text-sm font-medium text-[var(--foreground)] glassmorphic rounded-lg"
-                  >
-                    {integration}
-                  </span>
-                ))}
-                {currentPlan.integrations.length < agent.integrations.length && (
-                  <span className="px-3 py-1 text-sm font-medium text-[var(--muted-foreground)] glassmorphic rounded-lg">
-                    +{agent.integrations.length - currentPlan.integrations.length} {t("agentDetail.moreInPremium")}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Benefits - 3D Cube Cards */}
-            <div className="grid sm:grid-cols-3 gap-6">
-              {/* Fast Setup Cube */}
-              <div 
-                className="relative w-32 h-32 cursor-pointer perspective-1000 mx-auto"
-                onMouseMove={(e) => handleCubeMouseMove('fastSetup', e)}
-                onMouseLeave={() => handleCubeMouseLeave('fastSetup')}
-              >
+                            {/* Plan Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+                {/* Free Plan */}
                 <div 
-                  className="absolute inset-0 w-full h-full transition-transform duration-500 ease-out preserve-3d"
-                  style={{
-                    transform: `rotateX(${cubeRotations.fastSetup.x}deg) rotateY(${cubeRotations.fastSetup.y}deg)`
-                  }}
+                  className={`glassmorphic rounded-xl p-4 md:p-6 cursor-pointer transition-all duration-200 ${
+                    selectedPlan === "free" ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
+                  }`}
+                  onClick={() => setSelectedPlan("free")}
                 >
-                  {/* Front Face */}
-                  <div className="cube-face cube-front glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light yellow"></div>
-                    <Zap className="w-8 h-8 text-yellow-500 mb-2 relative z-10" />
-                    <div className="text-sm font-medium text-[var(--foreground)] text-center relative z-10">
-                      {t("agentDetail.fastSetup")}
-                    </div>
+                  <div className="text-center mb-4">
+                    <h4 className="text-xl md:text-2xl font-bold text-[var(--foreground)] dark:text-white mb-2">{t("agentDetail.freePlan")}</h4>
+                    <div className="text-2xl md:text-3xl font-bold text-[var(--foreground)] dark:text-white mb-1">$0</div>
+                    <div className="text-xs md:text-sm text-[var(--muted-foreground)] dark:text-gray-300">{billingCycle === "monthly" ? t("agentDetail.monthlyToggle") : t("agentDetail.yearlyToggle")}</div>
                   </div>
-                  
-                  {/* Back Face */}
-                  <div className="cube-face cube-back glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light yellow"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Saniyeler içinde kurulum
+                                      <div className="space-y-2">
+                      <div className="flex items-start space-x-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.dailyQueries")}</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.last10Emails")}</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.emailExtension")}</span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Right Face */}
-                  <div className="cube-face cube-right glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light yellow"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Hızlı entegrasyon
+                </div>
+
+                {/* Plus Plan */}
+                <div 
+                  className={`glassmorphic rounded-xl p-4 md:p-6 relative cursor-pointer transition-all duration-200 ${
+                    selectedPlan === "plus" ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
+                  }`}
+                  onClick={() => setSelectedPlan("plus")}
+                >
+                                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 popular-tag-gradient text-white text-xs px-2 py-1 rounded-full">
+                      {t("agentDetail.popular")}
                     </div>
+                                    <div className="text-center mb-4">
+                    <h4 className="text-xl md:text-2xl font-bold text-[var(--foreground)] dark:text-white mb-2">{t("agentDetail.plusPlan")}</h4>
+                    <div className="text-2xl md:text-3xl font-bold text-[var(--foreground)] dark:text-white mb-1">$0</div>
+                    <div className="text-xs md:text-sm text-[var(--muted-foreground)] dark:text-white">{billingCycle === "monthly" ? t("agentDetail.monthlyToggle") : t("agentDetail.yearlyToggle")}</div>
                   </div>
-                  
-                  {/* Left Face */}
-                  <div className="cube-face cube-left glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light yellow"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Kolay kullanım
-                    </div>
-                  </div>
-                  
-                  {/* Top Face */}
-                  <div className="cube-face cube-top glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light yellow"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Anında erişim
-                    </div>
-                  </div>
-                  
-                  {/* Bottom Face */}
-                  <div className="cube-face cube-bottom glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light yellow"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Otomatik kurulum
+                  <div className="space-y-2">
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.demoPlanNote")}</span>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Secure Cube */}
-              <div 
-                className="relative w-32 h-32 cursor-pointer perspective-1000 mx-auto"
-                onMouseMove={(e) => handleCubeMouseMove('secure', e)}
-                onMouseLeave={() => handleCubeMouseLeave('secure')}
-              >
+                {/* Premium Plan */}
                 <div 
-                  className="absolute inset-0 w-full h-full transition-transform duration-500 ease-out preserve-3d"
-                  style={{
-                    transform: `rotateX(${cubeRotations.secure.x}deg) rotateY(${cubeRotations.secure.y}deg)`
-                  }}
+                  className={`glassmorphic rounded-xl p-4 md:p-6 cursor-pointer transition-all duration-200 ${
+                    selectedPlan === "premium" ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
+                  }`}
+                  onClick={() => setSelectedPlan("premium")}
                 >
-                  {/* Front Face */}
-                  <div className="cube-face cube-front glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light green"></div>
-                    <Shield className="w-8 h-8 text-green-500 mb-2 relative z-10" />
-                    <div className="text-sm font-medium text-[var(--foreground)] text-center relative z-10">
-                      {t("agentDetail.secure")}
-                    </div>
+                                    <div className="text-center mb-4">
+                    <h4 className="text-xl md:text-2xl font-bold text-[var(--foreground)] dark:text-white mb-2">{t("agentDetail.premiumPlan")}</h4>
+                    <div className="text-2xl md:text-3xl font-bold text-[var(--foreground)] dark:text-white mb-1">$0</div>
+                    <div className="text-xs md:text-sm text-[var(--muted-foreground)] dark:text-gray-300">{billingCycle === "monthly" ? t("agentDetail.monthlyToggle") : t("agentDetail.yearlyToggle")}</div>
                   </div>
-                  
-                  {/* Back Face */}
-                  <div className="cube-face cube-back glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light green"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      End-to-end şifreleme
-                    </div>
-                  </div>
-                  
-                  {/* Right Face */}
-                  <div className="cube-face cube-right glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light green"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Güvenli API
-                    </div>
-                  </div>
-                  
-                  {/* Left Face */}
-                  <div className="cube-face cube-left glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light green"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Veri koruması
-                    </div>
-                  </div>
-                  
-                  {/* Top Face */}
-                  <div className="cube-face cube-top glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light green"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      SSL sertifikası
-                    </div>
-                  </div>
-                  
-                  {/* Bottom Face */}
-                  <div className="cube-face cube-bottom glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light green"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Güvenlik standartları
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Global Access Cube */}
-              <div 
-                className="relative w-32 h-32 cursor-pointer perspective-1000 mx-auto"
-                onMouseMove={(e) => handleCubeMouseMove('globalAccess', e)}
-                onMouseLeave={() => handleCubeMouseLeave('globalAccess')}
-              >
-                <div 
-                  className="absolute inset-0 w-full h-full transition-transform duration-500 ease-out preserve-3d"
-                  style={{
-                    transform: `rotateX(${cubeRotations.globalAccess.x}deg) rotateY(${cubeRotations.globalAccess.y}deg)`
-                  }}
-                >
-                  {/* Front Face */}
-                  <div className="cube-face cube-front glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light blue"></div>
-                    <Globe className="w-8 h-8 text-blue-500 mb-2 relative z-10" />
-                    <div className="text-sm font-medium text-[var(--foreground)] text-center relative z-10">
-                      {t("agentDetail.globalAccess")}
-                    </div>
-                  </div>
-                  
-                  {/* Back Face */}
-                  <div className="cube-face cube-back glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light blue"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Dünya çapında erişim
-                    </div>
-                  </div>
-                  
-                  {/* Right Face */}
-                  <div className="cube-face cube-right glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light blue"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      24/7 kullanılabilirlik
-                    </div>
-                  </div>
-                  
-                  {/* Left Face */}
-                  <div className="cube-face cube-left glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light blue"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Çoklu dil desteği
-                    </div>
-                  </div>
-                  
-                  {/* Top Face */}
-                  <div className="cube-face cube-top glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light blue"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Bulut tabanlı
-                    </div>
-                  </div>
-                  
-                  {/* Bottom Face */}
-                  <div className="cube-face cube-bottom glass-cube rounded-xl flex flex-col items-center justify-center backface-hidden relative">
-                    <div className="cube-inner-light blue"></div>
-                    <div className="text-xs text-[var(--muted-foreground)] text-center px-2 relative z-10">
-                      Her cihazdan erişim
+                  <div className="space-y-2">
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.demoPlanNote")}</span>
                     </div>
                   </div>
                 </div>
@@ -586,103 +417,104 @@ export default function AgentDetail() {
             </div>
           </div>
 
-          {/* Pricing Card */}
+          {/* Selected Plan Detail Card - Spot Light Glasscard */}
           <div className="lg:sticky lg:top-24 h-fit">
-            <div className="glassmorphic rounded-2xl p-8 shadow-lg">
-              <div className="text-center mb-6">
-                <div className="text-4xl font-semibold text-[var(--dark-purple)] dark:text-white mb-2">
-                  {selectedPlan === "free" ? (
-                    <span>{t("agentDetail.free")}</span>
-                  ) : (
-                    <>
-                      ₺{displayPrice}
-                      <span className="text-lg text-[var(--muted-foreground)] font-normal">{t("agentDetail.perMonth")}</span>
-                    </>
-                  )}
+            <div className="glassmorphic rounded-2xl p-8 shadow-lg relative overflow-hidden">
+              {/* Spot Light Effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              
+              {/* Animated Spot Light */}
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse animation-delay-1000 pointer-events-none"></div>
+              
+              <div className="relative z-10">
+                <div className="text-center mb-6">
+                  <div className={`w-16 h-16 bg-gradient-to-br ${iconColorClasses} rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-4`}>
+                    {getCategoryIcon(agent.category)}
+                  </div>
+                  <div className="text-2xl font-semibold text-[var(--foreground)] dark:text-white mb-2">
+                    {selectedPlan === "free" ? t("agentDetail.freePlan") : selectedPlan === "plus" ? t("agentDetail.plusPlan") : t("agentDetail.premiumPlan")}
+                  </div>
+                  <div className="text-3xl font-bold text-[var(--foreground)] dark:text-white mb-2">
+                    {selectedPlan === "free" ? "" : billingCycle === "monthly" ? "$0" + t("agentDetail.perMonth") : "$0" + t("agentDetail.perYear")}
+                  </div>
+                  <p className="text-[var(--muted-foreground)] dark:text-gray-400 text-sm">
+                    {selectedPlan === "free" 
+                      ? "" 
+                      : billingCycle === "monthly" ? t("agentDetail.monthlySubscription") : t("agentDetail.yearlySubscription")
+                    }
+                  </p>
                 </div>
-                <p className="text-[var(--muted-foreground)]">
+
+                <div className="space-y-3 mb-8">
+                  {currentPlan.features.slice(0, 1).map((feature, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <span className="text-sm text-[var(--foreground)] dark:text-white">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {!user ? (
+                  <button 
+                    onClick={handleLogin}
+                    className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
+                  >
+                    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
+                      <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
+                        <span className="gradient-text font-semibold flex items-center justify-center">
+                          <LogIn className="w-5 h-5 mr-2" />
+                          {t("agentDetail.loginAndPurchase")}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ) : isAgentOwned ? (
+                  <div className="w-full px-8 py-4 text-lg mb-4">
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
+                      <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                        {t("agentDetail.alreadyOwned")}
+                      </h3>
+                      <p className="text-green-700 dark:text-green-300 text-sm mb-4">
+                        {t("agentDetail.alreadyOwnedDescription")}
+                      </p>
+                      <Link href="/my-agents">
+                        <button className="w-full bg-green-600/90 hover:bg-green-700/90 dark:bg-green-500/90 dark:hover:bg-green-600/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                          {t("agentDetail.goToMyAgents")}
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      if (agentId) {
+                        purchaseAgent(agentId, ''); // userId artık hook içinde localStorage'dan alınıyor
+                      }
+                    }}
+                    disabled={isPurchasing}
+                    className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
+                  >
+                    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
+                      <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
+                        <span className="gradient-text font-semibold">
+                          {isPurchasing ? t("agentDetail.purchasing") : t("agentDetail.purchase")}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                )}
+
+                <p className="text-xs text-[var(--muted-foreground)] dark:text-gray-400 text-center mt-4">
                   {selectedPlan === "free" 
-                    ? t("agentDetail.freeDescription") 
-                    : billingCycle === "yearly" 
-                      ? `₺${currentPlan.yearlyPrice} ${t("agentDetail.yearlyPayment")}`
-                      : t("agentDetail.monthlySubscription")
+                    ? t("agentDetail.freeCreditCard")
+                    : t("agentDetail.cancelAnytime")
                   }
                 </p>
-                {billingCycle === "yearly" && selectedPlan !== "free" && (
-                  <p className="text-green-600 text-sm font-medium">
-                    {t("agentDetail.yearlySavings")}
-                  </p>
-                )}
               </div>
-
-              <div className="space-y-3 mb-8">
-                {currentPlan.features.slice(0, 4).map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-[var(--foreground)]">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              {!user ? (
-                <button 
-                  onClick={handleLogin}
-                  className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
-                >
-                  <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                    <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
-                      <span className="gradient-text font-semibold flex items-center justify-center">
-                        <LogIn className="w-5 h-5 mr-2" />
-                        {t("agentDetail.loginAndPurchase")}
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              ) : isAgentOwned ? (
-                <div className="w-full px-8 py-4 text-lg mb-4">
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
-                    <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                      {t("agentDetail.alreadyOwned")}
-                    </h3>
-                    <p className="text-green-700 dark:text-green-300 text-sm mb-4">
-                      {t("agentDetail.alreadyOwnedDescription")}
-                    </p>
-                    <Link href="/my-agents">
-                      <button className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                        {t("agentDetail.goToMyAgents")}
-                      </button>
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <button 
-                  onClick={() => {
-                    if (agentId) {
-                      purchaseAgent(agentId, ''); // userId artık hook içinde localStorage'dan alınıyor
-                    }
-                  }}
-                  disabled={isPurchasing}
-                  className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
-                >
-                  <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                    <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
-                      <span className="gradient-text font-semibold">
-                        {isPurchasing ? t("agentDetail.purchasing") : t("agentDetail.purchase")}
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              )}
-
-              <p className="text-xs text-[var(--muted-foreground)] text-center mt-4">
-                {selectedPlan === "free" 
-                  ? t("agentDetail.freeCreditCard")
-                  : t("agentDetail.cancelAnytime")
-                }
-              </p>
             </div>
           </div>
         </div>
