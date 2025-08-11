@@ -1,7 +1,9 @@
 import { toast } from "@/hooks/use-toast";
 
-// API Base URL - in development, this will be proxied through the Vite dev server
-const API_BASE_URL = import.meta.env.PROD ? '/api' : '/api';
+// API Base URL - Development'ta proxy, production'da environment variable
+const API_BASE_URL = import.meta.env.DEV 
+  ? '/api'  // Development: Vite proxy kullanır
+  : (import.meta.env.VITE_API_URL || '/api'); // Production: Environment variable
 
 // Types for API responses
 export interface ApiResponse<T = any> {
