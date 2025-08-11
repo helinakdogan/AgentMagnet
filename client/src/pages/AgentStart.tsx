@@ -60,21 +60,31 @@ const AgentStart: FC = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            access_token: tokenResponse.access_token,
-          }),
+                  body: JSON.stringify({
+          access_token: tokenResponse.access_token,
+          refresh_token: (tokenResponse as any).refresh_token || null,
+          expires_in: (tokenResponse as any).expires_in || 3600,
+        }),
         });
 
         if (response.ok) {
           const data = await response.json();
           console.log('Google OAuth success, data:', data);
               
-          // Set user directly
-          setUser(data.data);
-          console.log('User set:', data.data);
+          // Set user directly (JWT olmadan)
+          const userData = {
+            id: data.data.id,
+            email: data.data.email,
+            name: data.data.name,
+            avatar: data.data.avatar
+            // ❌ token: data.data.token - KALDIR (güvenlik için)
+          };
           
-          // Store user data in localStorage for other pages
-          localStorage.setItem('userData', JSON.stringify(data.data));
+          setUser(userData);
+          console.log('User set:', userData);
+          
+          // Store user data in localStorage for other pages (JWT olmadan)
+          localStorage.setItem('userData', JSON.stringify(userData));
           
           // Trigger custom event for other components
           window.dispatchEvent(new Event('userDataChanged'));
