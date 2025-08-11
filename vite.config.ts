@@ -34,12 +34,12 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
-    proxy: {
+    proxy: process.env.NODE_ENV === 'development' ? {
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },
-    },
+    } : undefined,
   },
 });
