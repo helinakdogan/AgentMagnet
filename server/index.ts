@@ -63,6 +63,6 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || '5001', 10);
   server.listen(port, () => {
     log(`serving on port ${port}`);
-  });
+});
 
 })();
