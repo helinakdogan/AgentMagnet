@@ -5,6 +5,10 @@ const API_BASE_URL = import.meta.env.DEV
   ? '/api'  // Development: Vite proxy kullanır
   : 'https://agent-magnet-backend.onrender.com/api'; // Production: Backend URL
 
+console.log('API Base URL:', API_BASE_URL);
+console.log('Environment:', import.meta.env.MODE);
+console.log('DEV:', import.meta.env.DEV);
+
 // Types for API responses
 export interface ApiResponse<T = any> {
   success: boolean;

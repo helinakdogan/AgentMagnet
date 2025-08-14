@@ -42,9 +42,15 @@ function Router() {
 }
 
 function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "370597034951-8o7ig5kum0gd4g83vm8km7roarehng6v.apps.googleusercontent.com";
+  
+  console.log('Google OAuth Client ID:', clientId);
+  console.log('Environment:', import.meta.env.MODE);
+  console.log('VITE_GOOGLE_CLIENT_ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
+  
   return (
     <ErrorBoundary>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "370597034951-8o7ig5kum0gd4g83vm8km7roarehng6v.apps.googleusercontent.com"}>
+      <GoogleOAuthProvider clientId={clientId}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <LanguageProvider>

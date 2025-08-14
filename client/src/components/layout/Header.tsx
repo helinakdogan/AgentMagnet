@@ -41,8 +41,14 @@ export default function Header() {
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        // Proxy kullandığımız için /api ile başlayan endpoint'i kullan
-        const response = await fetch('/api/auth/google/token', {
+        // Production'da tam backend URL kullan, development'ta proxy kullan
+        const apiUrl = import.meta.env.DEV 
+          ? '/api/auth/google/token'  // Development: Vite proxy
+          : 'https://agent-magnet-backend.onrender.com/api/auth/google/token'; // Production: Backend URL
+        
+        console.log('Making request to:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -52,6 +58,7 @@ export default function Header() {
             refresh_token: (tokenResponse as any).refresh_token || null, // ✅ Refresh token ekle
             expires_in: (tokenResponse as any).expires_in || 3600,     // ✅ Token süresi ekle
           }),
+          credentials: 'include', // Include cookies for CORS
         });
 
         if (response.ok) {
@@ -76,6 +83,9 @@ export default function Header() {
           // Trigger custom event for other components
           window.dispatchEvent(new Event('userDataChanged'));
         } else {
+          console.error('Login failed:', response.status, response.statusText);
+          const errorData = await response.text();
+          console.error('Error response:', errorData);
           alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
         }
       } catch (error) {
@@ -83,7 +93,10 @@ export default function Header() {
         alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
       }
     },
-    onError: () => alert("Google girişi başarısız oldu"),
+    onError: (error) => {
+      console.error('Google OAuth error:', error);
+      alert("Google girişi başarısız oldu");
+    },
   });
 
   const logout = () => {
