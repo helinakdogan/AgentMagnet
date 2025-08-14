@@ -86,7 +86,7 @@ export default function GmailAgentUsage() {
       try {
         setInitialLoading(true);
         const userId = localStorage.getItem("userId") || "b682763a-1412-4463-8be5-e01d3a7cb265";
-        const response = await fetch('/api/gmail/summary', {
+        const response = await fetch(`${import.meta.env.DEV ? '/api' : 'https://agent-magnet-backend.onrender.com/api'}/gmail/summary`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ export default function GmailAgentUsage() {
       if (accessToken) {
         try {
           const userId = localStorage.getItem("userId") || "b682763a-1412-4463-8be5-e01d3a7cb265";
-          const response = await fetch('/api/gmail/summary', {
+          const response = await fetch(`${import.meta.env.DEV ? '/api' : 'https://agent-magnet-backend.onrender.com/api'}/gmail/summary`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -200,7 +200,7 @@ export default function GmailAgentUsage() {
       // 🆕 Token'ı backend'e kaydet
       try {
         const userId = localStorage.getItem("userId") || "b682763a-1412-4463-8be5-e01d3a7cb265";
-        const response = await fetch('/api/gmail/tokens', {
+        const response = await fetch(`${import.meta.env.DEV ? '/api' : 'https://agent-magnet-backend.onrender.com/api'}/gmail/tokens`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -255,7 +255,7 @@ export default function GmailAgentUsage() {
       const userId = localStorage.getItem("userId") || "b682763a-1412-4463-8be5-e01d3a7cb265";
       
       // Backend'deki özetleme API'sini kullan
-      const response = await fetch('/api/gmail/summary', {
+      const response = await fetch(`${import.meta.env.DEV ? '/api' : 'https://agent-magnet-backend.onrender.com/api'}/gmail/summary`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

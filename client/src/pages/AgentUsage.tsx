@@ -27,7 +27,7 @@ const AgentUsage: React.FC = () => {
   useEffect(() => {
     const fetchCurrentUsage = async () => {
       try {
-        const res = await axios.post<SummaryResponse>("/api/gmail/summary", { 
+        const res = await axios.post<SummaryResponse>(`${import.meta.env.DEV ? '/api' : 'https://agent-magnet-backend.onrender.com/api'}/gmail/summary`, { 
           userId,
           agentId: 'gmail-agent', // Gmail agent ID'si
           checkOnly: true // Sadece kullanım bilgisini al, özetleme yapma
@@ -87,7 +87,7 @@ const handleSummarize = async () => {
   setSummary([]); // Önceki sonuçları temizle
 
   try {
-    const res = await axios.post<SummaryResponse>("/api/gmail/summary", { 
+    const res = await axios.post<SummaryResponse>(`${import.meta.env.DEV ? '/api' : 'https://agent-magnet-backend.onrender.com/api'}/gmail/summary`, { 
       userId,
       agentId: 'gmail-agent' // Gmail agent ID'si
     }, {
