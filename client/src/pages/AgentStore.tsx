@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAgents } from "@/hooks/use-api";
 import { LoadingCard } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/ui/error-boundary";
+import BasicButton from "@/components/ui/basic-button";
 import type { Agent } from "@/lib/api";
 
 export default function AgentStore() {
@@ -79,83 +80,74 @@ export default function AgentStore() {
   }
 
   return (
-    <div className="min-h-screen py-20 bg-[var(--light-gray)]">
+    <div className="min-h-screen py-20 bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white mb-4">
+          <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[var(--dark-purple)] dark:text-white mb-4">
             {t("store.title")} <span className="gradient-text">{t("store.title.highlight")}</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 font-normal max-w-3xl">
+          <p className="text-xl text-gray-600 dark:text-gray-300 font-light max-w-3xl">
             {t("store.description")}
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            {/* Search Bar */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Ajan ara..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 glassmorphic rounded-xl border-0 focus:ring-2 focus:ring-purple-500 focus:outline-none"
-              />
-            </div>
+     {/* Search and View Toggle */}
+<div className="mb-8">
+  <div className="flex flex-row items-center gap-4">
+    {/* Search Bar */}
+    <div className="relative flex-1 max-w-md">
+      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 w-5 h-5 z-10 pointer-events-none" />
+      <input
+        type="text"
+        placeholder="Ajan ara..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 glassmorphic rounded-xl border-0 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+      />
+    </div>
 
-            {/* Controls */}
-            <div className="flex items-center gap-4">
-              {/* Sort Dropdown */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as "popular" | "price" | "name")}
-                className="glassmorphic rounded-xl px-4 py-3 border-0 focus:ring-2 focus:ring-purple-500 focus:outline-none"
-              >
-                <option value="popular">Popülerlik</option>
-                <option value="price">Fiyat</option>
-                <option value="name">İsim</option>
-              </select>
+    {/* View Mode Toggle */}
+    <div className="flex glassmorphic rounded-xl p-1">
+      <button
+        onClick={() => setViewMode("grid")}
+        className={`p-2 rounded-lg transition-colors ${
+          viewMode === "grid" ? "bg-purple-500 text-white" : "text-gray-600 dark:text-gray-400"
+        }`}
+      >
+        <Grid className="w-5 h-5" />
+      </button>
+      <button
+        onClick={() => setViewMode("list")}
+        className={`p-2 rounded-lg transition-colors ${
+          viewMode === "list" ? "bg-purple-500 text-white" : "text-gray-600 dark:text-gray-400"
+        }`}
+      >
+        <List className="w-5 h-5" />
+      </button>
+    </div>
+  </div>
+</div>
 
-              {/* View Mode Toggle */}
-              <div className="flex glassmorphic rounded-xl p-1">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-colors ${
-                    viewMode === "grid" ? "bg-purple-500 text-white" : "text-gray-600"
-                  }`}
-                >
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-colors ${
-                    viewMode === "list" ? "bg-purple-500 text-white" : "text-gray-600"
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+  
         {/* Category Filter */}
-        <div className="flex flex-wrap gap-3 mb-8">
+        <div className="flex flex-wrap gap-3 mb-8 justify-center sm:justify-start">
           {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-3 text-sm font-medium rounded-xl transition-colors ${
-                selectedCategory === category
-                  ? "bg-[var(--dark-purple)] text-white dark:bg-white dark:text-[var(--border)]"
-                  : "text-gray-500 glassmorphic hover:bg-gray-50"
-              }`}
-            >
-              {category}
-            </button>
+            selectedCategory === category ? (
+              <div key={category} className="inline-block">
+                <BasicButton href="#">
+                  {category}
+                </BasicButton>
+              </div>
+            ) : (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className="text-gray-600 dark:text-gray-400 glassmorphic hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm hover:shadow-md px-6 py-2 font-medium rounded-lg transition-all duration-300"
+              >
+                {category}
+              </button>
+            )
           ))}
         </div>
 
@@ -176,8 +168,8 @@ export default function AgentStore() {
           </div>
         ) : filteredAgents.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto mb-6 gradient-main rounded-2xl flex items-center justify-center">
-              <Search className="w-12 h-12 text-white" />
+            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center">
+              <Search className="w-12 h-12 text-gray-600 dark:text-gray-400" />
             </div>
             <h3 className="text-xl font-semibold text-[var(--dark-purple)] mb-2">
               Ajan bulunamadı

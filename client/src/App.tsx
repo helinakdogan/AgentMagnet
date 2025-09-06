@@ -18,6 +18,8 @@ import NotFound from "@/pages/NotFound";
 import AgentStart from './pages/AgentStart';
 import AgentUsage from './pages/AgentUsage';
 import GmailAgentUsage from './pages/GmailAgentUsage';
+import GmailOrganizerAgent from './pages/GmailOrganizerAgent';
+import WhatsAppAgent from './pages/WhatsAppAgent';
 import OAuthCallback from './pages/OAuthCallback';
 import TestIntegration from './pages/TestIntegration';
 import MyAgents from './pages/MyAgents';
@@ -31,6 +33,9 @@ function Router() {
       <Route path="/agent/:id/start" component={AgentStart} />
       <Route path="/agent/:id/usage" component={AgentUsage} />
       <Route path="/agent/:id/gmail" component={GmailAgentUsage} />
+      <Route path="/agent/:id/whatsapp" component={WhatsAppAgent} />
+      <Route path="/gmail-organizer" component={GmailOrganizerAgent} />
+      <Route path="/whatsapp-agent" component={WhatsAppAgent} />
       <Route path="/oauth/callback" component={OAuthCallback} />
       <Route path="/my-agents" component={MyAgents} />
       <Route path="/pricing" component={Pricing} />

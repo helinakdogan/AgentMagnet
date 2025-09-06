@@ -32,7 +32,7 @@ export default function Navigation({ isMobile = false, onItemClick }: Navigation
 
   const getItemClassName = (href: string) => {
     const isActive = location === href;
-    const baseClass = `font-medium transition-colors ${
+    const baseClass = `font-normal text-base transition-colors ${
       isMobile ? "block py-2" : ""
     }`;
     

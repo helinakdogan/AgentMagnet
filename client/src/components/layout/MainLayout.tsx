@@ -10,6 +10,8 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="relative min-h-screen">
+      {/* Global gradient background behind header */}
+      <div className="hero-magnetic-global-bg"></div>
       <MagneticDots />
       <div className="relative z-10">
         <Header />

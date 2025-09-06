@@ -36,11 +36,11 @@ const translations = {
     "home.howItWorks.title": "Nasıl Çalışır?",
     "home.howItWorks.subtitle": "Sadece üç adımda AI ajanlarından yararlanmaya başlayın.",
     "home.howItWorks.step1.title": "Keşfet & Seç",
-    "home.howItWorks.step1.description": "İhtiyacınıza uygun YZ ajanını kategoriler arasından kolayca bulun ve özelliklerini inceleyin.",
+    "home.howItWorks.step1.description": "Kategorilerden ihtiyacınıza uygun ajanı seçin.",
     "home.howItWorks.step2.title": "Plan Seç",
-    "home.howItWorks.step2.description": "İlginizi çeken ajan için size en uygun planı seçin ve gerekli izinleri onaylayın.",
+    "home.howItWorks.step2.description": "Size uygun planı seçin ve izinleri onaylayın.",
     "home.howItWorks.step3.title": "Hemen Kullan",
-    "home.howItWorks.step3.description": "Kullanım sayfasına gidin ve ajanınız iş süreçlerinizi otomatik olarak optimize etsin.",
+    "home.howItWorks.step3.description": "Kullanım sayfasına gidin ve ajanı kullanmaya başlayın.",
     "home.howItWorks.cta.title": "Hemen Başlamaya Hazır mısınız?",
     "home.howItWorks.cta.description": "Binlerce AI ajanı arasından size en uygun olanı bulun ve dijital dönüşümünüzü hızlandırın.",
     "home.howItWorks.cta.button": "Ücretsiz Başlayın",
@@ -60,16 +60,16 @@ const translations = {
     "home.stats.support.count": "24/7",
     
     // Magnetic Agents Section
-    "home.magneticAgents.title": "Dikkat, Manyetik Alan!",
+    "home.magneticAgents.title": "Dikkat, Manyetik Alan",
     "home.magneticAgents.description": "Gelecekte sunacağımız özel ajanlarımızı keşfedin; bu manyetik çekime karşı koymak imkansız gibi görünüyor!",
     "home.magneticAgents.moreToCome": "Daha fazlası geliyor...",
     "home.magneticAgents.gmail.title": "Gmail Ajan",
     "home.magneticAgents.gmail.description": "E-postalarınızı otomatik olarak yönetin, yanıtlayın ve organize edin.",
     "home.magneticAgents.tryOn.title": "Try On Ajan",
-    "home.magneticAgents.tryOn.description": "Kıyafetleri sanal olarak deneyin ve stil önerileri alın.",
+    "home.magneticAgents.tryOn.description": "Butiğinizin kıyafetlerini sanal deneyime sunun ve müşterilerinize dijital prova imkanı tanıyın.",
     "home.magneticAgents.instagram.title": "Instagram DM Kontrol",
     "home.magneticAgents.instagram.description": "Instagram mesajlarınızı otomatik olarak yönetin ve yanıtlayın.",
-    "home.magneticAgents.whatsapp.title": "WhatsApp Ajan",
+    "home.magneticAgents.whatsapp.title": "WhatsApp Business Bot",
     "home.magneticAgents.whatsapp.description": "WhatsApp mesajlarınızı akıllıca yönetin ve otomatik yanıtlar oluşturun.",
     
                 // Future Vision
@@ -80,17 +80,17 @@ const translations = {
     
     // Industries
     "home.magneticAgents.industries.beauty.title": "Güzellik Merkezleri",
-    "home.magneticAgents.industries.beauty.description": "Randevu yönetimi, müşteri takibi ve pazarlama otomasyonu ile işinizi büyütün.",
+    "home.magneticAgents.industries.beauty.description": "Randevu yönetimi ve müşteri takibi.",
     "home.magneticAgents.industries.boutique.title": "Butikler & Küçük İşletmeler",
-    "home.magneticAgents.industries.boutique.description": "Stok yönetimi, müşteri ilişkileri ve sosyal medya otomasyonu ile verimliliğinizi artırın.",
+    "home.magneticAgents.industries.boutique.description": "Stok yönetimi ve müşteri ilişkileri.",
     "home.magneticAgents.industries.it.title": "Kurumsal Profesyoneller",
-    "home.magneticAgents.industries.it.description": "Ofis çalışanları, yöneticiler ve beyaz yakalı profesyoneller için akıllı asistanlar.",
+    "home.magneticAgents.industries.it.description": "Ofis çalışanları için akıllı asistanlar.",
     "home.magneticAgents.industries.students.title": "Öğrenciler",
-    "home.magneticAgents.industries.students.description": "Ödev yardımı, araştırma ve öğrenme süreçlerinizi hızlandırın.",
+    "home.magneticAgents.industries.students.description": "Ödev yardımı ve araştırma.",
     "home.magneticAgents.industries.aiEnthusiasts.title": "AI Meraklıları",
-    "home.magneticAgents.industries.aiEnthusiasts.description": "Yapay zeka ajanlarının sınırlarını keşfedin ve yeni kullanım alanları yaratın.",
+    "home.magneticAgents.industries.aiEnthusiasts.description": "AI ajanlarının sınırlarını keşfedin.",
     "home.magneticAgents.industries.automation.title": "Otomasyon",
-    "home.magneticAgents.industries.automation.description": "İş süreçlerinizi otomatikleştirin ve verimliliğinizi maksimuma çıkarın.",
+    "home.magneticAgents.industries.automation.description": "İş süreçlerinizi otomatikleştirin.",
     
     // Agent Store
     "store.title": "YZ Ajan",
@@ -232,6 +232,9 @@ const translations = {
     "myAgents.errorTitle": "Hata Oluştu",
     "myAgents.errorDescription": "Agentlarınız yüklenirken bir hata oluştu.",
     "myAgents.tryAgain": "Tekrar Dene",
+    "myAgents.whatsappAgent": "WhatsApp Business Bot",
+"myAgents.whatsappDescription": "WhatsApp üzerinden otomatik müşteri hizmetleri ve mesajlaşma yönetimi.",
+
     
     // Agent Detail Page
     "agentDetail.purchase": "Ajan'ı Al",
@@ -319,6 +322,82 @@ const translations = {
     "gmail.lastRightsRemaining": "Son {count} hakkınız kaldı",
     "gmail.dailyLimitReached": "Günlük limit doldu. Yarın tekrar deneyin.",
     
+   
+    "agentDetail": {
+      "gmail": {
+        "plans": {
+          "free": {
+            "dailyQueries": "Günlük 10 sorgu",
+            "last10Emails": "Son 10 e-posta analizi",
+            "basicCategorization": "Temel kategorilendirme"
+          },
+          "plus": {
+            "unlimitedQueries": "Sınırsız sorgu",
+            "advancedCategorization": "Gelişmiş kategorilendirme",
+            "smartReplies": "Akıllı yanıt önerileri",
+            "priorityDetection": "Öncelik tespiti"
+          },
+          "premium": {
+            "allPlusFeatures": "Tüm Plus özellikleri",
+            "scheduleEmails": "E-posta zamanlama",
+            "attachmentAnalysis": "Ek analizi",
+            "teamCollaboration": "Takım işbirliği"
+          }
+        }
+      },
+      
+   
+    
+    },
+
+      // WhatsApp
+      "whatsapp.agentNotFound": "Agent Bulunamadı",
+      "whatsapp.agentNotFoundDesc": "Lütfen bu sayfaya doğru route üzerinden erişin.",
+      "whatsapp.goToMyAgents": "Ajanslarım'a Git",
+      "whatsapp.title": "WhatsApp Business Bot",
+      "whatsapp.subtitle": "Otomatik mesaj yanıtlama sistemi",
+      "whatsapp.connected": "Bağlı",
+      "whatsapp.disconnected": "Bağlı Değil",
+      "whatsapp.connecting": "Bağlanıyor...",
+      "whatsapp.connectBot": "Bot'u Bağla",
+      "whatsapp.disconnect": "Bağlantıyı Kes",
+      "whatsapp.templates": "Template'ler",
+      "whatsapp.status": "Durum",
+      "whatsapp.qrCodeTitle": "WhatsApp'ta QR Kodu Okutun",
+      "whatsapp.qrCodeDescription": "QR kodu telefonunuzla okutarak bot'u aktif edin",
+      "whatsapp.qrCodeSteps": "WhatsApp → Ayarlar → Bağlı Cihazlar → Cihaz Bağla",
+      "whatsapp.templateManagement": "Otomatik Cevap Template'leri",
+      "whatsapp.addNewTemplate": "Yeni Template Ekle",
+      "whatsapp.triggerPlaceholder": "Trigger kelimesi (örn: fiyat)",
+      "whatsapp.responsePlaceholder": "Otomatik cevap mesajı...",
+      "whatsapp.addTemplate": "Template Ekle",
+      "whatsapp.templateLimit": "Maksimum {max} template ekleyebilirsiniz",
+      "whatsapp.templateLimitReached": "Maksimum template sayısına ulaştınız ({max})",
+      "whatsapp.existingTemplates": "Mevcut Template'ler",
+      "whatsapp.noTemplates": "Henüz template eklenmemiş",
+      "whatsapp.sendTestMessage": "Test Mesajı Gönder",
+      "whatsapp.phonePlaceholder": "Hedef telefon numarası (905xxxxxxxxx)",
+      "whatsapp.messagePlaceholder": "Test mesajı...",
+      "whatsapp.connectFirst": "Test mesajı göndermek için önce bot'u bağlayın",
+      "whatsapp.howItWorks": "Nasıl Çalışır?",
+      "whatsapp.step1": "QR kodu okutarak WhatsApp hesabınızı bağlayın",
+      "whatsapp.step2": "Otomatik cevap template'lerini oluşturun",
+      "whatsapp.step3": "Müşteriler trigger kelimelerini yazdığında otomatik cevap alırlar",
+      "whatsapp.step4": "24/7 otomatik müşteri hizmeti sağlayın",
+      "whatsapp.connectionError": "Bot bağlantısı başarısız",
+      "whatsapp.botdisconnected": "WhatsApp bot bağlantısı kesildi!",
+      "whatsapp.disconnectError": "Bot bağlantısı kesilemedi",
+      "whatsapp.templateRequired": "Trigger ve response alanları zorunludur!",
+      "whatsapp.templateAdded": "Template başarıyla eklendi!",
+      "whatsapp.templateAddError": "Template eklenemedi",
+      "whatsapp.deleteTemplateConfirm": "Bu template'i silmek istediğinizden emin misiniz?",
+      "whatsapp.templateDeleted": "Template başarıyla silindi!",
+      "whatsapp.templateDeleteError": "Template silinemedi",
+      "whatsapp.testMessageRequired": "Telefon numarası ve mesaj alanları zorunludur!",
+      "whatsapp.testMessageSent": "Test mesajı başarıyla gönderildi!",
+      "whatsapp.testMessageError": "Test mesajı gönderilemedi",
+      
+    
     // Common
     "common.loading": "Yükleniyor...",
     "common.error": "Hata Oluştu",
@@ -374,11 +453,11 @@ const translations = {
     "home.howItWorks.title": "How It Works?",
     "home.howItWorks.subtitle": "Start leveraging AI agents in just three steps.",
     "home.howItWorks.step1.title": "Discover & Select",
-    "home.howItWorks.step1.description": "Easily find and explore AI agents that suit your needs from thousands of options.",
+    "home.howItWorks.step1.description": "Choose the right agent from categories for your needs.",
     "home.howItWorks.step2.title": "Choose Plan",
-    "home.howItWorks.step2.description": "Choose the most suitable plan for the agent you are interested in and approve the required permissions.",
+    "home.howItWorks.step2.description": "Select a suitable plan and approve permissions.",
     "home.howItWorks.step3.title": "Use Now",
-    "home.howItWorks.step3.description": "Go to the usage page and let your agent optimize your work processes automatically.",
+    "home.howItWorks.step3.description": "Go to usage page and start using the agent.",
     "home.howItWorks.cta.title": "Ready to get started?",
     "home.howItWorks.cta.description": "Find the most suitable one from thousands of AI agents and accelerate your digital transformation.",
     "home.howItWorks.cta.button": "Start Free",
@@ -398,16 +477,16 @@ const translations = {
     "home.stats.support.count": "24/7",
     
     // Magnetic Agents Section
-    "home.magneticAgents.title": "Warning, Magnetic Field!",
+    "home.magneticAgents.title": "Warning, Magnetic Field",
     "home.magneticAgents.description": "Discover the special agents we will be releasing in the future; resisting this magnetic pull seems impossible!",
     "home.magneticAgents.moreToCome": "More to come...",
     "home.magneticAgents.gmail.title": "Gmail Agent",
     "home.magneticAgents.gmail.description": "Manage your emails automatically, respond, and organize them.",
     "home.magneticAgents.tryOn.title": "Try On Agent",
-    "home.magneticAgents.tryOn.description": "Try on clothes virtually and get style suggestions.",
+    "home.magneticAgents.tryOn.description": "Present your boutique's clothing in virtual experience and offer digital fitting opportunities to your customers.",
     "home.magneticAgents.instagram.title": "Instagram DM Control",
     "home.magneticAgents.instagram.description": "Automatically manage and respond to your Instagram messages.",
-    "home.magneticAgents.whatsapp.title": "WhatsApp Agent",
+    "home.magneticAgents.whatsapp.title": "WhatsApp Business Bot",
     "home.magneticAgents.whatsapp.description": "Intelligently manage your WhatsApp messages and create automatic responses.",
     
                 // Future Vision
@@ -418,17 +497,17 @@ const translations = {
     
     // Industries
     "home.magneticAgents.industries.beauty.title": "Beauty & Wellness",
-    "home.magneticAgents.industries.beauty.description": "Grow your business with appointment management, customer tracking, and marketing automation.",
+    "home.magneticAgents.industries.beauty.description": "Appointment management and customer tracking.",
     "home.magneticAgents.industries.boutique.title": "Boutiques & Small Business",
-    "home.magneticAgents.industries.boutique.description": "Increase your efficiency with inventory management, customer relations, and social media automation.",
+    "home.magneticAgents.industries.boutique.description": "Inventory management and customer relations.",
     "home.magneticAgents.industries.it.title": "Corporate Professionals",
-    "home.magneticAgents.industries.it.description": "Smart assistants for office workers, managers, and white-collar professionals.",
+    "home.magneticAgents.industries.it.description": "Smart assistants for office workers.",
     "home.magneticAgents.industries.students.title": "Students",
-    "home.magneticAgents.industries.students.description": "Accelerate your homework, research, and learning processes.",
+    "home.magneticAgents.industries.students.description": "Homework help and research.",
     "home.magneticAgents.industries.aiEnthusiasts.title": "AI Enthusiasts",
-    "home.magneticAgents.industries.aiEnthusiasts.description": "Explore the boundaries of AI agents and create new use cases.",
+    "home.magneticAgents.industries.aiEnthusiasts.description": "Explore the boundaries of AI agents.",
     "home.magneticAgents.industries.automation.title": "Automation",
-    "home.magneticAgents.industries.automation.description": "Automate your business processes and maximize your efficiency.",
+    "home.magneticAgents.industries.automation.description": "Automate your business processes.",
     
     // Agent Store
     "store.title": "AI Agent",
@@ -570,6 +649,8 @@ const translations = {
     "myAgents.errorTitle": "Error Occurred",
     "myAgents.errorDescription": "An error occurred while loading your agents.",
     "myAgents.tryAgain": "Try Again",
+    "myAgents.whatsappAgent": "WhatsApp Business Bot",
+"myAgents.whatsappDescription": "Automated customer service and messaging management via WhatsApp.",
     
     // Agent Detail Page
     "agentDetail.purchase": "Buy Agent",
@@ -658,6 +739,78 @@ const translations = {
     "gmail.remaining": "remaining",
     "gmail.lastRightsRemaining": "Last {count} rights remaining",
     "gmail.dailyLimitReached": "Daily limit reached. Try again tomorrow.",
+     
+    "agentDetail": {
+      "gmail": {
+        "plans": {
+          "free": {
+            "dailyQueries": "10 daily queries",
+            "last10Emails": "Last 10 emails analysis",
+            "basicCategorization": "Basic categorization"
+          },
+          "plus": {
+            "unlimitedQueries": "Unlimited queries",
+            "advancedCategorization": "Advanced categorization",
+            "smartReplies": "Smart reply suggestions",
+            "priorityDetection": "Priority detection"
+          },
+          "premium": {
+            "allPlusFeatures": "All Plus features",
+            "scheduleEmails": "Email scheduling",
+            "attachmentAnalysis": "Attachment analysis",
+            "teamCollaboration": "Team collaboration"
+          }
+        }
+      }, 
+ 
+    },
+
+  
+    "whatsapp.agentNotFound": "Agent Not Found",
+    "whatsapp.agentNotFoundDesc": "Please access this page through the correct route.",
+    "whatsapp.goToMyAgents": "Go to My Agents",
+    "whatsapp.title": "WhatsApp Business Bot",
+    "whatsapp.subtitle": "Automatic message response system",
+    "whatsapp.connected": "Connected",
+    "whatsapp.disconnected": "Not Connected",
+    "whatsapp.connecting": "Connecting...",
+    "whatsapp.connectBot": "Connect Bot",
+    "whatsapp.disconnect": "Disconnect",
+    "whatsapp.templates": "Templates",
+    "whatsapp.status": "Status",
+    "whatsapp.qrCodeTitle": "Scan QR Code in WhatsApp",
+    "whatsapp.qrCodeDescription": "Scan the QR code with your phone to activate the bot",
+    "whatsapp.qrCodeSteps": "WhatsApp → Settings → Linked Devices → Link a Device",
+    "whatsapp.templateManagement": "Automatic Response Templates",
+    "whatsapp.addNewTemplate": "Add New Template",
+    "whatsapp.triggerPlaceholder": "Trigger word (e.g., price)",
+    "whatsapp.responsePlaceholder": "Automatic response message...",
+    "whatsapp.addTemplate": "Add Template",
+    "whatsapp.templateLimit": "You can add maximum {max} templates",
+    "whatsapp.templateLimitReached": "You have reached the maximum number of templates ({max})",
+    "whatsapp.existingTemplates": "Existing Templates",
+    "whatsapp.noTemplates": "No templates added yet",
+    "whatsapp.sendTestMessage": "Send Test Message",
+    "whatsapp.phonePlaceholder": "Target phone number (905xxxxxxxxx)",
+    "whatsapp.messagePlaceholder": "Test message...",
+    "whatsapp.connectFirst": "Connect the bot first to send test messages",
+    "whatsapp.howItWorks": "How It Works?",
+    "whatsapp.step1": "Connect your WhatsApp account by scanning the QR code",
+    "whatsapp.step2": "Create automatic response templates",
+    "whatsapp.step3": "Customers receive automatic responses when they type trigger words",
+    "whatsapp.step4": "Provide 24/7 automatic customer service",
+    "whatsapp.connectionError": "Bot connection failed",
+    "whatsapp.botdisconnected": "WhatsApp bot connection disconnected!",
+    "whatsapp.disconnectError": "Could not disconnect bot",
+    "whatsapp.templateRequired": "Trigger and response fields are required!",
+    "whatsapp.templateAdded": "Template added successfully!",
+    "whatsapp.templateAddError": "Could not add template",
+    "whatsapp.deleteTemplateConfirm": "Are you sure you want to delete this template?",
+    "whatsapp.templateDeleted": "Template deleted successfully!",
+    "whatsapp.templateDeleteError": "Could not delete template",
+    "whatsapp.testMessageRequired": "Phone number and message fields are required!",
+    "whatsapp.testMessageSent": "Test message sent successfully!",
+    "whatsapp.testMessageError": "Could not send test message",
     
     // Common
     "common.loading": "Loading...",
@@ -728,7 +881,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: string): string => {
-    return translations[language][key as keyof typeof translations[typeof language]] || key;
+    const value = translations[language][key as keyof typeof translations[typeof language]];
+    return typeof value === "string" ? value : key;
   };
 
   return (

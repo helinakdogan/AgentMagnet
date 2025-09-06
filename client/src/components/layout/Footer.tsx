@@ -5,17 +5,17 @@ import Logo from "@/assets/agentmagnetlogolight.png";
 export default function Footer() {
   const { t } = useLanguage();
   return (
-    <footer className="bg-[var(--dark-purple)] dark:bg-black text-white py-16">
+    <footer className="bg-[var(--purplish-black)] text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-               <div className="w-10 h-10 gradient-main rounded-lg flex items-center justify-center shadow-lg">
-                  <div className="w-7 h-7 rounded-lg overflow-hidden shadow-lg">
-                    <img src={Logo} alt="Agent Magnet Logo" className="w-full h-full object-contain" />
-                  </div>
+              <div className="relative">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <img src={Logo} alt="Agent Magnet Logo" className="w-full h-full object-contain" />
                 </div>
+              </div>
               <span className="text-xl font-semibold">Agent Magnet</span>
             </div>
             <p className="text-gray-300 font-normal mb-6 max-w-md">

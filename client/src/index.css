@@ -30,6 +30,7 @@
   --primary-white: hsl(0, 0%, 100%);
   --light-gray: hsl(220, 14%, 97%);
   --dark-purple: hsl(246, 83%, 11%);
+  --purplish-black: hsl(0, 0%, 6%);
   --gradient-start: hsl(332, 100%, 65%);
   --gradient-middle: hsl(289, 100%, 70%);
   --gradient-end: hsl(220, 100%, 68%);
@@ -40,13 +41,13 @@
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
+  --background: #16151a;
   --foreground: hsl(0, 0%, 98%);
   --muted: hsl(240, 4%, 16%);
   --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
+  --popover:  #16151a;
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
+  --card:  #16151a;
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
@@ -61,8 +62,8 @@
   --ring: hsl(240, 4.9%, 83.9%);
 
   /* Agent Magnet Dark Mode Colors - Softened */
-  --primary-white: hsl(240, 10%, 3.9%);
-  --light-gray: hsl(240, 8%, 10%);
+  --primary-white: #16151a;
+  --light-gray: #16151a;
   --dark-purple: hsl(0, 0%, 98%);
   
   /* Soft Dark Mode Background Colors */
@@ -90,22 +91,32 @@
   @apply bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-white/20 dark:border-white/10 shadow-md;
 }
 
+/* 3D Ring Animation */
+@keyframes rotateRing {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
 /* Enhanced glassmorphic with subtle gray tint */
 .glassmorphic {
-  background: rgba(128, 128, 128, 0.03);
+  background: rgba(128, 128, 128, 0.015);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.05);
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    0 4px 6px -1px rgba(0, 0, 0, 0.03),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
 }
 
 .dark .glassmorphic {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.2),
-    0 2px 4px -1px rgba(0, 0, 0, 0.15);
+    0 4px 6px -1px rgba(0, 0, 0, 0.15),
+    0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
 .glassmorphic-menu {
@@ -114,7 +125,7 @@
 
 /* Gradient Utilities */
 .gradient-main {
-  background: linear-gradient(120deg, #fe0054, #e200fe, #0f0c29, #5b43f1, #cb88f8);
+  background: linear-gradient(120deg, #fe0054, #e200fe, #4e10c2, #5b43f1, #cb88f8);
 }
 
 .gradient-text {
@@ -332,7 +343,7 @@ html {
 }
 
 .btn-black {
-  @apply px-6 py-2 font-semibold text-white bg-black dark:bg-white dark:text-black rounded-xl hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors;
+  @apply text-white bg-black dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors;
 }
 
 /* Soft Background Utilities */
@@ -579,7 +590,7 @@ html {
 
 .planet-title {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 400;
   color: white;
   margin-bottom: 0.25rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -813,7 +824,7 @@ html {
 
 .planet-title {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 400;
   color: rgba(0, 0, 0, 0.8);
   margin-bottom: 0.25rem;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
@@ -868,9 +879,9 @@ html {
 
 .chocolate-piece {
   position: relative;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -879,13 +890,11 @@ html {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: none;
 }
 
 .dark .chocolate-piece {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -913,55 +922,33 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.6;
+  opacity: 0.15;
   z-index: -1;
-  animation: spotLight 4s ease-in-out infinite alternate;
 }
 
-@keyframes spotLight {
-  0% {
-    opacity: 0.2;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-}
-
-/* Colored spot lights behind each piece - slightly increased brightness */
+/* Subtle colored spot lights - slightly more visible */
 .chocolate-piece:nth-child(1)::before {
-  background: radial-gradient(circle at 30% 30%, rgba(236, 72, 153, 0.5) 0%, transparent 70%),
-              radial-gradient(circle at 70% 70%, rgba(59, 130, 246, 0.4) 0%, transparent 60%);
+  background: radial-gradient(circle at 30% 30%, rgba(236, 72, 153, 0.25) 0%, transparent 70%);
 }
 
 .chocolate-piece:nth-child(2)::before {
-  background: radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.5) 0%, transparent 70%),
-              radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.4) 0%, transparent 60%);
+  background: radial-gradient(circle at 70% 70%, rgba(34, 197, 94, 0.25) 0%, transparent 70%);
 }
 
 .chocolate-piece:nth-child(3)::before {
-  background: radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.5) 0%, transparent 70%),
-              radial-gradient(circle at 20% 50%, rgba(236, 72, 153, 0.4) 0%, transparent 60%);
+  background: radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
 }
 
 .chocolate-piece:nth-child(4)::before {
-  background: radial-gradient(circle at 80% 50%, rgba(245, 158, 11, 0.5) 0%, transparent 70%),
-              radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.4) 0%, transparent 60%);
+  background: radial-gradient(circle at 80% 50%, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
 }
 
 .chocolate-piece:nth-child(5)::before {
-  background: radial-gradient(circle at 30% 70%, rgba(168, 85, 247, 0.5) 0%, transparent 70%),
-              radial-gradient(circle at 70% 30%, rgba(34, 197, 94, 0.4) 0%, transparent 60%);
+  background: radial-gradient(circle at 30% 70%, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
 }
 
 .chocolate-piece:nth-child(6)::before {
-  background: radial-gradient(circle at 60% 40%, rgba(239, 68, 68, 0.5) 0%, transparent 70%),
-              radial-gradient(circle at 40% 60%, rgba(59, 130, 246, 0.4) 0%, transparent 60%);
+  background: radial-gradient(circle at 60% 40%, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
 }
 
 .chocolate-piece:hover {
@@ -1054,11 +1041,12 @@ html {
 
 .chocolate-title {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 0.5rem;
 }
 
 .chocolate-description {
+  font-weight: 300;
   font-size: 0.875rem;
   line-height: 1.4;
   opacity: 0.7;
@@ -1069,6 +1057,7 @@ html {
 }
 
 .dark .chocolate-description {
+  font-weight: 300;
   opacity: 0.8;
 }
 
@@ -1168,6 +1157,7 @@ html {
   }
   
   .chocolate-description {
+  font-weight: 300;
     font-size: 0.5625rem;
     line-height: 1.2;
   }
@@ -1295,24 +1285,25 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 1;
   background-image: 
-    /* Random scattered dots - more transparent */
-    radial-gradient(circle at 15% 25%, rgba(147, 51, 234, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 85% 35%, rgba(59, 130, 246, 0.2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 45% 75%, rgba(236, 72, 153, 0.15) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 75% 15%, rgba(147, 51, 234, 0.2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 25% 85%, rgba(59, 130, 246, 0.15) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 65% 45%, rgba(236, 72, 153, 0.1) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 35% 65%, rgba(147, 51, 234, 0.15) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 95% 55%, rgba(59, 130, 246, 0.1) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 5% 45%, rgba(236, 72, 153, 0.2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 55% 25%, rgba(147, 51, 234, 0.15) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 30% 40%, rgba(147, 51, 234, 0.15) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.1) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.15) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.1) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 20% 60%, rgba(59, 130, 246, 0.15) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 60% 30%, rgba(236, 72, 153, 0.1) 1.5px, transparent 1.5px);
+    /* White and colorful transparent dots - softer whites */
+    radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 85% 35%, rgba(147, 51, 234, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 45% 75%, rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 75% 15%, rgba(59, 130, 246, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 25% 85%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 65% 45%, rgba(236, 72, 153, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 35% 65%, rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 95% 55%, rgba(34, 197, 94, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 5% 45%, rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 55% 25%, rgba(245, 158, 11, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 70% 60%, rgba(168, 85, 247, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 80% 80%, rgba(239, 68, 68, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 20% 60%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 60% 30%, rgba(59, 130, 246, 0.12) 1.5px, transparent 1.5px);
   background-size: 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px;
   animation: magneticFieldMove 120s linear infinite;
   pointer-events: none;
@@ -1339,23 +1330,23 @@ html {
 /* Dark mode adjustments */
 .dark .magnetic-dots {
   background-image: 
-    /* Random scattered dots - more transparent */
-    radial-gradient(circle at 15% 25%, rgba(147, 51, 234, 0.35) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 85% 35%, rgba(59, 130, 246, 0.3) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 45% 75%, rgba(236, 72, 153, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 75% 15%, rgba(147, 51, 234, 0.3) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 25% 85%, rgba(59, 130, 246, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 65% 45%, rgba(236, 72, 153, 0.2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 35% 65%, rgba(147, 51, 234, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 95% 55%, rgba(59, 130, 246, 0.2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 5% 45%, rgba(236, 72, 153, 0.3) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 55% 25%, rgba(147, 51, 234, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 30% 40%, rgba(147, 51, 234, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 20% 60%, rgba(59, 130, 246, 0.25) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 60% 30%, rgba(236, 72, 153, 0.2) 1.5px, transparent 1.5px);
+    /* White and colorful transparent dots for dark mode - softer whites */
+    radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.2) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 85% 35%, rgba(147, 51, 234, 0.2) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 45% 75%, rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 75% 15%, rgba(59, 130, 246, 0.2) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 25% 85%, rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 65% 45%, rgba(236, 72, 153, 0.18) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 35% 65%, rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 95% 55%, rgba(34, 197, 94, 0.18) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 5% 45%, rgba(255, 255, 255, 0.2) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 55% 25%, rgba(245, 158, 11, 0.2) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 70% 60%, rgba(168, 85, 247, 0.18) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 80% 80%, rgba(239, 68, 68, 0.18) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 20% 60%, rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 60% 30%, rgba(59, 130, 246, 0.18) 1.5px, transparent 1.5px);
 }
 
 /* Additional wave animation for different layers */
@@ -1479,10 +1470,230 @@ html {
   }
   
   .chocolate-description {
+  font-weight: 300;
     font-size: 0.625rem;
   }
   
   .chocolate-text {
     max-width: 140px;
   }
+}
+
+/* Hero + Magnetic Combined Dark Gradient - Single continuous background */
+.hero-magnetic-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-magnetic-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    /* Black vignette overlay */
+    radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.3) 80%),
+    /* Colors emerging from darkness */
+    radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.12) 0%, rgba(0, 0, 0, 0.1) 40%, transparent 70%),
+    radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.1) 0%, rgba(0, 0, 0, 0.08) 35%, transparent 65%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.08) 0%, rgba(0, 0, 0, 0.06) 45%, transparent 80%),
+    radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.06) 0%, rgba(0, 0, 0, 0.04) 50%, transparent 85%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Dark mode - stronger effect with colors emerging from deeper black */
+.dark .hero-magnetic-container::before {
+  background: 
+    /* Stronger black vignette */
+    radial-gradient(ellipse at center, transparent 15%, rgba(0, 0, 0, 0.6) 85%),
+    /* More vibrant colors emerging */
+    radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.25) 0%, rgba(0, 0, 0, 0.2) 35%, transparent 60%),
+    radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.2) 0%, rgba(0, 0, 0, 0.15) 30%, transparent 55%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.18) 0%, rgba(0, 0, 0, 0.12) 40%, transparent 75%),
+    radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.1) 45%, transparent 80%);
+}
+
+/* Content overlay to ensure text readability */
+.n8n-depth-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Global gradient background for header transparency - only visible on home page */
+.hero-magnetic-global-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: 
+    /* Black vignette overlay */
+    radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.3) 80%),
+    /* Colors emerging from darkness */
+    radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.12) 0%, rgba(0, 0, 0, 0.1) 40%, transparent 70%),
+    radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.1) 0%, rgba(0, 0, 0, 0.08) 35%, transparent 65%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.08) 0%, rgba(0, 0, 0, 0.06) 45%, transparent 80%),
+    radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.06) 0%, rgba(0, 0, 0, 0.04) 50%, transparent 85%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show gradient on home page */
+body.home-page .hero-magnetic-global-bg {
+  opacity: 1;
+}
+
+/* Dark mode */
+.dark .hero-magnetic-global-bg {
+  background: 
+    /* Stronger black vignette */
+    radial-gradient(ellipse at center, transparent 15%, rgba(0, 0, 0, 0.6) 85%),
+    /* More vibrant colors emerging */
+    radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.25) 0%, rgba(0, 0, 0, 0.2) 35%, transparent 60%),
+    radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.2) 0%, rgba(0, 0, 0, 0.15) 30%, transparent 55%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.18) 0%, rgba(0, 0, 0, 0.12) 40%, transparent 75%),
+    radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.1) 45%, transparent 80%);
+}
+
+
+
+/* Transparent radial gradient for subtle sun effect */
+.bg-gradient-radial-transparent {
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.03) 5%, rgba(255,255,255,0.01) 10%, rgba(255,255,255,0.005) 5%, rgba(255,255,255,0.002) 100%);
+}
+
+/* Responsive 3D card positioning */
+@media (max-width: 640px) {
+  .magnetic-card-front { transform: rotateY(0deg) translateZ(180px) !important; }
+  .magnetic-card-right { transform: rotateY(90deg) translateZ(180px) !important; }
+  .magnetic-card-back { transform: rotateY(180deg) translateZ(180px) !important; }
+  .magnetic-card-left { transform: rotateY(270deg) translateZ(180px) !important; }
+  .magnetic-spotlight { transform: translateZ(200px) !important; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .magnetic-card-front { transform: rotateY(0deg) translateZ(240px) !important; }
+  .magnetic-card-right { transform: rotateY(90deg) translateZ(240px) !important; }
+  .magnetic-card-back { transform: rotateY(180deg) translateZ(240px) !important; }
+  .magnetic-card-left { transform: rotateY(270deg) translateZ(240px) !important; }
+  .magnetic-spotlight { transform: translateZ(260px) !important; }
+}
+
+/* Pricing page 3D background - lighter purple theme */
+.pricing-3d-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: 
+    /* Light vignette overlay */
+    radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.1) 90%),
+    /* Light purple colors emerging */
+    radial-gradient(circle at 25% 25%, rgba(147, 51, 234, 0.15) 0%, rgba(0, 0, 0, 0.05) 40%, transparent 70%),
+    radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.12) 0%, rgba(0, 0, 0, 0.04) 35%, transparent 65%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.1) 0%, rgba(0, 0, 0, 0.03) 45%, transparent 80%),
+    radial-gradient(ellipse at 20% 80%, rgba(196, 181, 253, 0.08) 0%, rgba(0, 0, 0, 0.02) 50%, transparent 85%);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show gradient on pricing page */
+body.pricing-page .pricing-3d-bg {
+  opacity: 1;
+}
+
+/* Dark mode for pricing */
+.dark .pricing-3d-bg {
+  background: 
+    /* Stronger vignette for dark mode */
+    radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.4) 85%),
+    /* More vibrant purple colors for dark mode */
+    radial-gradient(circle at 25% 25%, rgba(147, 51, 234, 0.25) 0%, rgba(0, 0, 0, 0.15) 35%, transparent 60%),
+    radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.2) 0%, rgba(0, 0, 0, 0.12) 30%, transparent 55%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.18) 0%, rgba(0, 0, 0, 0.1) 40%, transparent 75%),
+    radial-gradient(ellipse at 20% 80%, rgba(196, 181, 253, 0.15) 0%, rgba(0, 0, 0, 0.08) 45%, transparent 80%);
+}
+
+/* Developer page 3D background - blue theme */
+.developer-3d-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: 
+    /* Light vignette overlay */
+    radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.1) 90%),
+    /* Light blue colors emerging */
+    radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.05) 40%, transparent 70%),
+    radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.12) 0%, rgba(0, 0, 0, 0.04) 35%, transparent 65%),
+    radial-gradient(ellipse at 50% 20%, rgba(147, 197, 253, 0.1) 0%, rgba(0, 0, 0, 0.03) 45%, transparent 80%),
+    radial-gradient(ellipse at 20% 80%, rgba(191, 219, 254, 0.08) 0%, rgba(0, 0, 0, 0.02) 50%, transparent 85%);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show gradient on developer page */
+body.developer-page .developer-3d-bg {
+  opacity: 1;
+}
+
+/* Dark mode for developer */
+.dark .developer-3d-bg {
+  background: 
+    /* Stronger vignette for dark mode */
+    radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.4) 85%),
+    /* More vibrant blue colors for dark mode */
+    radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.25) 0%, rgba(0, 0, 0, 0.15) 35%, transparent 60%),
+    radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.2) 0%, rgba(0, 0, 0, 0.12) 30%, transparent 55%),
+    radial-gradient(ellipse at 50% 20%, rgba(147, 197, 253, 0.18) 0%, rgba(0, 0, 0, 0.1) 40%, transparent 75%),
+    radial-gradient(ellipse at 20% 80%, rgba(191, 219, 254, 0.15) 0%, rgba(0, 0, 0, 0.08) 45%, transparent 80%);
+}
+
+/* MyAgents page 3D background - purple theme */
+.myagents-3d-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: 
+    /* Light vignette overlay */
+    radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.1) 90%),
+    /* Light purple colors emerging */
+    radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.15) 0%, rgba(0, 0, 0, 0.05) 40%, transparent 70%),
+    radial-gradient(circle at 75% 75%, rgba(196, 181, 253, 0.12) 0%, rgba(0, 0, 0, 0.04) 35%, transparent 65%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.1) 0%, rgba(0, 0, 0, 0.03) 45%, transparent 80%),
+    radial-gradient(ellipse at 20% 80%, rgba(221, 214, 254, 0.08) 0%, rgba(0, 0, 0, 0.02) 50%, transparent 85%);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show gradient on myagents page */
+body.myagents-page .myagents-3d-bg {
+  opacity: 1;
+}
+
+/* Dark mode for myagents */
+.dark .myagents-3d-bg {
+  background: 
+    /* Stronger vignette for dark mode */
+    radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.4) 85%),
+    /* More vibrant purple colors for dark mode */
+    radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.25) 0%, rgba(0, 0, 0, 0.15) 35%, transparent 60%),
+    radial-gradient(circle at 75% 75%, rgba(196, 181, 253, 0.2) 0%, rgba(0, 0, 0, 0.12) 30%, transparent 55%),
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.18) 0%, rgba(0, 0, 0, 0.1) 40%, transparent 75%),
+    radial-gradient(ellipse at 20% 80%, rgba(221, 214, 254, 0.15) 0%, rgba(0, 0, 0, 0.08) 45%, transparent 80%);
 }

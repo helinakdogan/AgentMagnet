@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Mail } from "lucide-react";
+import { Mail, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Agent } from "@/lib/api";
 
@@ -15,6 +15,8 @@ const getIconColorClasses = (iconColor: string) => {
       return "from-pink-500 to-orange-500";
     case "green-teal":
       return "from-green-500 to-teal-600";
+    case "green-emerald":
+      return "from-green-500 to-emerald-600";
     case "indigo-purple":
       return "from-indigo-500 to-purple-600";
     case "red-pink":
@@ -33,7 +35,7 @@ const getIconColorClasses = (iconColor: string) => {
 const getStatusLabel = (status: string, t: any) => {
   switch (status) {
     case "active":
-      return { text: t("status.active"), color: "text-green-600 bg-green-100" };
+      return { text: t("status.active"), color: "text-white/90 bg-black/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10" };
     case "popular":
       return { text: t("status.popular"), color: "text-yellow-600 bg-yellow-100" };
     case "new":
@@ -45,7 +47,7 @@ const getStatusLabel = (status: string, t: any) => {
     case "automatic":
       return { text: t("status.automatic"), color: "text-orange-600 bg-orange-100" };
     default:
-      return { text: t("status.active"), color: "text-green-600 bg-green-100" };
+      return { text: t("status.active"), color: "text-white/90 bg-black/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10" };
   }
 };
 
@@ -53,6 +55,15 @@ const getCategoryIcon = (category: string, agentName: string) => {
   // Gmail agent için özel kontrol - kategoriden bağımsız olarak Mail iconu göster
   if (agentName.toLowerCase().includes('gmail')) {
     return <Mail className="w-6 h-6 text-white" />;
+  }
+  
+  // WhatsApp agent için özel kontrol - kategoriden bağımsız olarak şimşek iconu göster
+  if (agentName.toLowerCase().includes('whatsapp')) {
+    return (
+      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    );
   }
 
   switch (category.toLowerCase()) {
@@ -124,17 +135,20 @@ export default function AgentCard({ agent }: AgentCardProps) {
 
   return (
     <Link href={`/agent/${agent.id}`}>
-      <div className="agent-card-hover glassmorphic rounded-xl p-6 group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300">
+      <div className="agent-card-hover glassmorphic rounded-xl p-6 mb-3 group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300">
         <div className="flex items-center justify-between mb-4">
           <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
             {getCategoryIcon(agent.category, agent.name)}
           </div>
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusLabel.color} shadow-sm`}>
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusLabel.color} shadow-sm flex items-center gap-1`}>
+            {agent.status === "active" && (
+              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+            )}
             {statusLabel.text}
           </span>
         </div>
-        <h3 className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{agent.name}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 font-normal leading-relaxed">{agent.description}</p>
+        <h3 className="text-lg font-normal text-[var(--dark-purple)] dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{agent.name}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-light leading-relaxed">{agent.description}</p>
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">{getCategoryMapping(agent.category)}</span>
           <span className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white">₺{agent.price}{t("pricing.monthly")}</span>

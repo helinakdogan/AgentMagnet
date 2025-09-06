@@ -175,7 +175,7 @@ const translations = {
     "gmail.disconnect": "Bağlantıyı Kes",
     
     // Magnetic Agents Section
-    "home.magneticAgents.title": "Dikkat, Manyetik Alan!",
+    "home.magneticAgents.title": "Dikkat, Manyetik Alan",
     "home.magneticAgents.description": "Gelecekte sunacağımız özel ajanlarımızı keşfedin; bu manyetik çekime karşı koymak imkansız gibi görünüyor!",
     "home.magneticAgents.moreToCome": "Daha fazlası geliyor...",
     "home.magneticAgents.gmail.title": "Gmail Ajan",
@@ -372,7 +372,7 @@ const translations = {
     "gmail.disconnect": "Disconnect",
     
     // Magnetic Agents Section
-    "home.magneticAgents.title": "Dikkat, Manyetik Alan!",
+    "home.magneticAgents.title": "Dikkat, Manyetik Alan",
     "home.magneticAgents.description": "Gelecekte sunacağımız özel ajanlarımızı keşfedin; bu manyetik çekime karşı koymak imkansız gibi görünüyor!",
     "home.magneticAgents.moreToCome": "Daha fazlası geliyor...",
     "home.magneticAgents.gmail.title": "Gmail Ajan",

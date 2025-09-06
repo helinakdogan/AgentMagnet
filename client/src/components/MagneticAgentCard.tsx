@@ -1,0 +1,113 @@
+import React from "react";
+
+interface MagneticAgentCardProps {
+  // Color scheme - predefined options
+  colorScheme: "blue" | "green" | "pink" | "cyan";
+  
+  // Content
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  
+  // Animation delay
+  animationDelay: string;
+  
+  // Metallic texture pattern
+  metallicPattern?: {
+    positions: string[];
+    sizes: string;
+  };
+}
+
+const MagneticAgentCard: React.FC<MagneticAgentCardProps> = ({
+  colorScheme,
+  title,
+  description,
+  icon,
+  animationDelay,
+  metallicPattern = {
+    positions: ["20% 20%", "80% 80%", "40% 40%"],
+    sizes: "50px 50px, 30px 30px, 20px 20px"
+  }
+}) => {
+  // Color configurations for each scheme
+  const colorConfigs = {
+    blue: {
+      colorAccent: "from-blue-600 via-indigo-700 to-purple-800",
+      iconColors: "from-blue-500 via-indigo-500 to-purple-500",
+      borderColor: "border-blue-500/20",
+      hoverTextColors: "group-hover:from-blue-600 group-hover:to-indigo-600"
+    },
+    green: {
+      colorAccent: "from-green-700 via-emerald-800 to-teal-800",
+      iconColors: "from-green-500 via-emerald-500 to-teal-500",
+      borderColor: "border-green-500/20",
+      hoverTextColors: "group-hover:from-green-600 group-hover:to-emerald-600"
+    },
+    pink: {
+      colorAccent: "from-pink-700 via-purple-800 to-indigo-800",
+      iconColors: "from-pink-500 via-purple-500 to-indigo-500",
+      borderColor: "border-pink-500/20",
+      hoverTextColors: "group-hover:from-pink-600 group-hover:to-purple-600"
+    },
+    cyan: {
+      colorAccent: "from-cyan-600 via-cyan-700 to-blue-800",
+      iconColors: "from-cyan-500 via-cyan-600 to-blue-700",
+      borderColor: "border-cyan-500/20",
+      hoverTextColors: "group-hover:from-cyan-500 group-hover:to-blue-600"
+    }
+  };
+
+  const config = colorConfigs[colorScheme] || colorConfigs.blue; // Fallback to blue if invalid
+
+  return (
+    <div className="flex-shrink-0 w-40 sm:w-48 lg:w-56">
+      <div className="group relative">
+        <div className="rounded-2xl p-3 sm:p-4 lg:p-5 h-48 sm:h-52 lg:h-56 relative overflow-hidden cursor-pointer magnetic-card">
+          {/* Dark Metallic Background */}
+          <div className="absolute inset-0 rounded-2xl overflow-hidden">
+            {/* Base dark metallic gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900"></div>
+            {/* Metallic shine overlay */}
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent transform -skew-x-12 animate-pulse" 
+              style={{animationDelay}}
+            ></div>
+            {/* Color accent */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${config.colorAccent} opacity-80`}></div>
+            {/* Metallic texture */}
+            <div className="absolute inset-0 opacity-30" style={{
+              backgroundImage: `radial-gradient(circle at ${metallicPattern.positions[0]}, rgba(255,255,255,0.4) 1px, transparent 1px),
+                               radial-gradient(circle at ${metallicPattern.positions[1]}, rgba(255,255,255,0.4) 1px, transparent 1px),
+                               radial-gradient(circle at ${metallicPattern.positions[2]}, rgba(255,255,255,0.2) 0.5px, transparent 0.5px)`,
+              backgroundSize: metallicPattern.sizes
+            }}></div>
+          </div>
+          
+          {/* Content */}
+          <div className="relative z-10 h-full flex flex-col justify-between">
+            <div>
+              {/* Agent Icon */}
+              <div className="relative mb-2 sm:mb-3">
+                <div className={`w-8 h-8 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br ${config.iconColors} rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center group-hover:shadow-2xl transition-all duration-300 magnetic-icon`}>
+                  {icon}
+                </div>
+                {/* Magnetic Field Lines */}
+                <div className={`absolute inset-0 border-2 ${config.borderColor} rounded-2xl scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 pointer-events-none`}></div>
+              </div>
+
+              <h3 className={`text-sm sm:text-base lg:text-lg font-normal text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r ${config.hoverTextColors} group-hover:bg-clip-text transition-all duration-300`}>
+                {title}
+              </h3>
+              <p className="text-white/80 font-light leading-relaxed text-xs sm:text-xs">
+                {description}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MagneticAgentCard; 

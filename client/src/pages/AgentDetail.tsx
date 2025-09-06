@@ -1,12 +1,209 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
-import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X, Mail, LogIn } from "lucide-react";
+import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X, Mail, LogIn, MessageCircle } from "lucide-react";
 import { useAgent, useAgentPurchase, useUserAgents } from "@/hooks/use-api";
 import { LoadingPage } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/ui/error-boundary";
 import type { Agent } from "@/lib/api";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGoogleLogin } from "@react-oauth/google";
+import HighlightButton from "@/components/ui/highlight-button";
+import BasicButton from "@/components/ui/basic-button";
+
+// Plan Card Component
+const PlanCard = ({ 
+  plan, 
+  isSelected, 
+  onClick, 
+  billingCycle, 
+  isPopular = false 
+}: {
+  plan: any;
+  isSelected: boolean;
+  onClick: () => void;
+  billingCycle: string;
+  isPopular?: boolean;
+}) => {
+  const { t } = useLanguage();
+  
+  return (
+    <div 
+      className={`glassmorphic rounded-xl p-4 md:p-6 cursor-pointer transition-all duration-200 ${
+        isSelected ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
+      }`}
+      onClick={onClick}
+    >
+      {isPopular && (
+        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 popular-tag-gradient text-white text-xs px-2 py-1 rounded-full">
+          {t("agentDetail.popular")}
+        </div>
+      )}
+      <div className="text-center mb-4">
+        <h4 className="text-xl md:text-2xl font-normal text-[var(--foreground)] dark:text-white mb-2">
+          {plan.name}
+        </h4>
+        <div className="text-2xl md:text-3xl font-normal text-[var(--foreground)] dark:text-white mb-1">
+          $0
+        </div>
+        <div className="text-xs md:text-sm text-[var(--muted-foreground)] dark:text-white">
+          {billingCycle === "monthly" ? t("agentDetail.monthlyToggle") : t("agentDetail.yearlyToggle")}
+        </div>
+      </div>
+      <div className="space-y-2">
+        {plan.features.map((feature: string, index: number) => (
+          <div key={index} className="flex items-start space-x-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <span className="text-xs font-light md:text-sm text-[var(--foreground)] dark:text-white">
+              {feature}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Feature List Component
+const FeatureList = ({ 
+  title, 
+  items, 
+  icon: Icon, 
+  iconColor = "text-emerald-400" 
+}: {
+  title: string;
+  items: string[];
+  icon: any;
+  iconColor?: string;
+}) => {
+  if (items.length === 0) return null;
+  
+  return (
+    <div className="glassmorphic rounded-xl p-6 mb-8">
+      <h3 className="text-2xl font-normal text-[var(--foreground)] dark:text-white mb-6">
+        {title}
+      </h3>
+      <div className="grid md:grid-cols-2 gap-4">
+        {items.map((item, index) => (
+          <div key={index} className="flex items-start space-x-3">
+            <Icon className={`w-5 h-5 ${iconColor} flex-shrink-0 mt-0.5`} />
+            <span className="text-sm text-[var(--foreground)] dark:text-white">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Agent Type Configuration
+// Agent Type Configuration
+const getAgentConfig = (type: string, t: any) => {
+  const configs = {
+    gmail: {
+      icon: Mail,
+      iconColor: "from-blue-500 to-purple-600",
+      features: [
+        t("agentDetail.gmail.features.emailSummary"),
+        t("agentDetail.gmail.features.smartCategorization"),
+        t("agentDetail.gmail.features.quickReplies"),
+        t("agentDetail.gmail.features.priorityDetection"),
+        t("agentDetail.gmail.features.scheduleEmails"),
+        t("agentDetail.gmail.features.attachmentAnalysis")
+      ],
+      integrations: [
+        t("agentDetail.gmail.integrations.gmailApi"),
+        t("agentDetail.gmail.integrations.googleCalendar"),
+        t("agentDetail.gmail.integrations.googleDrive"),
+        t("agentDetail.gmail.integrations.googleContacts")
+      ],
+      useCases: [
+        t("agentDetail.gmail.useCases.businessEmails"),
+        t("agentDetail.gmail.useCases.personalOrganization"),
+        t("agentDetail.gmail.useCases.teamCollaboration"),
+        t("agentDetail.gmail.useCases.customerSupport")
+      ],
+      plans: {
+        free: [
+          "Günlük 10 sorgu",
+          "Son 10 e-posta analizi", 
+          "Temel kategorilendirme"
+        ],
+        plus: [
+          "Sınırsız sorgu",
+          "Gelişmiş kategorilendirme",
+          "Akıllı yanıt önerileri",
+          "Öncelik tespiti"
+        ],
+        premium: [
+          "Tüm Plus özellikleri",
+          "E-posta zamanlama",
+          "Ek analizi",
+          "Takım işbirliği"
+        ]
+      }
+    },
+    whatsapp: {
+      icon: Zap,
+      iconColor: "from-green-500 to-emerald-600",
+      features: [
+        t("agentDetail.whatsapp.features.autoReplies"),
+        t("agentDetail.whatsapp.features.messageCategorization"),
+        t("agentDetail.whatsapp.features.contactManagement"),
+        t("agentDetail.whatsapp.features.bulkMessaging"),
+        t("agentDetail.whatsapp.features.mediaHandling"),
+        t("agentDetail.whatsapp.features.businessHours")
+      ],
+      integrations: [
+        t("agentDetail.whatsapp.integrations.whatsappBusiness"),
+        t("agentDetail.whatsapp.integrations.crmSystems"),
+        t("agentDetail.whatsapp.integrations.analytics"),
+        t("agentDetail.whatsapp.integrations.webhooks")
+      ],
+      useCases: [
+        t("agentDetail.whatsapp.useCases.customerService"),
+        t("agentDetail.whatsapp.useCases.marketingCampaigns"),
+        t("agentDetail.whatsapp.useCases.orderManagement"),
+        t("agentDetail.whatsapp.useCases.appointmentBooking")
+      ],
+      plans: {
+        free: [
+          "Temel yanıtlar",
+          "Kişi senkronizasyonu",
+          "Mesaj geçmişi"
+        ],
+        plus: [
+          "Otomatik yanıtlar",
+          "Toplu mesajlaşma",
+          "Medya yönetimi",
+          "İş saatleri"
+        ],
+        premium: [
+          "Tüm Plus özellikleri",
+          "CRM entegrasyonu",
+          "Analitik",
+          "Webhook'lar"
+        ]
+      }
+    },
+    general: {
+      icon: Zap,
+      iconColor: "from-blue-500 to-purple-600",
+      features: [
+        t("agentDetail.general.features.automation"),
+        t("agentDetail.general.features.integration"),
+        t("agentDetail.general.features.analytics")
+      ],
+      integrations: [],
+      useCases: [],
+      plans: {
+        free: ["Temel özellikler"],
+        plus: ["Gelişmiş özellikler"],
+        premium: ["Tüm özellikler"]
+      }
+    }
+  };
+  
+  return configs[type as keyof typeof configs] || configs.general;
+};
 
 export default function AgentDetail() {
   const [match, params] = useRoute("/agent/:id");
@@ -15,13 +212,6 @@ export default function AgentDetail() {
   const [selectedPlan, setSelectedPlan] = useState<"free" | "plus" | "premium">("plus");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [user, setUser] = useState<any>(null);
-
-  // Cube rotation states
-  const [cubeRotations, setCubeRotations] = useState({
-    fastSetup: { x: 0, y: 0 },
-    secure: { x: 0, y: 0 },
-    globalAccess: { x: 0, y: 0 }
-  });
 
   // Sayfa yüklendiğinde localStorage'dan user bilgisini al
   useEffect(() => {
@@ -42,53 +232,37 @@ export default function AgentDetail() {
       }
     };
 
-    // Custom event listener for localStorage changes
     window.addEventListener('userDataChanged', handleStorageChange);
     return () => window.removeEventListener('userDataChanged', handleStorageChange);
   }, []);
 
-  // Google OAuth login for website authentication
+  // Google OAuth login
   const websiteLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log('Google OAuth success, token:', tokenResponse);
-      
       try {
-        // Proxy kullandığımız için /api ile başlayan endpoint'i kullan
         const response = await fetch('/api/auth/google/token', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-                  body: JSON.stringify({
-          access_token: tokenResponse.access_token,
-          refresh_token: (tokenResponse as any).refresh_token || null,
-          expires_in: (tokenResponse as any).expires_in || 3600,
-        }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_token: tokenResponse.access_token,
+            refresh_token: (tokenResponse as any).refresh_token || null,
+            expires_in: (tokenResponse as any).expires_in || 3600,
+          }),
         });
 
         if (response.ok) {
           const data = await response.json();
-          console.log('Google OAuth success, data:', data);
-              
-          // Set user directly (JWT olmadan)
           const userData = {
             id: data.data.id,
             email: data.data.email,
             name: data.data.name,
             avatar: data.data.avatar
-            // ❌ token: data.data.token - KALDIR (güvenlik için)
           };
           
           setUser(userData);
-          console.log('User set:', userData);
-          
-          // Store user data in localStorage for other pages (JWT olmadan)
           localStorage.setItem('userData', JSON.stringify(userData));
-          
-          // Trigger custom event for other components
           window.dispatchEvent(new Event('userDataChanged'));
         } else {
-          console.log('Backend response not ok');
           alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
         }
       } catch (error) {
@@ -97,48 +271,17 @@ export default function AgentDetail() {
       }
     },
     onError: () => {
-      console.log('Google OAuth failed');
       alert("Giriş başarısız oldu. Lütfen tekrar deneyin.");
     },
   });
 
-  const handleLogin = () => {
-    console.log('handleLogin called!');
-    websiteLogin();
-  };
+  const handleLogin = () => websiteLogin();
 
   const { data: agent, isLoading, error } = useAgent(agentId || '');
   const { purchaseAgent, isLoading: isPurchasing } = useAgentPurchase();
   const { data: userAgents } = useUserAgents(user?.id);
 
-  // Kullanıcının bu agent'ı zaten alıp almadığını kontrol et
   const isAgentOwned = userAgents?.some(userAgent => userAgent.agentId === agentId);
-
-  // Cube rotation handlers
-  const handleCubeMouseMove = (cubeType: keyof typeof cubeRotations, e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    const mouseX = e.clientX - centerX;
-    const mouseY = e.clientY - centerY;
-    
-    // Slower rotation for better control
-    const rotateX = (mouseY / (rect.height / 2)) * 180; // Reduced to 180 degrees for slower rotation
-    const rotateY = (mouseX / (rect.width / 2)) * 180; // Reduced to 180 degrees for slower rotation
-    
-    setCubeRotations(prev => ({
-      ...prev,
-      [cubeType]: { x: rotateX, y: rotateY }
-    }));
-  };
-
-  const handleCubeMouseLeave = (cubeType: keyof typeof cubeRotations) => {
-    setCubeRotations(prev => ({
-      ...prev,
-      [cubeType]: { x: 0, y: 0 }
-    }));
-  };
 
   if (!match || !agentId) {
     return <div>Agent ID gerekli</div>;
@@ -161,123 +304,37 @@ export default function AgentDetail() {
     );
   }
 
-  const getIconColorClasses = (iconColor: string) => {
-    switch (iconColor) {
-      case "blue-purple":
-        return "from-blue-500 to-purple-600";
-      case "pink-orange":
-        return "from-pink-500 to-orange-500";
-      case "green-teal":
-        return "from-green-500 to-teal-600";
-      case "indigo-purple":
-        return "from-indigo-500 to-purple-600";
-      case "red-pink":
-        return "from-red-500 to-pink-600";
-      case "yellow-orange":
-        return "from-yellow-500 to-orange-600";
-      case "cyan-blue":
-        return "from-cyan-500 to-blue-600";
-      case "violet-purple":
-        return "from-violet-500 to-purple-600";
-      default:
-        return "from-blue-500 to-purple-600";
+  // Agent türünü belirle
+  const getAgentType = (agent: Agent) => {
+    if (agent.name.toLowerCase().includes('gmail') || agent.name.toLowerCase().includes('email')) {
+      return 'gmail';
+    } else if (agent.name.toLowerCase().includes('whatsapp')) {
+      return 'whatsapp';
     }
+    return 'general';
   };
 
-  const getCategoryIcon = (category: string) => {
-    // Gmail agent için özel kontrol - kategoriden bağımsız olarak Mail iconu göster
-    if (agent.name.toLowerCase().includes('gmail')) {
-      return <Mail className="w-8 h-8 text-white" />;
-    }
-
-    switch (category.toLowerCase()) {
-      case "yazım":
-        return (
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
-        );
-      case "görsel":
-        return (
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        );
-      case "ses":
-        return (
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-          </svg>
-        );
-      case "analiz":
-        return (
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        );
-      case "gmail":
-      case "email":
-      case "e-posta":
-        return <Mail className="w-8 h-8 text-white" />;
-      default:
-        return (
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        );
-    }
-  };
-
-  const iconColorClasses = getIconColorClasses(agent.iconColor);
+  const agentType = getAgentType(agent);
+  const agentConfig = getAgentConfig(agentType, t);
 
   // Plan configurations
   const planConfigs = {
     free: {
       name: t("agentDetail.freePlan"),
-      price: 0,
-      monthlyPrice: 0,
-      yearlyPrice: 0,
-      features: [
-        t("agentDetail.dailyQueries"),
-        t("agentDetail.last10Emails"),
-        t("agentDetail.emailExtension"),
-      ],
-      limitations: [
-        "Gelişmiş özellikler yok",
-        "Entegrasyonlar sınırlı"
-      ],
-      integrations: agent.integrations.slice(0, 2),
+      features: agentConfig.plans.free
     },
     plus: {
       name: t("agentDetail.plusPlan"),
-      price: agent.price,
-      monthlyPrice: agent.price,
-      yearlyPrice: Math.round(agent.price * 12 * 0.8), // 20% indirim
-      features: [
-        t("agentDetail.demoPlanNote"),
-      ],
-      limitations: [
-        "Bu plan henüz demo sürümümüzde yer almamaktadır. Üzerine çalışılmaktadır.",
-      ],
-      integrations: agent.integrations.slice(0, 4),
+      features: agentConfig.plans.plus
     },
     premium: {
       name: t("agentDetail.premiumPlan"),
-      price: Math.round(agent.price * 2.5),
-      monthlyPrice: Math.round(agent.price * 2.5),
-      yearlyPrice: Math.round(agent.price * 2.5 * 12 * 0.75), // 25% indirim
-      features: [
-        t("agentDetail.demoPlanNote"),
-      ],
-      limitations: [],
-      integrations: agent.integrations,
+      features: agentConfig.plans.premium
     }
   };
 
   const currentPlan = planConfigs[selectedPlan];
-  const displayPrice = billingCycle === "yearly" 
-    ? Math.round(currentPlan.yearlyPrice / 12) 
-    : currentPlan.monthlyPrice;
+  const IconComponent = agentConfig.icon;
 
   return (
     <div className="min-h-screen py-20 bg-[var(--light-gray)]">
@@ -294,30 +351,54 @@ export default function AgentDetail() {
           {/* Agent Details */}
           <div className="lg:col-span-2">
             {/* Agent Description Card */}
-            <div className="glassmorphic rounded-xl p-6 mb-8">
+            <div className="rounded-xl p-6 mb-8">
               <div className="flex items-center space-x-4 mb-4">
-                <div className={`w-16 h-16 bg-gradient-to-br ${iconColorClasses} rounded-2xl flex items-center justify-center shadow-lg`}>
-                  {getCategoryIcon(agent.category)}
+                <div className={`w-16 h-16 bg-gradient-to-br ${agentConfig.iconColor} rounded-2xl flex items-center justify-center shadow-lg`}>
+                  <IconComponent className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-semibold tracking-tight text-[var(--dark-purple)] dark:text-white">
+                  <h1 className="text-3xl font-normal tracking-tight text-[var(--dark-purple)] dark:text-white">
                     {agent.name}
                   </h1>
-                  <p className="text-lg text-[var(--muted-foreground)] dark:text-gray-300">{agent.category}</p>
+                  <p className="text-md font-light text-[var(--muted-foreground)] dark:text-gray-300">{agent.category}</p>
                 </div>
               </div>
-              <p className="text-lg text-[var(--foreground)] dark:text-white font-normal leading-relaxed">
+              <p className="text-lg text-[var(--foreground)] dark:text-white font-light leading-relaxed">
                 {agent.description}
               </p>
             </div>
 
+            {/* Features Sections 
+            <FeatureList 
+              title={t("agentDetail.features")} 
+              items={agentConfig.features} 
+              icon={CheckCircle} 
+            />
+            
+            <FeatureList 
+              title={t("agentDetail.integrations")} 
+              items={agentConfig.integrations} 
+              icon={Globe} 
+              iconColor="text-blue-400"
+            />
+            
+            <FeatureList 
+              title={t("agentDetail.useCases")} 
+              items={agentConfig.useCases} 
+              icon={Zap} 
+              iconColor="text-yellow-400"
+            />
+            */}
+
             {/* Plan Selection */}
-            <div className="glassmorphic rounded-xl p-6 w-full max-w-[90vw] mx-auto">
+            <div className=" rounded-xl p-6 w-full max-w-[90vw] mx-auto">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-[var(--foreground)] dark:text-white">{t("agentDetail.planSelectionTitle")}</h3>
+                <h3 className="text-3xl font-normal text-[var(--foreground)] dark:text-white">
+                  {t("agentDetail.planSelectionTitle")}
+                </h3>
                 
-                {/* Billing Cycle Toggle - Sağ köşede */}
-                <div className="flex glassmorphic rounded-xl p-1">
+                {/* Billing Cycle Toggle */}
+                <div className="flex glassmorphic rounded-xl p-1 text-sm">
                   <button
                     onClick={() => setBillingCycle("monthly")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
@@ -341,101 +422,47 @@ export default function AgentDetail() {
                 </div>
               </div>
 
-                            {/* Plan Cards */}
+              {/* Plan Cards */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
-                {/* Free Plan */}
-                <div 
-                  className={`glassmorphic rounded-xl p-4 md:p-6 cursor-pointer transition-all duration-200 ${
-                    selectedPlan === "free" ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
-                  }`}
+                <PlanCard
+                  plan={planConfigs.free}
+                  isSelected={selectedPlan === "free"}
                   onClick={() => setSelectedPlan("free")}
-                >
-                  <div className="text-center mb-4">
-                    <h4 className="text-xl md:text-2xl font-bold text-[var(--foreground)] dark:text-white mb-2">{t("agentDetail.freePlan")}</h4>
-                    <div className="text-2xl md:text-3xl font-bold text-[var(--foreground)] dark:text-white mb-1">$0</div>
-                    <div className="text-xs md:text-sm text-[var(--muted-foreground)] dark:text-gray-300">{billingCycle === "monthly" ? t("agentDetail.monthlyToggle") : t("agentDetail.yearlyToggle")}</div>
-                  </div>
-                                      <div className="space-y-2">
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                        <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.dailyQueries")}</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                        <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.last10Emails")}</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                        <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.emailExtension")}</span>
-                      </div>
-                    </div>
-                </div>
-
-                {/* Plus Plan */}
-                <div 
-                  className={`glassmorphic rounded-xl p-4 md:p-6 relative cursor-pointer transition-all duration-200 ${
-                    selectedPlan === "plus" ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
-                  }`}
+                  billingCycle={billingCycle}
+                />
+                <PlanCard
+                  plan={planConfigs.plus}
+                  isSelected={selectedPlan === "plus"}
                   onClick={() => setSelectedPlan("plus")}
-                >
-                                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 popular-tag-gradient text-white text-xs px-2 py-1 rounded-full">
-                      {t("agentDetail.popular")}
-                    </div>
-                                    <div className="text-center mb-4">
-                    <h4 className="text-xl md:text-2xl font-bold text-[var(--foreground)] dark:text-white mb-2">{t("agentDetail.plusPlan")}</h4>
-                    <div className="text-2xl md:text-3xl font-bold text-[var(--foreground)] dark:text-white mb-1">$0</div>
-                    <div className="text-xs md:text-sm text-[var(--muted-foreground)] dark:text-white">{billingCycle === "monthly" ? t("agentDetail.monthlyToggle") : t("agentDetail.yearlyToggle")}</div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs md:text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.demoPlanNote")}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Premium Plan */}
-                <div 
-                  className={`glassmorphic rounded-xl p-4 md:p-6 cursor-pointer transition-all duration-200 ${
-                    selectedPlan === "premium" ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
-                  }`}
+                  billingCycle={billingCycle}
+                  isPopular={true}
+                />
+                <PlanCard
+                  plan={planConfigs.premium}
+                  isSelected={selectedPlan === "premium"}
                   onClick={() => setSelectedPlan("premium")}
-                >
-                                    <div className="text-center mb-4">
-                    <h4 className="text-xl md:text-2xl font-bold text-[var(--foreground)] dark:text-white mb-2">{t("agentDetail.premiumPlan")}</h4>
-                    <div className="text-2xl md:text-3xl font-bold text-[var(--foreground)] dark:text-white mb-1">$0</div>
-                    <div className="text-xs md:text-sm text-[var(--muted-foreground)] dark:text-gray-300">{billingCycle === "monthly" ? t("agentDetail.monthlyToggle") : t("agentDetail.yearlyToggle")}</div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-[var(--foreground)] dark:text-white">{t("agentDetail.demoPlanNote")}</span>
-                    </div>
-                  </div>
-                </div>
+                  billingCycle={billingCycle}
+                />
               </div>
             </div>
           </div>
 
-          {/* Selected Plan Detail Card - Spot Light Glasscard */}
+          {/* Selected Plan Detail Card */}
           <div className="lg:sticky lg:top-24 h-fit">
             <div className="glassmorphic rounded-2xl p-8 shadow-lg relative overflow-hidden">
-              {/* Spot Light Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-              
-              {/* Animated Spot Light */}
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
               <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse animation-delay-1000 pointer-events-none"></div>
               
               <div className="relative z-10">
                 <div className="text-center mb-6">
-                  <div className={`w-16 h-16 bg-gradient-to-br ${iconColorClasses} rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-4`}>
-                    {getCategoryIcon(agent.category)}
+                  <div className={`w-16 h-16 bg-gradient-to-br ${agentConfig.iconColor} rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-4`}>
+                    <IconComponent className="w-8 h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-semibold text-[var(--foreground)] dark:text-white mb-2">
-                    {selectedPlan === "free" ? t("agentDetail.freePlan") : selectedPlan === "plus" ? t("agentDetail.plusPlan") : t("agentDetail.premiumPlan")}
+                  <div className="text-2xl font-normal text-[var(--foreground)] dark:text-white mb-2">
+                    {currentPlan.name}
                   </div>
-                  <div className="text-3xl font-bold text-[var(--foreground)] dark:text-white mb-2">
+                  <div className="text-3xl font-normal text-[var(--foreground)] dark:text-white mb-2">
                     {selectedPlan === "free" ? "" : billingCycle === "monthly" ? "$0" + t("agentDetail.perMonth") : "$0" + t("agentDetail.perYear")}
                   </div>
                   <p className="text-[var(--muted-foreground)] dark:text-gray-400 text-sm">
@@ -447,7 +474,7 @@ export default function AgentDetail() {
                 </div>
 
                 <div className="space-y-3 mb-8">
-                  {currentPlan.features.slice(0, 1).map((feature, index) => (
+                  {currentPlan.features.slice(0, 3).map((feature, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                       <span className="text-sm text-[var(--foreground)] dark:text-white">{feature}</span>
@@ -456,56 +483,43 @@ export default function AgentDetail() {
                 </div>
 
                 {!user ? (
-                  <button 
+                  <HighlightButton
                     onClick={handleLogin}
-                    className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
+                    className="w-full text-center font-normal text-lg"
                   >
-                    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                      <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
-                        <span className="gradient-text font-semibold flex items-center justify-center">
-                          <LogIn className="w-5 h-5 mr-2" />
-                          {t("agentDetail.loginAndPurchase")}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
+                    {t("agentDetail.loginAndPurchase")}
+                  </HighlightButton>
                 ) : isAgentOwned ? (
-                  <div className="w-full px-8 py-4 text-lg mb-4">
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
-                      <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                  <div className="w-full px-2 py-4 text-lg mb-4">
+                    <div className="dark: border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
+                    
+                      <h3 className="text-lg font-normal text-green-800 dark:text-green-200 mb-2">
                         {t("agentDetail.alreadyOwned")}
                       </h3>
-                      <p className="text-green-700 dark:text-green-300 text-sm mb-4">
+                      <p className="font-light text-gray-400  text-sm mb-4">
                         {t("agentDetail.alreadyOwnedDescription")}
                       </p>
                       <Link href="/my-agents">
-                        <button className="w-full bg-green-600/90 hover:bg-green-700/90 dark:bg-green-500/90 dark:hover:bg-green-600/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                          {t("agentDetail.goToMyAgents")}
-                        </button>
-                      </Link>
+  <BasicButton
+    className="w-full text-white font-normal text-m px-4 rounded-lg transition-colors"
+  >
+    {t("agentDetail.goToMyAgents")}
+  </BasicButton>
+</Link>
                     </div>
                   </div>
                 ) : (
-                  <button 
+                  <HighlightButton
                     onClick={() => {
                       if (agentId) {
-                        purchaseAgent(agentId, ''); // userId artık hook içinde localStorage'dan alınıyor
+                        purchaseAgent(agentId, '');
                       }
                     }}
                     disabled={isPurchasing}
-                    className="w-full btn-gradient px-8 py-4 text-lg mb-4 relative overflow-hidden"
+                    className="w-full text-center font-normal text-lg"
                   >
-                    <div className="gradient-border absolute inset-0 p-0.5 rounded-xl">
-                      <div className="bg-white dark:bg-[var(--dark-purple)] rounded-xl w-full h-full flex items-center justify-center">
-                        <span className="gradient-text font-semibold">
-                          {isPurchasing ? t("agentDetail.purchasing") : t("agentDetail.purchase")}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
+                    {isPurchasing ? t("agentDetail.purchasing") : t("agentDetail.purchase")}
+                  </HighlightButton>
                 )}
 
                 <p className="text-xs text-[var(--muted-foreground)] dark:text-gray-400 text-center mt-4">
