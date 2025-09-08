@@ -136,6 +136,13 @@ const MyAgents: FC = () => {
                   iconBg: "from-green-500 to-emerald-600",
                   route: `/agent/${userAgent.agentId}/whatsapp`
                 };
+              } else if (agentName && (agentName.toLowerCase().includes('chat') || agentName.toLowerCase().includes('müşteri'))) {
+                return {
+                  title: agentName || "Müşteri Chat Sistemi",
+                  description: userAgent.agentDescription || "İşletmeniz için 7/24 aktif müşteri chat sistemi.",
+                  icon: <MessageCircle className="w-6 h-6 text-white" />,
+                  iconBg: "from-green-500 to-blue-600",
+                  route: `/agent/${userAgent.agentId}/business-chat`                };
               } else if (agentName && agentName.toLowerCase().includes('gmail')) {
                 return {
                   title: agentName || t("myAgents.gmailAgent"),

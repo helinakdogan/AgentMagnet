@@ -23,6 +23,8 @@ import WhatsAppAgent from './pages/WhatsAppAgent';
 import OAuthCallback from './pages/OAuthCallback';
 import TestIntegration from './pages/TestIntegration';
 import MyAgents from './pages/MyAgents';
+import BusinessManagement from './pages/BusinessManagement';
+import CustomerChat from './pages/CustomerChat';
 
 function Router() {
   return (
@@ -38,6 +40,9 @@ function Router() {
       <Route path="/whatsapp-agent" component={WhatsAppAgent} />
       <Route path="/oauth/callback" component={OAuthCallback} />
       <Route path="/my-agents" component={MyAgents} />
+      <Route path="/business-management" component={BusinessManagement} />
+      <Route path="/agent/:id/business-chat" component={BusinessManagement} />
+      <Route path="/chat/:chatLinkId" component={CustomerChat} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/developer" component={Developer} />
       <Route path="/test" component={TestIntegration} />

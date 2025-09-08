@@ -22,6 +22,7 @@ interface BotStatus {
   isConnected: boolean;
   phoneNumber?: string;
   qrCode?: string;
+  pairingCode?: string;
   connectionStatus: string;
 }
 
@@ -53,6 +54,9 @@ export default function WhatsAppAgent() {
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
+  const [pairingCode, setPairingCode] = useState<string | null>(null);
+  const [usePairingCode, setUsePairingCode] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [newTrigger, setNewTrigger] = useState('');
   const [newResponse, setNewResponse] = useState('');
   const [isAddingTemplate, setIsAddingTemplate] = useState(false);
@@ -105,11 +109,21 @@ const loadBotStatus = async () => {
       
       // If QR code is available, show it
       if (data.data.qrCode && !data.data.isConnected) {
-        console.log('�� Setting QR code:', data.data.qrCode.substring(0, 50) + '...');
+        console.log('📱 Setting QR code:', data.data.qrCode.substring(0, 50) + '...');
         setQrCode(data.data.qrCode);
-      } else if (data.data.isConnected) {
-        console.log('✅ Bot connected, clearing QR code');
+        setPairingCode(null);
+      } 
+      // If pairing code is available, show it
+      else if (data.data.pairingCode && !data.data.isConnected) {
+        console.log('🔑 Setting pairing code:', data.data.pairingCode);
+        setPairingCode(data.data.pairingCode);
         setQrCode(null);
+      } 
+      // If connected, clear both
+      else if (data.data.isConnected) {
+        console.log('✅ Bot connected, clearing codes');
+        setQrCode(null);
+        setPairingCode(null);
       }
     }
   } catch (error) {
@@ -117,24 +131,27 @@ const loadBotStatus = async () => {
   }
 };
 
-  const loadTemplates = async () => {
-    try {
-      const response = await fetch(`/api/whatsapp/templates?userId=${userId}`);
-      const data = await response.json();
-      if (data.success) {
-        setTemplates(data.data.templates);
-      }
-    } catch (error) {
-      console.error('Error loading templates:', error);
+const loadTemplates = async () => {
+  try {
+    console.log('🔄 Loading templates for userId:', userId);
+    const response = await fetch(`/api/whatsapp/templates?userId=${userId}`);
+    const data = await response.json();
+    console.log('📡 Templates API response:', data);
+    
+    if (data.success) {
+      setTemplates(data.data.templates);
+      console.log('✅ Templates loaded:', data.data.templates.length);
+    } else {
+      console.error('❌ Templates API error:', data.error);
     }
-  };
-
-// ... existing code ...
-// ... existing code ...
-// ... existing code ...
+  } catch (error) {
+    console.error('❌ Error loading templates:', error);
+  }
+};
 const connectBot = async () => {
   setIsConnecting(true);
   setQrCode(null);
+  setPairingCode(null);
   
   try {
     console.log('🔄 Connecting WhatsApp bot...');
@@ -146,7 +163,7 @@ const connectBot = async () => {
       pollCount++;
       const currentResponse = await fetch(`/api/whatsapp/status?userId=${userId}`, { cache: 'no-store' as RequestCache });
       const currentData = await currentResponse.json();
-      console.log(' Status response:', currentData);
+      console.log('📊 Status response:', currentData);
       if (currentData.success) {
         const status = currentData.data;
         setBotStatus(status);
@@ -154,6 +171,7 @@ const connectBot = async () => {
           console.log('✅ Bot connected!');
           clearInterval(pollInterval);
           setQrCode(null);
+          setPairingCode(null);
           setIsConnecting(false);
         } else if (status.qrCode && status.connectionStatus === 'qr_generated') {
           console.log('📱 QR Code received:', status.qrCode.substring(0, 50) + '...');
@@ -170,7 +188,10 @@ const connectBot = async () => {
     const response = await fetch('/api/whatsapp/connect', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, resetSession: true })
+      body: JSON.stringify({ 
+        userId, 
+        resetSession: true
+      })
     });
     
     const data = await response.json();
@@ -459,6 +480,37 @@ const connectBot = async () => {
                   </p>
                   <Badge variant="outline" className="text-md font-light text-gray-400">
                     {t("whatsapp.qrCodeSteps")}
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Pairing Code Section */}
+        {pairingCode && (
+          <Card className="glassmorphic border-white/10 mb-6">
+            <CardHeader className="pb-4 font-normal">
+              <CardTitle className="flex items-center gap-2 text-[var(--dark-purple)] font-normal text-xl">
+                <Phone className="w-5 h-5" />
+                Eşleştirme Kodu
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center space-y-4">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl shadow-lg">
+                  <div className="text-center">
+                    <div className="text-4xl font-mono font-bold text-white tracking-wider">
+                      {pairingCode}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-m text-[var(--muted-foreground)] mb-2 font-light">
+                    Bu kodu WhatsApp uygulamanızda "Bağlı cihazlar" - "Cihaz bağla" bölümünde girin
+                  </p>
+                  <Badge variant="outline" className="text-md font-light text-gray-400">
+                    1. WhatsApp&apos;ı açın &gt; 2. Ayarlar &gt; 3. Bağlı cihazlar &gt; 4. Cihaz bağla &gt; 5. Kodu girin
                   </Badge>
                 </div>
               </div>
