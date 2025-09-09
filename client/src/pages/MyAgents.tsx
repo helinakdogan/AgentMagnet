@@ -188,7 +188,7 @@ const MyAgents: FC = () => {
               
 {/* Action Buttons */}
 <div className="flex gap-2">
-  {userAgent.adminConsent ? (
+ 
     <Button
       onClick={() => setLocation(agentConfig.route)}
       className="flex-1 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition-colors"
@@ -196,15 +196,7 @@ const MyAgents: FC = () => {
     >
       {t("myAgents.useAgent")}
     </Button>
-  ) : (
-    <Button
-      disabled
-      className="flex-1 bg-gray-400 text-white cursor-not-allowed opacity-50"
-      size="sm"
-    >
-      Admin Onayı Bekleniyor
-    </Button>
-  )}
+ 
 </div>
                 </CardContent>
               </Card>
