@@ -128,37 +128,20 @@ const MyAgents: FC = () => {
               const agentName = userAgent.agentName;
             
               // Agent name'e göre kontrol et
-              if (agentName && agentName.toLowerCase().includes('whatsapp')) {
-                return {
-                  title: agentName || t("myAgents.whatsappAgent"),
-                  description: userAgent.agentDescription || t("myAgents.whatsappDescription"),
-                  icon: <Zap className="w-6 h-6 text-white" />,
-                  iconBg: "from-green-500 to-emerald-600",
-                  route: `/agent/${userAgent.agentId}/whatsapp`
-                };
-              } else if (agentName && (agentName.toLowerCase().includes('chat') || agentName.toLowerCase().includes('müşteri'))) {
+               if (agentName && (agentName.toLowerCase().includes('chat') || agentName.toLowerCase().includes('müşteri'))) {
                 return {
                   title: agentName || "Müşteri Chat Sistemi",
                   description: userAgent.agentDescription || "İşletmeniz için 7/24 aktif müşteri chat sistemi.",
                   icon: <Bot className="w-6 h-6 text-white" />,
                   iconBg:  "from-pink-500 to-rose-600",
                   route: `/agent/${userAgent.agentId}/business-chat`                };
-              } else if (agentName && agentName.toLowerCase().includes('gmail')) {
-                return {
-                  title: agentName || t("myAgents.gmailAgent"),
-                  description: userAgent.agentDescription || t("myAgents.gmailDescription"),
-                  icon: <Mail className="w-6 h-6 text-white" />,
-                  iconBg: "from-blue-500 to-purple-600",
-                  route: `/agent/${userAgent.agentId}/gmail`
-                };
               } else {
-                // Default Gmail agent
                 return {
-                  title: agentName || t("myAgents.gmailAgent"),
-                  description: userAgent.agentDescription || t("myAgents.gmailDescription"),
-                  icon: <Mail className="w-6 h-6 text-white" />,
-                  iconBg: "from-blue-500 to-purple-600",
-                  route: `/agent/${userAgent.agentId}/gmail`
+                  title: agentName || "Müşteri Chat Sistemi",
+                  description: userAgent.agentDescription || "İşletmeniz için 7/24 aktif müşteri chat sistemi.",
+                  icon: <Bot className="w-6 h-6 text-white" />,
+                  iconBg:  "from-pink-500 to-rose-600",
+                  route: `/agent/${userAgent.agentId}/business-chat`   
                 };
               }
             };
