@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import Logo from "@/assets/agentmagnetlogolight.png";
+import Logo from "../../../public/images/agentmagnetlogolight.png";
 
 // Modal content data
 const modalContent = {

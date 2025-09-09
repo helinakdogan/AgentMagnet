@@ -138,16 +138,19 @@ const getCategoryIcon = (category: string, agentName: string) => {
   }
 };
 // AgentCard.tsx - Sadece WhatsApp bot için yönlendirmeyi devre dışı bırak
+// AgentCard.tsx - Hem WhatsApp hem Gmail agent'larını devre dışı bırak
 export default function AgentCard({ agent }: AgentCardProps) {
   const { t, getCategoryMapping } = useLanguage();
   const statusLabel = getStatusLabel(agent.status, t);
-  const iconColorClasses = getIconColorClasses(agent.iconColor, agent.name); // agent.name ekle
+  const iconColorClasses = getIconColorClasses(agent.iconColor, agent.name);
   
-  // Sadece WhatsApp bot'unu kontrol et
+  // WhatsApp ve Gmail agent'larını kontrol et
   const isWhatsAppBot = agent.name.toLowerCase().includes('whatsapp');
+  const isGmailBot = agent.name.toLowerCase().includes('gmail');
+  const isPassiveBot = isWhatsAppBot || isGmailBot;
 
-  // WhatsApp bot değilse normal Link kullan
-  if (!isWhatsAppBot) {
+  // Pasif bot değilse normal Link kullan
+  if (!isPassiveBot) {
     return (
       <Link href={`/agent/${agent.id}`}>
         <div className="agent-card-hover glassmorphic rounded-xl p-6 mb-3 group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300">
@@ -166,16 +169,16 @@ export default function AgentCard({ agent }: AgentCardProps) {
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-light leading-relaxed">{agent.description}</p>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">{getCategoryMapping(agent.category)}</span>
-            <span className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white">${agent.price}{t("pricing.monthly")}</span>
+            <span className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white">₺{agent.price}{t("pricing.monthly")}</span>
           </div>
         </div>
       </Link>
     );
   }
 
-  // WhatsApp bot için yönlendirme olmadan göster
+  // Pasif bot için yönlendirme olmadan göster
   return (
-    <div className="glassmorphic rounded-xl p-6 mb-3 cursor-not-allowed">
+    <div className="glassmorphic rounded-xl p-6 mb-3 cursor-not-allowed opacity-75">
       <div className="flex items-center justify-between mb-4">
         <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg`}>
           {getCategoryIcon(agent.category, agent.name)}
@@ -191,7 +194,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
         <span className="text-lg font-semibold text-gray-400">₺{agent.price}{t("pricing.monthly")}</span>
       </div>
       
-      {/* WhatsApp bot için özel mesaj */}
+      {/* Pasif bot için özel mesaj */}
       <div className="mt-3 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
         <p className="text-xs text-yellow-800 dark:text-yellow-200 text-center">
           Bu bot şu anda pasif durumda

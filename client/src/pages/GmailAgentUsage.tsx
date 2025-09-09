@@ -875,25 +875,7 @@ export default function GmailAgentUsage() {
           </div>
         )}
 
-        {/* 🆕 Raw Response Display - Debug için */}
-        {emails.length > 0 && (
-          <div className="glassmorphic rounded-xl p-4 mb-4 border-l-4 border-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-4 h-4 text-blue-600" />
-              <h3 className="font-semibold text-blue-800 dark:text-blue-200 text-sm">
-                Debug: Raw Response Structure
-              </h3>
-            </div>
-            <details className="text-xs">
-              <summary className="cursor-pointer text-blue-700 dark:text-blue-300 font-medium">
-                Click to see raw response structure
-              </summary>
-              <pre className="mt-2 text-xs bg-white dark:bg-gray-800 p-2 rounded overflow-auto max-h-40">
-                {JSON.stringify(emails, null, 2)}
-              </pre>
-            </details>
-          </div>
-        )}
+      
 
         {/* Loading State */}
         {loading && (

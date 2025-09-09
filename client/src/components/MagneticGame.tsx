@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Logo from "@/assets/agentmagnetlogolight.png";
+import Logo from "../../public/images/agentmagnetlogolight.png";
 
 export default function MagneticGame() {
   const [areParticlesCollected, setAreParticlesCollected] = useState(false);

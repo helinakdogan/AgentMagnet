@@ -50,6 +50,8 @@ export interface UserAgent {
   lastUsed?: string;
   createdAt?: string;
   updatedAt?: string;
+  adminConsent: boolean; 
+
 }
 
 export interface GmailEmails {

@@ -72,10 +72,11 @@ const businessTypes = [
   'İnsan Kaynakları', 'Lojistik', 'Nakliye', 'Temizlik', 'Güvenlik', 'Diğer'
 ];
 
+// BusinessManagement.tsx - backgroundPhotos path'lerini güncelle
 const backgroundPhotos = [
-  { id: 'salon1', name: 'Modern Salon', src: '/src/assets/salon1.png' },
-  { id: 'salon2', name: 'Klasik Salon', src: '/src/assets/salon2.png' },
-  { id: 'salon3', name: 'Lüks Salon', src: '/src/assets/salon3.png' }
+  { id: 'salon1', name: 'Modern Salon', src: '/images/salon1.png' },
+  { id: 'salon2', name: 'Klasik Salon', src: '/images/salon2.png' },
+  { id: 'salon3', name: 'Lüks Salon', src: '/images/salon3.png' }
 ];
 // BusinessManagement.tsx - colorThemes düzeltmesi
 const colorThemes = [

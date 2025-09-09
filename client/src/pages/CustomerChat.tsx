@@ -86,11 +86,12 @@ const colorThemes = {
 
 // Background photo URL'lerini döndüren fonksiyon
 const getBackgroundPhotoUrl = (photoId: string): string => {
-  const backgroundPhotos = [
-    { id: 'salon1', src: '/src/assets/salon1.png' },
-    { id: 'salon2', src: '/src/assets/salon2.png' },
-    { id: 'salon3', src: '/src/assets/salon3.png' }
-  ];
+ // CustomerChat.tsx - backgroundPhotos path'lerini güncelle
+const backgroundPhotos = [
+  { id: 'salon1', src: '/images/salon1.png' },
+  { id: 'salon2', src: '/images/salon2.png' },
+  { id: 'salon3', src: '/images/salon3.png' }
+];
   
   const photo = backgroundPhotos.find(p => p.id === photoId);
   return photo ? photo.src : '';

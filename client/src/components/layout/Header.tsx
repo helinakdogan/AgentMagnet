@@ -5,7 +5,7 @@ import Navigation from "@/components/Navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageToggle } from "@/components/ui/language-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Logo from "@/assets/agentmagnetlogolight.png";
+import Logo from "../../../public/images/agentmagnetlogolight.png";
 import { useGoogleLogin } from "@react-oauth/google";
 import BasicButton from "../ui/basic-button";
 

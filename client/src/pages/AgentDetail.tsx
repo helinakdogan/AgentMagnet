@@ -276,18 +276,13 @@ export default function AgentDetail() {
 
   const handleLogin = () => websiteLogin();
   // AgentDetail.tsx - Müşteri chat sistemi için iyzico yönlendirmesi
-  const handlePurchase = () => {
-    if (agentId) {
-      // Müşteri chat sistemi kontrolü
-      if (agent && (agent.name.toLowerCase().includes('chat') || agent.name.toLowerCase().includes('müşteri'))) {
-        // iyzico linkine yönlendir
-        window.open('https://iyzi.link/AKQtBg', '_blank');
-      } else {
-        // Normal satın alma işlemi
-        purchaseAgent(agentId, '');
-      }
-    }
-  };
+// AgentDetail.tsx - handlePurchase metodunu düzelt
+const handlePurchase = () => {
+  if (agentId) {
+    // Normal satın alma işlemi (iyzico kaldırıldı)
+    purchaseAgent(agentId, '');
+  }
+};
   const { data: agent, isLoading, error } = useAgent(agentId || '');
   const { purchaseAgent, isLoading: isPurchasing } = useAgentPurchase();
   const { data: userAgents } = useUserAgents(user?.id);
