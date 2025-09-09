@@ -25,6 +25,8 @@ import TestIntegration from './pages/TestIntegration';
 import MyAgents from './pages/MyAgents';
 import BusinessManagement from './pages/BusinessManagement';
 import CustomerChat from './pages/CustomerChat';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsofService';
 
 function Router() {
   return (
@@ -46,6 +48,8 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/developer" component={Developer} />
       <Route path="/test" component={TestIntegration} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={TermsOfService} />
       <Route component={NotFound} />
     </Switch>
   );

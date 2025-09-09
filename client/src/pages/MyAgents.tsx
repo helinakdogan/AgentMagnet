@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
-import { Mail, ExternalLink, Calendar, BarChart3, MessageCircle, Zap } from "lucide-react";
+import { Mail, ExternalLink, Calendar, BarChart3, MessageCircle, Zap, Bot } from "lucide-react";
 import { useUserAgents } from '@/hooks/use-api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HighlightButton from '@/components/ui/highlight-button';
@@ -140,8 +140,8 @@ const MyAgents: FC = () => {
                 return {
                   title: agentName || "Müşteri Chat Sistemi",
                   description: userAgent.agentDescription || "İşletmeniz için 7/24 aktif müşteri chat sistemi.",
-                  icon: <MessageCircle className="w-6 h-6 text-white" />,
-                  iconBg: "from-green-500 to-blue-600",
+                  icon: <Bot className="w-6 h-6 text-white" />,
+                  iconBg:  "from-pink-500 to-rose-600",
                   route: `/agent/${userAgent.agentId}/business-chat`                };
               } else if (agentName && agentName.toLowerCase().includes('gmail')) {
                 return {

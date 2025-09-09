@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
-import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X, Mail, LogIn, MessageCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Zap, Shield, Globe, X, Mail, LogIn, MessageCircle, Bot } from "lucide-react";
 import { useAgent, useAgentPurchase, useUserAgents } from "@/hooks/use-api";
 import { LoadingPage } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/ui/error-boundary";
@@ -11,12 +11,12 @@ import HighlightButton from "@/components/ui/highlight-button";
 import BasicButton from "@/components/ui/basic-button";
 
 // Plan Card Component
-const PlanCard = ({ 
-  plan, 
-  isSelected, 
-  onClick, 
-  billingCycle, 
-  isPopular = false 
+const PlanCard = ({
+  plan,
+  isSelected,
+  onClick,
+  billingCycle,
+  isPopular = false
 }: {
   plan: any;
   isSelected: boolean;
@@ -25,12 +25,11 @@ const PlanCard = ({
   isPopular?: boolean;
 }) => {
   const { t } = useLanguage();
-  
+
   return (
-    <div 
-      className={`glassmorphic rounded-xl p-4 md:p-6 cursor-pointer transition-all duration-200 ${
-        isSelected ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
-      }`}
+    <div
+      className={`glassmorphic rounded-xl p-4 md:p-6 cursor-pointer transition-all duration-200 ${isSelected ? "!border-2 !border-purple-500" : "hover:bg-white/20 dark:hover:bg-white/10"
+        }`}
       onClick={onClick}
     >
       {isPopular && (
@@ -64,11 +63,11 @@ const PlanCard = ({
 };
 
 // Feature List Component
-const FeatureList = ({ 
-  title, 
-  items, 
-  icon: Icon, 
-  iconColor = "text-emerald-400" 
+const FeatureList = ({
+  title,
+  items,
+  icon: Icon,
+  iconColor = "text-emerald-400"
 }: {
   title: string;
   items: string[];
@@ -76,7 +75,7 @@ const FeatureList = ({
   iconColor?: string;
 }) => {
   if (items.length === 0) return null;
-  
+
   return (
     <div className="glassmorphic rounded-xl p-6 mb-8">
       <h3 className="text-2xl font-normal text-[var(--foreground)] dark:text-white mb-6">
@@ -124,7 +123,7 @@ const getAgentConfig = (type: string, t: any) => {
       plans: {
         free: [
           "Günlük 10 sorgu",
-          "Son 10 e-posta analizi", 
+          "Son 10 e-posta analizi",
           "Temel kategorilendirme"
         ],
         plus: [
@@ -185,8 +184,8 @@ const getAgentConfig = (type: string, t: any) => {
       }
     },
     general: {
-      icon: Zap,
-      iconColor: "from-blue-500 to-purple-600",
+      icon: Bot,
+      iconColor: "from-pink-500 to-rose-600",
       features: [
         t("agentDetail.general.features.automation"),
         t("agentDetail.general.features.integration"),
@@ -201,7 +200,7 @@ const getAgentConfig = (type: string, t: any) => {
       }
     }
   };
-  
+
   return configs[type as keyof typeof configs] || configs.general;
 };
 
@@ -258,7 +257,7 @@ export default function AgentDetail() {
             name: data.data.name,
             avatar: data.data.avatar
           };
-          
+
           setUser(userData);
           localStorage.setItem('userData', JSON.stringify(userData));
           window.dispatchEvent(new Event('userDataChanged'));
@@ -276,7 +275,19 @@ export default function AgentDetail() {
   });
 
   const handleLogin = () => websiteLogin();
-
+  // AgentDetail.tsx - Müşteri chat sistemi için iyzico yönlendirmesi
+  const handlePurchase = () => {
+    if (agentId) {
+      // Müşteri chat sistemi kontrolü
+      if (agent && (agent.name.toLowerCase().includes('chat') || agent.name.toLowerCase().includes('müşteri'))) {
+        // iyzico linkine yönlendir
+        window.open('https://iyzi.link/AKQtBg', '_blank');
+      } else {
+        // Normal satın alma işlemi
+        purchaseAgent(agentId, '');
+      }
+    }
+  };
   const { data: agent, isLoading, error } = useAgent(agentId || '');
   const { purchaseAgent, isLoading: isPurchasing } = useAgentPurchase();
   const { data: userAgents } = useUserAgents(user?.id);
@@ -295,9 +306,9 @@ export default function AgentDetail() {
     return (
       <div className="min-h-screen py-20 bg-[var(--light-gray)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ErrorFallback 
-            error={error as Error || new Error('Agent not found')} 
-            resetError={() => window.location.reload()} 
+          <ErrorFallback
+            error={error as Error || new Error('Agent not found')}
+            resetError={() => window.location.reload()}
           />
         </div>
       </div>
@@ -396,26 +407,24 @@ export default function AgentDetail() {
                 <h3 className="text-3xl font-normal text-[var(--foreground)] dark:text-white">
                   {t("agentDetail.planSelectionTitle")}
                 </h3>
-                
+
                 {/* Billing Cycle Toggle */}
                 <div className="flex glassmorphic rounded-xl p-1 text-sm">
                   <button
                     onClick={() => setBillingCycle("monthly")}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      billingCycle === "monthly" 
-                        ? "bg-black text-white dark:bg-white dark:text-black" 
+                    className={`px-4 py-2 rounded-lg transition-colors ${billingCycle === "monthly"
+                        ? "bg-black text-white dark:bg-white dark:text-black"
                         : "text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
-                    }`}
+                      }`}
                   >
                     {t("agentDetail.monthlyToggle")}
                   </button>
                   <button
                     onClick={() => setBillingCycle("yearly")}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      billingCycle === "yearly" 
-                        ? "bg-black text-white dark:bg-white dark:text-black" 
+                    className={`px-4 py-2 rounded-lg transition-colors ${billingCycle === "yearly"
+                        ? "bg-black text-white dark:bg-white dark:text-black"
                         : "text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
-                    }`}
+                      }`}
                   >
                     {t("agentDetail.yearlyToggle")}
                   </button>
@@ -453,7 +462,7 @@ export default function AgentDetail() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
               <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse animation-delay-1000 pointer-events-none"></div>
-              
+
               <div className="relative z-10">
                 <div className="text-center mb-6">
                   <div className={`w-16 h-16 bg-gradient-to-br ${agentConfig.iconColor} rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-4`}>
@@ -466,8 +475,8 @@ export default function AgentDetail() {
                     {selectedPlan === "free" ? "" : billingCycle === "monthly" ? "$0" + t("agentDetail.perMonth") : "$0" + t("agentDetail.perYear")}
                   </div>
                   <p className="text-[var(--muted-foreground)] dark:text-gray-400 text-sm">
-                    {selectedPlan === "free" 
-                      ? "" 
+                    {selectedPlan === "free"
+                      ? ""
                       : billingCycle === "monthly" ? t("agentDetail.monthlySubscription") : t("agentDetail.yearlySubscription")
                     }
                   </p>
@@ -492,7 +501,7 @@ export default function AgentDetail() {
                 ) : isAgentOwned ? (
                   <div className="w-full px-2 py-4 text-lg mb-4">
                     <div className="dark: border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
-                    
+
                       <h3 className="text-lg font-normal text-green-800 dark:text-green-200 mb-2">
                         {t("agentDetail.alreadyOwned")}
                       </h3>
@@ -500,21 +509,17 @@ export default function AgentDetail() {
                         {t("agentDetail.alreadyOwnedDescription")}
                       </p>
                       <Link href="/my-agents">
-  <BasicButton
-    className="w-full text-white font-normal text-m px-4 rounded-lg transition-colors"
-  >
-    {t("agentDetail.goToMyAgents")}
-  </BasicButton>
-</Link>
+                        <BasicButton
+                          className="w-full text-white font-normal text-m px-4 rounded-lg transition-colors"
+                        >
+                          {t("agentDetail.goToMyAgents")}
+                        </BasicButton>
+                      </Link>
                     </div>
                   </div>
                 ) : (
                   <HighlightButton
-                    onClick={() => {
-                      if (agentId) {
-                        purchaseAgent(agentId, '');
-                      }
-                    }}
+                    onClick={handlePurchase}
                     disabled={isPurchasing}
                     className="w-full text-center font-normal text-lg"
                   >
@@ -523,7 +528,7 @@ export default function AgentDetail() {
                 )}
 
                 <p className="text-xs text-[var(--muted-foreground)] dark:text-gray-400 text-center mt-4">
-                  {selectedPlan === "free" 
+                  {selectedPlan === "free"
                     ? t("agentDetail.freeCreditCard")
                     : t("agentDetail.cancelAnytime")
                   }

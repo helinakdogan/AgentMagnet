@@ -1,21 +1,24 @@
+// Frontend/client/src/pages/CustomerChat.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useRoute } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { 
   Send, 
-  MessageCircle, 
   User,
   Bot,
   Phone,
   Mail,
+  MapPin,
+  Instagram,
+  Globe,
   Clock,
-  CheckCircle2,
-  Sparkles
+  Sparkles,
+  X,
+  UserPlus
 } from 'lucide-react';
 
 interface Business {
@@ -24,12 +27,13 @@ interface Business {
   businessType: string;
   description?: string;
   welcomeMessage: string;
-}
-
-interface ChatSession {
-  id: string;
-  sessionToken: string;
-  businessId: string;
+  address?: string;
+  phone?: string;
+  instagram?: string;
+  website?: string;
+  logo?: string;
+  backgroundPhoto?: string;
+  colorTheme: string;
 }
 
 interface Message {
@@ -49,27 +53,70 @@ interface Template {
   category: string;
 }
 
+// Müşteri bilgi formu state'i
+interface CustomerInfo {
+  name: string;
+  phone: string;
+  preferredTime: string;
+}
+
+// Tema renkleri - SADECE GRADYANLAR
+const colorThemes = {
+  default: {
+    primary: 'from-gray-500 to-gray-600',
+    glassmorphic: 'from-gray-400/20 to-gray-700/20'
+  },
+  earth: {
+    primary: 'from-amber-600 to-orange-700',
+    glassmorphic: 'from-amber-600/20 to-orange-700/20'
+  },
+  modern: {
+    primary: 'from-gray-800 to-gray-900',
+    glassmorphic: 'from-gray-800/20 to-gray-900/20'
+  },
+  neon: {
+    primary: 'from-purple-500 to-pink-500',
+    glassmorphic: 'from-purple-500/20 to-pink-500/20'
+  },
+  pastel: {
+    primary: 'from-pink-500 to-pink-500',
+    glassmorphic: 'from-pink-500/20 to-pink-500/20'
+  }
+};
+
+// Background photo URL'lerini döndüren fonksiyon
+const getBackgroundPhotoUrl = (photoId: string): string => {
+  const backgroundPhotos = [
+    { id: 'salon1', src: '/src/assets/salon1.png' },
+    { id: 'salon2', src: '/src/assets/salon2.png' },
+    { id: 'salon3', src: '/src/assets/salon3.png' }
+  ];
+  
+  const photo = backgroundPhotos.find(p => p.id === photoId);
+  return photo ? photo.src : '';
+};
+
 export default function CustomerChat() {
   const [match, params] = useRoute('/chat/:chatLinkId');
   const chatLinkId = params?.chatLinkId;
   const [business, setBusiness] = useState<Business | null>(null);
-  const [session, setSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isIntroFormOpen, setIsIntroFormOpen] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
-
-  // Message input
   const [newMessage, setNewMessage] = useState('');
-  
-  // Customer info form
-  const [customerForm, setCustomerForm] = useState({
+    const [sessionToken, setSessionToken] = useState<string | null>(null);
+
+  // Müşteri bilgi formu state'leri
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     name: '',
     phone: '',
-    email: ''
+    preferredTime: ''
   });
+  const [isSubmittingInfo, setIsSubmittingInfo] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -92,152 +139,162 @@ export default function CustomerChat() {
       setLoading(true);
       setError(null);
 
+      console.log('🔍 Fetching business data for chatLinkId:', chatLinkId);
+      
       // İşletme bilgilerini getir
       const businessResponse = await fetch(`/api/business-chat/business/link/${chatLinkId}`);
       const businessData = await businessResponse.json();
+      
+      console.log('📊 Business response:', businessData);
       
       if (!businessData.success) {
         setError('İşletme bulunamadı');
         return;
       }
 
+      console.log('✅ Business data:', businessData.data);
       setBusiness(businessData.data);
 
       // Şablonları getir
       const templatesResponse = await fetch(`/api/business-chat/business/${businessData.data.id}/templates`);
       const templatesData = await templatesResponse.json();
+      console.log(' Templates response:', templatesData);
+      
       if (templatesData.success) {
         setTemplates(templatesData.data);
       }
 
-      // Mevcut session var mı kontrol et (localStorage'dan)
-      const savedSessionToken = localStorage.getItem(`chat_session_${chatLinkId}`);
-      
-      if (savedSessionToken) {
-        // Mevcut session'ı yükle
-        const sessionResponse = await fetch(`/api/business-chat/session/${savedSessionToken}`);
-        const sessionData = await sessionResponse.json();
-        
-        if (sessionData.success) {
-          setSession(sessionData.data);
-          await loadMessages(sessionData.data.id);
-        } else {
-          // Session geçersiz, yeni oluştur
-          await createNewSession(businessData.data.id);
-        }
-      } else {
-        // Yeni session oluştur
-        await createNewSession(businessData.data.id);
-      }
+      // Hoş geldin mesajını ekle
+      setMessages([{
+        id: 'welcome',
+        message: businessData.data.welcomeMessage,
+        senderType: 'system',
+        timestamp: new Date().toISOString(),
+        isAutoResponse: false,
+        isRead: false
+      }]);
 
     } catch (error) {
-      console.error('Error initializing chat:', error);
+      console.error('❌ Error initializing chat:', error);
       setError('Sohbet başlatılamadı');
     } finally {
       setLoading(false);
     }
   };
 
-  const createNewSession = async (businessId: string) => {
-    try {
-      const response = await fetch('/api/business-chat/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ businessId })
-      });
+  // Müşteri bilgilerini kaydet
+// CustomerChat.tsx - saveCustomerInfo düzeltmesi
+// CustomerChat.tsx - saveCustomerInfo düzeltmesi
+const saveCustomerInfo = async () => {
+  setIsSubmittingInfo(true);
+  try {
+    if (!business) throw new Error('İşletme bulunamadı');
+    // Önce mevcut session'ı bul
+    const sessionResponse = await fetch(`/api/business-chat/business/${business.id}/sessions`);
+    const sessionData = await sessionResponse.json();
 
-      const data = await response.json();
-      if (data.success) {
-        setSession(data.data.session);
-        localStorage.setItem(`chat_session_${chatLinkId}`, data.data.sessionToken);
-        
-        // Hoş geldin mesajını ekle
-        if (business) {
-          await sendWelcomeMessage(data.data.session.id, businessId);
-        }
-      }
-    } catch (error) {
-      console.error('Error creating session:', error);
-    }
-  };
-
-  const sendWelcomeMessage = async (sessionId: string, businessId: string) => {
-    if (!business) return;
-    
-    try {
-      await fetch('/api/business-chat/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          businessId,
-          senderType: 'system',
-          message: business.welcomeMessage
-        })
-      });
-
-      // Mesajları yeniden yükle
-      await loadMessages(sessionId);
-    } catch (error) {
-      console.error('Error sending welcome message:', error);
-    }
-  };
-
-  const loadMessages = async (sessionId: string) => {
-    try {
-      const response = await fetch(`/api/business-chat/session/${sessionId}/messages`);
-      const data = await response.json();
-      if (data.success) {
-        setMessages(data.data);
-      }
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !session || !business || sendingMessage) return;
-
-    try {
-      setSendingMessage(true);
+    if (sessionData.success && Array.isArray(sessionData.data) && sessionData.data.length > 0) {
+      const latestSession = sessionData.data[0]; // En son session
       
-      const response = await fetch('/api/business-chat/message', {
-        method: 'POST',
+      // Session'ı güncelle
+      const updateResponse = await fetch(`/api/business-chat/session/${latestSession.sessionToken}/info`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId: session.id,
-          businessId: business.id,
-          senderType: 'customer',
-          message: newMessage.trim()
+          customerName: customerInfo.name,
+          customerPhone: customerInfo.phone,
+          preferredTime: customerInfo.preferredTime
         })
       });
 
-      if (response.ok) {
-        setNewMessage('');
-        // Mesajları yeniden yükle
-        await loadMessages(session.id);
+      const updateData = await updateResponse.json();
+      if (updateData.success) {
+        // Başarı mesajı gönder
+        const successMessage: Message = {
+          id: Date.now().toString(),
+          message: 'Bilgileriniz kaydedildi! Randevu oluşturmanıza yardımcı olabiliriz. ��',
+          senderType: 'business',
+          timestamp: new Date().toISOString(),
+          isAutoResponse: true,
+          isRead: false
+        };
+        setMessages(prev => [...prev, successMessage]);
+        setShowCustomerForm(false);
+      } else {
+        throw new Error(updateData.error || 'Bilgiler kaydedilemedi');
       }
-    } catch (error) {
-      console.error('Error sending message:', error);
-    } finally {
-      setSendingMessage(false);
+    } else {
+      throw new Error('Session bulunamadı');
     }
+  } catch (error) {
+    console.error('Bilgi kaydetme hatası:', error);
+    // Hata mesajı gönder
+    const errorMessage: Message = {
+      id: Date.now().toString(),
+      message: 'Bilgiler kaydedilemedi. Lütfen tekrar deneyin.',
+      senderType: 'business',
+      timestamp: new Date().toISOString(),
+      isAutoResponse: true,
+      isRead: false
+    };
+    setMessages(prev => [...prev, errorMessage]);
+  } finally {
+    setIsSubmittingInfo(false);
+  }
+};
+
+ // CustomerChat.tsx - sendMessage metodunu düzelt
+const sendMessage = async () => {
+  if (!newMessage.trim() || !business || sendingMessage) return;
+
+  setSendingMessage(true);
+
+  const customerMessage: Message = {
+    id: Date.now().toString(),
+    message: newMessage,
+    senderType: 'customer',
+    timestamp: new Date().toISOString(),
+    isAutoResponse: false,
+    isRead: false
   };
 
-  const updateCustomerInfo = async () => {
-    if (!session) return;
+  setMessages(prev => [...prev, customerMessage]);
+  const messageToSend = newMessage;
+  setNewMessage('');
 
-    try {
-      // Bu endpoint henüz backend'de yok, şimdilik localStorage'a kaydedelim
-      localStorage.setItem(`customer_info_${chatLinkId}`, JSON.stringify(customerForm));
-      setIsIntroFormOpen(false);
-    } catch (error) {
-      console.error('Error updating customer info:', error);
+  // Backend'e mesaj gönder (bu endpoint session oluşturacak)
+  try {
+    const response = await fetch(`/api/business-chat/chat/${chatLinkId}/message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: messageToSend })
+    });
+    
+    const data = await response.json();
+    if (data.success && data.response) {
+      const businessMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        message: data.response,
+        senderType: 'business',
+        timestamp: new Date().toISOString(),
+        isAutoResponse: true,
+        isRead: false
+      };
+      setMessages(prev => [...prev, businessMessage]);
     }
-  };
+  } catch (error) {
+    console.error('Error sending message:', error);
+  } finally {
+    setSendingMessage(false);
+  }
+};
 
-  const selectTemplate = async (template: Template) => {
+  const selectTemplate = (template: Template) => {
     setNewMessage(template.trigger);
+    // Otomatik gönder
+    setTimeout(() => {
+      sendMessage();
+    }, 100);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -256,110 +313,128 @@ export default function CustomerChat() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white">Chat yükleniyor...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chat yükleniyor...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !business) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-6">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="bg-white shadow-xl border-0 p-8 max-w-md mx-auto">
           <div className="text-center">
-            <MessageCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">Chat Bulunamadı</h2>
-            <p className="text-purple-200">{error || 'Geçersiz chat linki'}</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Chat Bulunamadı</h2>
+            <p className="text-gray-600">{error || 'Geçersiz chat linki'}</p>
           </div>
         </Card>
       </div>
     );
   }
 
+  const theme = colorThemes[business.colorTheme as keyof typeof colorThemes] || colorThemes.default;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      {/* Header */}
-      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20 p-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-              <MessageCircle className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">{business.businessName}</h1>
-              <p className="text-purple-200 text-sm">{business.businessType}</p>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Arkaplan fotoğrafı */}
+      {business.backgroundPhoto && (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+          style={{ 
+            backgroundImage: `url(${getBackgroundPhotoUrl(business.backgroundPhoto)})` 
+          }}
+        />
+      )}
+
+      {/* Ana içerik */}
+      <div className="relative z-10 flex flex-col h-screen">
+        {/* Welcome Section - GLASSMORFIK KÜNYE */}
+        <div className="pt-8 pb-4">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className={`bg-gradient-to-r ${theme.glassmorphic} backdrop-blur-md border border-white/20 rounded-2xl p-6 text-center`}>
+              <h1 className="text-2xl sm:text-3xl font-normal text-white mb-2">
+                {business.businessName}'a Hoş Geldiniz
+              </h1>
+              <p className="text-sm sm:text-base text-white opacity-80 mb-4">
+                {business.description || `${business.businessType} hizmetlerimizden yararlanmak için bizimle iletişime geçin.`}
+              </p>
+              
+              {/* İletişim bilgileri */}
+              <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-sm">
+                {business.address && (
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="w-4 h-4 text-white" />
+                    <span className="text-white">{business.address}</span>
+                  </div>
+                )}
+                {business.phone && (
+                  <div className="flex items-center space-x-1">
+                    <Phone className="w-4 h-4 text-white" />
+                    <span className="text-white">{business.phone}</span>
+                  </div>
+                )}
+                {business.instagram && (
+                  <div className="flex items-center space-x-1">
+                    <Instagram className="w-4 h-4 text-white" />
+                    <span className="text-white">{business.instagram}</span>
+                  </div>
+                )}
+                {business.website && (
+                  <div className="flex items-center space-x-1">
+                    <Globe className="w-4 h-4 text-white" />
+                    <span className="text-white">{business.website}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          
-          <Dialog open={isIntroFormOpen} onOpenChange={setIsIntroFormOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-white/20 hover:bg-white/10 text-white"
-              >
-                <User className="w-4 h-4 mr-2" />
-                Bilgilerim
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>İletişim Bilgileri</DialogTitle>
-                <DialogDescription>
-                  Size daha iyi hizmet verebilmemiz için iletişim bilgilerinizi paylaşabilirsiniz.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="Adınız"
-                  value={customerForm.name}
-                  onChange={(e) => setCustomerForm({...customerForm, name: e.target.value})}
-                />
-                <Input
-                  placeholder="Telefon Numaranız"
-                  value={customerForm.phone}
-                  onChange={(e) => setCustomerForm({...customerForm, phone: e.target.value})}
-                />
-                <Input
-                  placeholder="Email Adresiniz"
-                  type="email"
-                  value={customerForm.email}
-                  onChange={(e) => setCustomerForm({...customerForm, email: e.target.value})}
-                />
-                <Button onClick={updateCustomerInfo} className="w-full">
-                  Kaydet
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto p-4 h-[calc(100vh-100px)] flex flex-col">
-        {/* Quick Templates */}
+        {/* Hızlı şablonlar */}
         {templates.length > 0 && (
-          <div className="mb-4">
-            <p className="text-purple-200 text-sm mb-2">Hızlı sorular:</p>
-            <div className="flex flex-wrap gap-2">
-              {templates.slice(0, 6).map((template) => (
-                <Button
-                  key={template.id}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => selectTemplate(template)}
-                  className="border-purple-400/30 bg-purple-600/20 hover:bg-purple-600/40 text-purple-200 hover:text-white"
-                >
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  {template.title}
-                </Button>
-              ))}
+          <div className="pb-4">
+            <div className="max-w-4xl mx-auto px-4">
+              <p className="text-sm mb-2 text-white text-center">Hızlı sorular:</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {templates.slice(0, 6).map((template) => (
+                  <Button
+                    key={template.id}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => selectTemplate(template)}
+                    className="border border-white text-black bg-white text-xs sm:text-sm"
+                  >
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    {template.title}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Messages Area */}
-        <Card className="flex-1 bg-white/10 backdrop-blur-sm border-white/20 flex flex-col">
-          <CardContent className="flex-1 p-4 overflow-y-auto">
+        {/* Müşteri bilgi formu butonu */}
+        <div className="pb-4">
+          <div className="max-w-md mx-auto px-4">
+            <Button
+              onClick={() => setShowCustomerForm(true)}
+              className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Bilgilerinizi bizimle paylaşın
+            </Button>
+            <p className="text-white/70 text-xs text-center mt-2">
+              Randevu oluşturmanıza yardımcı olabiliriz
+            </p>
+          </div>
+        </div>
+
+        {/* Mesajlar alanı */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto p-4">
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
@@ -367,12 +442,10 @@ export default function CustomerChat() {
                   className={`flex ${message.senderType === 'customer' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
+                    className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-sm ${
                       message.senderType === 'customer'
-                        ? 'bg-purple-600 text-white'
-                        : message.senderType === 'system'
-                        ? 'bg-blue-600/20 text-blue-200 border border-blue-400/30'
-                        : 'bg-white/20 text-white'
+                        ? `bg-gradient-to-r ${theme.glassmorphic} backdrop-blur-md border border-white/20 text-white`
+                        : `bg-white/10 backdrop-blur-md border border-white/20 text-white`
                     }`}
                   >
                     <div className="flex items-start space-x-2">
@@ -382,17 +455,16 @@ export default function CustomerChat() {
                         ) : message.senderType === 'system' ? (
                           <Bot className="w-4 h-4 mt-0.5" />
                         ) : (
-                          <MessageCircle className="w-4 h-4 mt-0.5" />
-                        )}
+                          <Bot className="w-4 h-4 mt-0.5" />                        )}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm">{message.message}</p>
-                        <div className="flex items-center justify-between mt-1">
+                        <p className="text-sm leading-relaxed">{message.message}</p>
+                        <div className="flex items-center justify-between mt-2">
                           <span className="text-xs opacity-70">
                             {formatTime(message.timestamp)}
                           </span>
                           {message.isAutoResponse && (
-                            <Badge variant="secondary" className="text-xs bg-green-600/30 text-green-200">
+                            <Badge variant="secondary" className="text-xs text-white">
                               <Sparkles className="w-3 h-3 mr-1" />
                               Otomatik
                             </Badge>
@@ -405,37 +477,92 @@ export default function CustomerChat() {
               ))}
               <div ref={messagesEndRef} />
             </div>
-          </CardContent>
+          </div>
+        </div>
 
-          {/* Message Input */}
-          <div className="p-4 border-t border-white/20">
-            <div className="flex items-end space-x-2">
-              <Textarea
-                placeholder="Mesajınızı yazın..."
+        {/* Mesaj gönderme */}
+        <div className="p-4 backdrop-blur-sm border-t border-gray-200">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex space-x-6">
+              <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Mesajınızı yazın..."
                 onKeyPress={handleKeyPress}
-                className="flex-1 bg-white/5 border-white/20 text-white placeholder:text-purple-300 min-h-[44px] max-h-32 resize-none"
-                rows={1}
+                className="flex-1 bg-white/10 backdrop-blur-md border border-white/20 focus:border-purple-500 text-white placeholder:text-white/70"
               />
-              <Button
-                onClick={sendMessage}
+              <Button 
+                onClick={sendMessage} 
                 disabled={!newMessage.trim() || sendingMessage}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 h-11"
+                className={`bg-gradient-to-r ${theme.primary} backdrop-blur-md border border-white/20 hover:opacity-90 text-white px-4 sm:px-6`}
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-6 h-6" />
               </Button>
             </div>
           </div>
-        </Card>
-
-        {/* Footer */}
-        <div className="mt-4 text-center">
-          <p className="text-purple-300 text-xs">
-            Bu sohbet {business.businessName} tarafından sağlanmaktadır
-          </p>
         </div>
       </div>
+
+      {/* Müşteri bilgi formu modal */}
+      <Dialog open={showCustomerForm} onOpenChange={setShowCustomerForm}>
+        <DialogContent className="max-w-md bg-white/10 backdrop-blur-sm border-white/20">
+          <DialogHeader>
+            <DialogTitle className="text-white">Bilgilerinizi Paylaşın</DialogTitle>
+            <DialogDescription className="text-white/70">
+              Randevu oluşturmanıza yardımcı olabiliriz
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-white/80 text-sm font-medium">Adınız (Opsiyonel)</label>
+              <Input
+                value={customerInfo.name}
+                onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
+                placeholder="Adınızı girin"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              />
+            </div>
+            
+            <div>
+              <label className="text-white/80 text-sm font-medium">Telefon (Opsiyonel)</label>
+              <Input
+                value={customerInfo.phone}
+                onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                placeholder="Telefon numaranızı girin"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              />
+            </div>
+            
+            <div>
+              <label className="text-white/80 text-sm font-medium">Uygun Olduğunuz Zaman (Opsiyonel)</label>
+              <Input
+                value={customerInfo.preferredTime}
+                onChange={(e) => setCustomerInfo({...customerInfo, preferredTime: e.target.value})}
+                placeholder="Örn: Pazartesi 14:00, Salı sabah"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                onClick={saveCustomerInfo}
+                disabled={isSubmittingInfo}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+              >
+                {isSubmittingInfo ? 'Kaydediliyor...' : 'Kaydet'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowCustomerForm(false)}
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                İptal
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-} 
+}

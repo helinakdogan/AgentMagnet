@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Mail, MessageCircle } from "lucide-react";
+import { Bot, Mail, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Agent } from "@/lib/api";
 
@@ -7,26 +7,31 @@ interface AgentCardProps {
   agent: Agent;
 }
 
-const getIconColorClasses = (iconColor: string) => {
+// AgentCard.tsx - getIconColorClasses fonksiyonunu düzelt
+const getIconColorClasses = (iconColor: string, agentName?: string) => {
+  // Müşteri chat bot'u için özel pembe gradient
+  if (agentName && (agentName.toLowerCase().includes('chat') || agentName.toLowerCase().includes('müşteri'))) {
+    return "from-pink-500 to-rose-600";
+  }
+  
+  // Diğer icon renkleri
   switch (iconColor) {
     case "blue-purple":
       return "from-blue-500 to-purple-600";
-    case "pink-orange":
-      return "from-pink-500 to-orange-500";
-    case "green-teal":
-      return "from-green-500 to-teal-600";
     case "green-emerald":
       return "from-green-500 to-emerald-600";
-    case "indigo-purple":
-      return "from-indigo-500 to-purple-600";
-    case "red-pink":
-      return "from-red-500 to-pink-600";
+    case "orange-red":
+      return "from-orange-500 to-red-600";
+    case "purple-pink":
+      return "from-purple-500 to-pink-600";
+    case "teal-cyan":
+      return "from-teal-500 to-cyan-600";
     case "yellow-orange":
       return "from-yellow-500 to-orange-600";
-    case "cyan-blue":
-      return "from-cyan-500 to-blue-600";
-    case "violet-purple":
-      return "from-violet-500 to-purple-600";
+    case "indigo-blue":
+      return "from-indigo-500 to-blue-600";
+    case "pink-rose":
+      return "from-pink-500 to-rose-600";
     default:
       return "from-blue-500 to-purple-600";
   }
@@ -55,6 +60,11 @@ const getCategoryIcon = (category: string, agentName: string) => {
   // Gmail agent için özel kontrol - kategoriden bağımsız olarak Mail iconu göster
   if (agentName.toLowerCase().includes('gmail')) {
     return <Mail className="w-6 h-6 text-white" />;
+  }
+  
+  // Müşteri chat bot'u için özel kontrol - kategoriden bağımsız olarak Bot iconu göster
+  if (agentName.toLowerCase().includes('chat') || agentName.toLowerCase().includes('müşteri')) {
+    return <Bot className="w-6 h-6 text-white" />;
   }
   
   // WhatsApp agent için özel kontrol - kategoriden bağımsız olarak şimşek iconu göster
@@ -127,33 +137,66 @@ const getCategoryIcon = (category: string, agentName: string) => {
       );
   }
 };
-
+// AgentCard.tsx - Sadece WhatsApp bot için yönlendirmeyi devre dışı bırak
 export default function AgentCard({ agent }: AgentCardProps) {
   const { t, getCategoryMapping } = useLanguage();
   const statusLabel = getStatusLabel(agent.status, t);
-  const iconColorClasses = getIconColorClasses(agent.iconColor);
+  const iconColorClasses = getIconColorClasses(agent.iconColor, agent.name); // agent.name ekle
+  
+  // Sadece WhatsApp bot'unu kontrol et
+  const isWhatsAppBot = agent.name.toLowerCase().includes('whatsapp');
 
-  return (
-    <Link href={`/agent/${agent.id}`}>
-      <div className="agent-card-hover glassmorphic rounded-xl p-6 mb-3 group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-            {getCategoryIcon(agent.category, agent.name)}
+  // WhatsApp bot değilse normal Link kullan
+  if (!isWhatsAppBot) {
+    return (
+      <Link href={`/agent/${agent.id}`}>
+        <div className="agent-card-hover glassmorphic rounded-xl p-6 mb-3 group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+              {getCategoryIcon(agent.category, agent.name)}
+            </div>
+            <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusLabel.color} shadow-sm flex items-center gap-1`}>
+              {agent.status === "active" && (
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+              )}
+              {statusLabel.text}
+            </span>
           </div>
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusLabel.color} shadow-sm flex items-center gap-1`}>
-            {agent.status === "active" && (
-              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-            )}
-            {statusLabel.text}
-          </span>
+          <h3 className="text-lg font-normal text-[var(--dark-purple)] dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{agent.name}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-light leading-relaxed">{agent.description}</p>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">{getCategoryMapping(agent.category)}</span>
+            <span className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white">${agent.price}{t("pricing.monthly")}</span>
+          </div>
         </div>
-        <h3 className="text-lg font-normal text-[var(--dark-purple)] dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{agent.name}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-light leading-relaxed">{agent.description}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">{getCategoryMapping(agent.category)}</span>
-          <span className="text-lg font-semibold text-[var(--dark-purple)] dark:text-white">₺{agent.price}{t("pricing.monthly")}</span>
+      </Link>
+    );
+  }
+
+  // WhatsApp bot için yönlendirme olmadan göster
+  return (
+    <div className="glassmorphic rounded-xl p-6 mb-3 cursor-not-allowed">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`w-12 h-12 bg-gradient-to-br ${iconColorClasses} rounded-xl flex items-center justify-center shadow-lg`}>
+          {getCategoryIcon(agent.category, agent.name)}
         </div>
+        <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-500 text-white shadow-sm">
+          Pasif
+        </span>
       </div>
-    </Link>
+      <h3 className="text-lg font-normal text-gray-400 mb-2">{agent.name}</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-light leading-relaxed">{agent.description}</p>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">{getCategoryMapping(agent.category)}</span>
+        <span className="text-lg font-semibold text-gray-400">₺{agent.price}{t("pricing.monthly")}</span>
+      </div>
+      
+      {/* WhatsApp bot için özel mesaj */}
+      <div className="mt-3 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
+        <p className="text-xs text-yellow-800 dark:text-yellow-200 text-center">
+          Bu bot şu anda pasif durumda
+        </p>
+      </div>
+    </div>
   );
 }
